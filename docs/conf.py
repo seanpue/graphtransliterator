@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Graph-based Transliterator'
-copyright = u"2019, A. Sean Pue"
+copyright = u"2019, Michigan State University"
 author = u"A. Sean Pue"
 
 # The version info for the project you're documenting, acts as replacement
