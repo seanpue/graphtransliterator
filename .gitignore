@@ -1,8 +1,10 @@
+Scratch.ipynb # ignore scratch notebook
+
+.travis.yml
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-.travis.yml
 # C extensions
 *.so
 

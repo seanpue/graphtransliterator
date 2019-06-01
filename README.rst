@@ -1,6 +1,6 @@
-==========================
-Graph-based Transliterator
-==========================
+====================
+Graph Transliterator
+====================
 
 
 .. image:: https://img.shields.io/pypi/v/graphtransliterator.svg

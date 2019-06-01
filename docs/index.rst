@@ -1,5 +1,5 @@
-Welcome to Graph-based Transliterator's documentation!
-======================================
+Welcome to Graph Transliterator's documentation!
+================================================
 
 .. toctree::
    :maxdepth: 2
