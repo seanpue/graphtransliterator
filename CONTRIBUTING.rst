@@ -7,10 +7,16 @@ Contributing
 Contributions are welcome, and they are greatly appreciated! Every little bit
 helps, and credit will always be given.
 
-You can contribute in many ways:
+Contributor Code of Conduct
+---------------------------
+Please note that this project is released with a :doc:`Contributor Code of
+Conduct <code_of_conduct>`. By participating in this project you agree to
+abide by its terms.
 
 Types of Contributions
 ----------------------
+
+You can contribute in many ways:
 
 Report Bugs
 ~~~~~~~~~~~

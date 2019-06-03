@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
-"""Code to initialize the internal properties of GraphTransliterator.
+"""
+graphtransliterator.initialize
+------------------------------
+
+Methods to initialize the internal properties of GraphTransliterator.
 
 This includes the initialization code for tokens rules, onmatch rules, and
 whitespace. It also includes the generation of the token regex and them
 internal graph...
 """
+from collections import defaultdict
 import math
 import re
 from .types import TransliterationRule, Whitespace, OnMatchRule, DirectedGraph
@@ -17,6 +22,19 @@ def _tokens_of(tokens):
     """Converts values of dict of tokens from list to set."""
 
     return {key: set(value) for key, value in tokens.items()}
+
+# ---------- initialize tokens ----------
+
+
+def _tokens_by_class_of(tokens):
+    """Generates lookup table of tokens in each class."""
+
+    out = defaultdict(set)
+    for token, token_classes in tokens.items():
+        for token_class in token_classes:
+            out[token_class].add(token)
+    return out
+
 
 # ---------- initialize rules ----------
 
@@ -44,7 +62,7 @@ def _num_tokens_of(rule):
     total = 0
     total += len(rule.get('prev_classes', []))
     total += len(rule.get('prev_tokens', []))
-    total += len(rule.get('tokens', []))
+    total += len(rule.get('tokens'))
     total += len(rule.get('next_tokens', []))
     total += len(rule.get('next_classes', []))
     return total
@@ -191,7 +209,7 @@ def _graph_from(rules):
                 constraints['next_classes'] = rule.next_classes
             edge_to_rule['constraints'] = constraints
 
-    for node_key, node in graph.node.items():
+    for node_key, node in enumerate(graph.node):
         ordered_children = {}
         rule_children_keys = node.get('rule_children')
 

@@ -15,6 +15,12 @@ class GraphTransliteratorException(Exception):
     """
 
 
+class AmbiguousTransliterationRulesException(GraphTransliteratorException):
+    """
+    Raised when multiple transliteration rules can match the same pattern.
+    """
+
+
 class NoMatchingTransliterationRule(GraphTransliteratorException):
     """
     Raised when no transliteration rule can be matched at a particular

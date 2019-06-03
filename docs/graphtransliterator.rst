@@ -1,6 +1,11 @@
 graphtransliterator package
 ===========================
 
+.. automodule:: graphtransliterator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -53,10 +58,3 @@ graphtransliterator.validate module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: graphtransliterator
-    :members:
-    :undoc-members:
-    :show-inheritance:

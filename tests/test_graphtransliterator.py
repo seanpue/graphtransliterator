@@ -12,7 +12,8 @@ from graphtransliterator.types import (
     Whitespace
 )
 from graphtransliterator.exceptions import (
-    NoMatchingTransliterationRule, UnrecognizableInputToken
+    NoMatchingTransliterationRule, UnrecognizableInputToken,
+    AmbiguousTransliterationRulesException
 )
 yaml_for_test = r"""
 tokens:
@@ -386,8 +387,8 @@ def test_GraphTransliterator(tmpdir):
     ).transliterate("ab") == 'A,B'
 
 
-def test_GraphTransliterator_ignore_exceptions():
-    # if ignore_exceptions is not set and no matching transliteration rule
+def test_GraphTransliterator_ignore_errors():
+    # if ignore_errors is not set and no matching transliteration rule
     # raise NoMatchingTransliterationRule exception
     yaml_str = """
         tokens:
@@ -396,41 +397,71 @@ def test_GraphTransliterator_ignore_exceptions():
            ' ': [wb]
         rules:
            a a: B2
-           b: b
+           b: B
         whitespace:
            default: ' '
            consolidate: true
            token_class: wb
         """
-    # check that ignore_exceptions works
-    assert GraphTransliterator.from_yaml(yaml_str).transliterate('a') == ''
+    # check that ignore_errors works
+    assert GraphTransliterator.from_yaml(
+        yaml_str, ignore_errors=True
+    ).transliterate('a') == ''
+
     with pytest.raises(NoMatchingTransliterationRule):
-        gt = GraphTransliterator.from_yaml(yaml_str, ignore_exceptions=False)
-        assert gt.ignore_exceptions is False
+        gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
+        assert gt.ignore_errors is False
         gt.transliterate('a')
+
     with pytest.raises(UnrecognizableInputToken):
-        gt = GraphTransliterator.from_yaml(yaml_str, ignore_exceptions=False)
-        assert gt.ignore_exceptions is False
+        gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
+        assert gt.ignore_errors is False
         gt.transliterate('!')
+
     with pytest.raises(UnrecognizableInputToken):
-        gt = GraphTransliterator.from_yaml(yaml_str, ignore_exceptions=False)
-        assert gt.ignore_exceptions is False
+        gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
+        assert gt.ignore_errors is False
         gt.transliterate('b!')
-    # test ignore_exceptions keyword value checking on init
-    with pytest.raises(ValueError):
-        GraphTransliterator.from_yaml(yaml_str, ignore_exceptions="maybe")
-    # test ignore_exceptions keyword property
-    gt = GraphTransliterator.from_yaml(yaml_str)
-    # test ignore_exceptions setter and property
-    gt.ignore_exceptions = True
-    assert gt.ignore_exceptions is True
-    gt.ignore_exceptions = False
-    assert gt.ignore_exceptions is False
-    # test ignore_exceptions setter exception handling
-    with pytest.raises(ValueError):
-        gt.ignore_exceptions = "Maybe"
 
+    # # test ignore_errors keyword value checking on init
+    # with pytest.raises(ValueError):
+    #     GraphTransliterator.from_yaml(yaml_str, ignore_errors="maybe")
+    # test ignore_errors keyword property
 
+    # test ignore_errors setter and property
+    gt.ignore_errors = True
+    assert gt.ignore_errors is True
+    gt.ignore_errors = False
+    assert gt.ignore_errors is False
+    # test ignore_errors setter exception handling
+    # with pytest.raises(ValueError):
+    #     gt.ignore_errors = "Maybe"
+
+def test_GraphParser_check_ambiguity():
+    """ Test for rules that can both match the same thing."""
+
+    yaml_for_test = r"""
+        tokens:
+          a: [token, class1, class2]
+          b: [token, class1, class2]
+          ' ': [wb]
+        rules:
+          a <class1>: A<class1> # these should be ambiguous
+          a <class2>: A<class2>
+
+          <class1> a: <class1>A  # these should be ambiguous
+          <class2> a: <class2>A # these should be ambiguous
+
+          (<class1> b) a (b <class2>): A # ambigous
+          (<class2> b) a (b <class1>): A # ambiguous
+          a: A # not ambiguous
+        whitespace:
+          default: ' '
+          token_class: 'wb'
+          consolidate: true
+        """
+    with pytest.raises(AmbiguousTransliterationRulesException):
+        GraphTransliterator.from_yaml(yaml_for_test, check_for_ambiguity=True)
 
 def test_GraphTransliterator_types():
     """Test internal types."""

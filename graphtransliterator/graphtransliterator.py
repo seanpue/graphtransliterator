@@ -3,6 +3,7 @@
 """GraphTransliterator main module."""
 
 from collections import deque
+import itertools
 import logging
 import re
 import unicodedata
@@ -10,10 +11,11 @@ import yaml
 from .validate import validate_raw_settings, validate_settings
 from .process import _process_settings
 from .initialize import (
-    _tokens_of, _transliteration_rule_of, _whitespace_of, _onmatch_rule_of,
-    _onmatch_rules_lookup, _tokenizer_from, _graph_from
+    _graph_from, _onmatch_rule_of, _onmatch_rules_lookup, _tokenizer_from,
+    _tokens_by_class_of, _tokens_of, _transliteration_rule_of, _whitespace_of
 )
 from .exceptions import (
+    AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRule,
     UnrecognizableInputToken
 )
@@ -61,27 +63,35 @@ class GraphTransliterator:
     """
 
     def __init__(self, tokens, rules, onmatch_rules, whitespace, metadata,
-                 ignore_exceptions=True, **kwargs):
-        validate_settings(tokens, rules, onmatch_rules, whitespace, metadata)
+                 check_settings=True, ignore_errors=False,
+                 check_ambiguity=True, **kwargs):
+        if check_settings:
+            validate_settings(
+                tokens, rules, onmatch_rules, whitespace, metadata
+            )
         self._metadata = metadata
         self._tokens = _tokens_of(tokens)
+        self._tokens_by_class = _tokens_by_class_of(tokens)
         self._rules = sorted(
             [_transliteration_rule_of(rule) for rule in rules],
             key=lambda transliteration_rule: transliteration_rule.cost)
+        if check_ambiguity:
+            self.check_for_ambiguity()
         self._onmatch_rules = [_onmatch_rule_of(_) for _ in onmatch_rules]
         self._onmatch_rules_lookup = \
             _onmatch_rules_lookup(tokens, self._onmatch_rules)
         self._whitespace = _whitespace_of(whitespace)
-        if not type(ignore_exceptions) == bool:
-            raise ValueError("ignore_expections is not a boolean.")
-        self._ignore_exceptions = ignore_exceptions
+        self._ignore_errors = ignore_errors
         self.__init_parameters__ = {     # used by pruned_of
             'tokens': tokens,
             'rules': rules,
             'onmatch_rules': onmatch_rules,
             'whitespace': whitespace,
             'metadata': metadata,
-            'kwargs': kwargs,
+            'check_settings': check_settings,
+            'ignore_errors': ignore_errors,
+            'check_ambiguity': check_ambiguity,
+            'kwargs': kwargs
         }
         self._tokenizer = _tokenizer_from(list(tokens.keys()))
         self._graph = _graph_from(self.rules)
@@ -259,15 +269,14 @@ class GraphTransliterator:
         return True
 
     @property
-    def ignore_exceptions(self):
-        """Get ignore exceptions setting."""
-        return self._ignore_exceptions
+    def ignore_errors(self):
+        """Get ignore errors setting."""
+        return self._ignore_errors
 
-    @ignore_exceptions.setter
-    def ignore_exceptions(self, value):
-        if type(value) is not bool:
-            raise ValueError("ignore_exceptions must be a boolean.")
-        self._ignore_exceptions = value
+    @ignore_errors.setter
+    def ignore_errors(self, value):
+        """Set ignore_errors."""
+        self._ignore_errors = value
 
     @property
     def last_matched_rules(self):
@@ -335,7 +344,8 @@ class GraphTransliterator:
                     % (token_i, tokens)
                 )
                 # No parsing rule was found at this location
-                if self.ignore_exceptions:
+                if self.ignore_errors:
+                    # move along if ignoring errors
                     token_i += 1
                     continue
                 else:
@@ -378,7 +388,7 @@ class GraphTransliterator:
         """
         Tokenizes an input string.
 
-        Adds initial and trailing whitespace, and consolidates if requested.
+        Adds initial and trailing whitespace, which can be consolidated.
 
         Parameters
         ----------
@@ -403,8 +413,7 @@ class GraphTransliterator:
         >>> settings = {'tokens': t, 'rules': r, 'whitespace': w}
         >>> gt = GraphTransliterator.from_dict(settings)
         >>> gt.tokenize('ab ')
-        ['ab', ' ']
-
+        >>> [' ', 'ab', ' ']
         """
         def is_whitespace(token):
             """Check if token is whitespace."""
@@ -445,7 +454,7 @@ class GraphTransliterator:
                         input[match_at], match_at, input
                     )
                 )
-                if not self.ignore_exceptions:
+                if not self.ignore_errors:
                     raise UnrecognizableInputToken
                 else:
                     match_at += 1
@@ -462,7 +471,7 @@ class GraphTransliterator:
 
     def pruned_of(self, productions):
         """
-        Ruel transliteration rules with specific output productions.
+        Remove transliteration rules with specific output productions.
 
         Parameters
         ----------
@@ -476,9 +485,8 @@ class GraphTransliterator:
 
         Notes
         -----
-        Uses original initialization values to construct a new
-        GraphTransliterator, which have no setter, but passes current
-        `ignore_exceptions` state.
+        Uses original initialization values in `graphtransliterator.__init__()`
+        to construct a new GraphTransliterator.
 
         """
         __init_parameters__ = self.__init_parameters__
@@ -490,7 +498,10 @@ class GraphTransliterator:
             __init_parameters__['onmatch_rules'],
             __init_parameters__['whitespace'],
             __init_parameters__['metadata'],
-            ignore_exceptions=self.ignore_exceptions
+            ignore_errors=__init_parameters__['ignore_errors'],
+            check_settings=__init_parameters__['check_settings'],
+            check_ambiguity=__init_parameters__['check_ambiguity'],
+            **__init_parameters__['kwargs']
         )
 
     @property
@@ -574,7 +585,7 @@ class GraphTransliterator:
     @classmethod
     def from_yaml_file(cls, yaml_filename, **kwargs):
         """
-        Construct GraphTransliterator from YAML file yaml_filename.
+        Construct GraphTransliterator from YAML file.
 
         Calls `from_yaml`.
 
@@ -608,6 +619,7 @@ class GraphTransliterator:
         """
         return {
             '_graph': self._graph.to_dict(),
+            '_metadata': self._metadata,
             '_tokens': {token: list(classes)
                         for token, classes in self._tokens.items()},
             '_rules': self._rules,
@@ -617,9 +629,118 @@ class GraphTransliterator:
             '_tokenizer_pattern': self._tokenizer.pattern
         }
 
+    def check_for_ambiguity(self):
+        """
+        Check if multiple transliteration rules could match the same tokens.
 
-# ---------- methods ----------
+        This function first groups the transliteration rules by both the
+        number of previous tokens (`prev_classes`, `prev_tokens`) and the
+        number of tokens to be matched from an index (`tokens`, `next_tokens`,
+        `next_classes`). It then generates the set of possible tokens that
+        could be matched by each rule, iterates through the rules,
+        and finds if any rules have intersections at all instances.
 
+        Details of all ambiguity are provided as a `logging.warning`.
+
+        Notes
+        -----
+        Called in `__init__` if `check_ambiguity` is True.
+
+        Raises
+        ------
+        AmbiguousTransliterationRulesException
+            Multiple transliteration rules could match the same tokens.
+        """
+
+        ambiguity = False
+
+        for (prev_count, curr_count), group_iter in itertools.groupby(
+                self._rules,
+                key=lambda x: (_count_of_prev(x),
+                               _count_of_curr_and_next(x))):
+            group = list(group_iter)
+            if len(group) == 1:
+                continue
+
+            num_tokens = prev_count + curr_count
+            rule_token_sets = []
+
+            for rule in group:
+                rule_token_sets.append(
+                    _tokens_possible(rule, self._tokens_by_class)
+                )
+
+            for i in range(len(rule_token_sets) - 1):
+                for j in range(i+1, len(rule_token_sets)):
+                    intersections = []
+                    for k in range(0, num_tokens):
+                        intersection = rule_token_sets[i][k].intersection(
+                            rule_token_sets[j][k]
+                        )
+                        if intersection:
+                            intersections.append(intersection)
+                        else:
+                            break
+                    if len(intersections) == num_tokens:
+                        logger.warning(
+                            "The pattern %s\ncan be matched by:\n%s\nand\n%s" %
+                            (intersections, group[i], group[j])
+                        )
+                        ambiguity = True
+        if ambiguity:
+            raise AmbiguousTransliterationRulesException
+
+# ---------- functions ----------
+
+# rules-related functions for testing ambiguity
+
+
+def _count_of_prev(rule):
+    """Count previous tokens to be present before a match in a rule."""
+
+    return (
+        len(rule.prev_classes or []) +
+        len(rule.prev_tokens or [])
+    )
+
+
+def _count_of_curr_and_next(rule):
+    """Count tokens to be matched and those to follow them in rule."""
+
+    return (len(rule.tokens) +
+            len(rule.next_tokens or []) +
+            len(rule.next_classes or []))
+
+
+def _prev_tokens_possible(rule, tokens_by_class):
+    """List of set of possible preceding tokens for a rule."""
+
+    return (
+        [tokens_by_class[_] for _ in rule.prev_classes or []] +
+        [set([_]) for _ in rule.prev_tokens or []]
+    )
+
+
+def _curr_and_next_tokens_possible(rule, tokens_by_class):
+    """List of sets of possible current and following tokens for a rule."""
+
+    return (
+        [set([_]) for _ in rule.tokens] +
+        [set([_]) for _ in rule.next_tokens or []] +
+        [tokens_by_class[_] for _ in rule.next_classes or []]
+    )
+
+
+def _tokens_possible(row, tokens_by_class):
+    """List of sets of possible tokens matched for a rule."""
+
+    return (
+        _prev_tokens_possible(row, tokens_by_class) +
+        _curr_and_next_tokens_possible(row, tokens_by_class)
+    )
+
+
+# initialization-related functions for unescaping unicode
 
 def _unescape_charnames(input_str):
     r"""
@@ -639,7 +760,7 @@ def _unescape_charnames(input_str):
     --------
 
     >>> from graphtransliterator import GraphTransliterator
-    >>> GraphTransliterator.unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
+    >>> GraphTransliterator._unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
     'Hi'
     """
 

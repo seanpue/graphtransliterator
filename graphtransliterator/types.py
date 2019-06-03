@@ -25,33 +25,33 @@ class TransliterationRule(namedtuple('TransliterationRule',
     ----------
     production: str
         Output from the `TransliterationRule`
-    prev_classes: list of str
+    prev_classes: list of str or None
         List of previous token classes to be matched before `tokens` or,
         if they exist, `prev_tokens`
-    prev_tokens: list of str
+    prev_tokens: list of str or None
         List of tokens to be matched before `tokens`
     tokens: list of str
         list of tokens to match
-    next_tokens: list of str
+    next_tokens: list of str or None
         list of tokens to match after `tokens`
-    next_classes: list of str
+    next_classes: list of str or None
         List of tokens to match after `tokens` or, if they exist, `next_tokens`
     cost: int
         Cost of the rule, where less specific rules are more costly.
     """
 
-    def __len__(self):
-        """ Total number of tokens in rule, including before and after. """
-
-        return sum(
-            [len(_) for _ in (
-                self.prev_classes,
-                self.prev_tokens,
-                self.tokens,
-                self.next_tokens,
-                self.next_classes
-             ) if _ is not None]
-        )
+    # def __len__(self):
+    #     """ Total number of tokens in rule, including before and after. """
+    #
+    #     return sum(
+    #         [len(_) for _ in (
+    #             self.prev_classes,
+    #             self.prev_tokens,
+    #             self.tokens,
+    #             self.next_tokens,
+    #             self.next_classes
+    #          ) if _ is not None]
+    #     )
 
     __slots__ = ()
 
@@ -129,12 +129,20 @@ class Whitespace(namedtuple('Whitespace', ['default',
 
 class DirectedGraph:
     """
-    A very basic dictionary-based directed graph.
+    A very basic dictionary- and list-based directed graph.
+
+    Nodes are a list of dictionaries of node data. Edges
+    are nested dictionaries keyed from the head -> tail -> edge
+    properties. A list of edges consisting of a tuple of
+    (head, tail) is also maintained.
+
+    The graph can be exported as a dictionary using
+    `DirectedGraph.to_dict`.
 
     Attributes
     ----------
-    node : dict of {int: dict}
-        Dictionary for node attributes keyed by zero-indexed node id.
+    node : list of dict
+        List of node attributes ordered by zero-indexed node id
     edge : dict of {int: dict of {int: dict}}
         Mapping from head to tail of edge, holding edge data
     edge_list : list of tuple of (int, int)
@@ -146,7 +154,7 @@ class DirectedGraph:
 
     def __init__(self):
         self.edge = {}
-        self.node = {}
+        self.node = []
         self.edge_list = []
 
     def add_edge(self, head, tail, edge_data={}):
@@ -160,22 +168,28 @@ class DirectedGraph:
             Index of tail of edge
         edge_data: dict, default {}
             Edge data
+
         Returns
         -------
         dict
             Data of created edge
+
         Raises
         ------
         ValueError
-            Head or tail index of edge missing, or edge_data not a dict.
+            The `head or `tail` of edge is invalid, or `edge_data` not a dict.
         """
-
-        if head not in self.node:
-            raise ValueError("Head index of edge not in graph.")
-        if tail not in self.node:
-            raise ValueError("Tail index of edge not in graph.")
+        if type(head) is not int:
+            raise ValueError("Edge head is not an integer: %s." % head)
+        if type(tail) is not int:
+            raise ValueError("Edge tail is not an integer: %s." % tail)
+        if head < 0 or head >= len(self.node):
+            raise ValueError(
+                "Head index of edge not in graph: %s." % head)
+        if tail < 0 or tail >= len(self.node):
+            raise ValueError("Tail index of edge not in graph: %s." % tail)
         if type(edge_data) is not dict:
-            raise ValueError("Edge data is not a dict.")
+            raise ValueError("Edge data is not a dict: %s." % edge_data)
 
         if head not in self.edge:
             self.edge[head] = {}
@@ -192,18 +206,23 @@ class DirectedGraph:
         ----------
         node_data: dict, default {}
             Data to be stored in created node
+
         Returns
         -------
         tuple of (int, dict)
             Index of created node and its data
 
-        {'edge': list of list of dict, 'node': dict of {}}
-        (int, dict)"""
+        Raises
+        ------
+        ValueError
+            `node_data` is not a dict
+        """
 
-        assert type(node_data) == dict, "Node data must be a dict."
+        if not type(node_data) == dict:
+            raise ValueError("node_data must be a dict: %s" % node_data)
 
         node_key = len(self.node)
-        self.node[node_key] = node_data
+        self.node.append(node_data)  # self.node[node_key] = node_data
         return node_key, self.node[node_key]
 
     def to_dict(self):
@@ -214,7 +233,7 @@ class DirectedGraph:
         dict
             Serialization of graph as a dictionary keyed by:
                "edge": dict of {int: dict of {int: dict}}
-               "node": dict of {int: dict}
+               "node": list of dict
                "edge_list": list of tuple (int, int)
         """
 
