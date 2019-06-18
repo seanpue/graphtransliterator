@@ -33,8 +33,9 @@ import graphtransliterator
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
-              'sphinx.ext.napoleon']
-
+              'sphinx.ext.napoleon', 'sphinx.ext.imgconverter',
+              'sphinx.ext.autosummary', 'sphinx.ext.intersphinx']
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)} # added
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -130,7 +131,7 @@ latex_elements = {
 # [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'graphtransliterator.tex',
-     u'Graph-based Transliterator Documentation',
+     u'Graph Transliterator Documentation',
      u'A. Sean Pue', 'manual'),
 ]
 
@@ -156,6 +157,9 @@ texinfo_documents = [
      u'Graph Transliterator Documentation',
      author,
      'graphtransliterator',
-     'One line description of project.',
+     'A graph-based transliteration tool.',
      'Miscellaneous'),
 ]
+
+# testing autosummary
+# autosummary_generate = True

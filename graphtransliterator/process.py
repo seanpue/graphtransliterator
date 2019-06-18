@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Methods to process easy-reading raw strings of GraphTransliterator input."""
+"""Functions to process "easy reading" settings of GraphTransliterator."""
 
 import re
 
@@ -7,15 +7,27 @@ import re
 # ----------- process settings (main method) ----------
 
 
-def _process_settings(settings):
-    """Convert easy-reading into raw settings."""
+def _process_easyreading_settings(settings):
+    """
+    Extract information from "easy reading" settings.
+
+    Returns
+    -------
+    `dict` keyed by:
+      `tokens`: dict of {str: list of str}
+      `rules`:  list of dict {'prev_classes', 'prev_tokens', 'tokens',
+                'next_tokens', 'next_classes'}
+      `whitespace': dict {'default', 'token_class', 'consolidate'}
+      `onmatch_rules`: list of dict {
+                       'prev_classes', 'next_classes', 'production'}
+    """
 
     processed_settings = {
         'tokens': settings.get('tokens'),
         'rules': _process_rules(settings.get('rules')),
         'onmatch_rules': _process_onmatch_rules(settings.get('onmatch_rules')),
         'whitespace': settings.get('whitespace'),
-        'metadata': settings.get('metatdata', {})
+        'metadata': settings.get('metadata', {})
     }
     return processed_settings
 
@@ -37,7 +49,7 @@ RULE_RE = re.compile(
 
 
 def _process_rule(key, value):
-    """Convert key and value of a raw rule into a dict."""
+    """Convert key and value of a "easy reading" rule into a dict."""
 
     rule = {'production': value}               # needs to be dict for Cerberus
 
@@ -64,10 +76,12 @@ def _process_rule(key, value):
     return rule
 
 
-def _process_rules(raw_rules):
-    """Processes raw rules dict into a list of dict of processed rules."""
+def _process_rules(easyreading_rules):
+    """Processes "easy reading" rules dict into a list of dict."""
 
-    return [_process_rule(key, value) for key, value in raw_rules.items()]
+    return [
+        _process_rule(key, value) for key, value in easyreading_rules.items()
+    ]
 
 
 # ----------- process onmatch_rules -----------
@@ -87,21 +101,21 @@ ONMATCH_CLASS_RE = re.compile(
 )
 
 
-def _process_onmatch_rules(raw_onmatch_rules):
-    """Process onmatch_rules (list of dict) into list of OnMatchRules."""
+def _process_onmatch_rules(easyreading_onmatch_rules):
+    """Process "easyreading" onmatch_rules (list of dict) into list of dict."""
 
-    if not raw_onmatch_rules:
+    if not easyreading_onmatch_rules:
         return []
 
     processed_onmatch_rules = []
 
-    for item in raw_onmatch_rules:
+    for item in easyreading_onmatch_rules:
 
         assert len(item) == 1, "onmatch_rule has too many values: %s" % item
 
-        (rule_raw, _production) = list(item.items())[0]
+        (rule_easyreading, _production) = list(item.items())[0]
 
-        match = ONMATCH_RE.match(rule_raw)
+        match = ONMATCH_RE.match(rule_easyreading)
 
         prev_str = match.group(1)
         next_str = match.group(2)

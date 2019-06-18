@@ -6,13 +6,18 @@
 import pytest
 import yaml
 from graphtransliterator import GraphTransliterator
+from graphtransliterator.core import _easyreading_rule
 from graphtransliterator import process, validate
-from graphtransliterator.types import (
-    DirectedGraph, OnMatchRule, TransliteratorOutput, TransliterationRule,
-    Whitespace
+from graphtransliterator.rules import (
+    OnMatchRule, TransliterationRule, WhitespaceRules
 )
+from graphtransliterator.graphs import (
+    DirectedGraph
+)
+
 from graphtransliterator.exceptions import (
-    NoMatchingTransliterationRule, UnrecognizableInputToken,
+    NoMatchingTransliterationRuleException,
+    UnrecognizableInputTokenException,
     AmbiguousTransliterationRulesException
 )
 yaml_for_test = r"""
@@ -34,6 +39,8 @@ whitespace:
   default: ' '
   token_class: 'wb'
   consolidate: true
+metadata:
+  author: Author Name
 """
 
 
@@ -176,8 +183,8 @@ def test_graphtransliterator_process():
         data['onmatch_rules'])[0]['next_classes'][0] == 'class2'
 
 
-def test_graphtransliterator_types():
-    """Test internal types."""
+def test_graphtransliterator_models():
+    """Test internal models."""
     tr = TransliterationRule(
         production='A',
         prev_classes=None,
@@ -188,14 +195,16 @@ def test_graphtransliterator_types():
         cost=1
     )
     assert tr.cost == 1
-    assert TransliteratorOutput([tr], 'A').output == 'A'
+    # assert TransliteratorOutput([tr], 'A').output == 'A'
     assert OnMatchRule(prev_classes=['class1'],
                        next_classes=['class2'],
                        production=',')
-    assert Whitespace(default=' ',
-                      token_class='wb',
-                      consolidate=False)
+    assert WhitespaceRules(default=' ',
+                           token_class='wb',
+                           consolidate=False)
 
+
+def test_graphtransliterator_structures():
     graph = DirectedGraph()
 
     assert len(graph.node) == 0
@@ -210,14 +219,26 @@ def test_graphtransliterator_types():
     assert graph.edge[0][1]['type'] == 'edge_test1'
     assert type(graph.to_dict()) == dict
 
+    # edge tail not in graph
     with pytest.raises(ValueError):
         graph.add_edge(0, 7, {})
-
+    # edge head not in graph
     with pytest.raises(ValueError):
         graph.add_edge(7, 0, {})
 
+    # invalid edge data
     with pytest.raises(ValueError):
         graph.add_edge(0, 1, 'not a dict')
+
+    # invalid edge head type
+    with pytest.raises(ValueError):
+        graph.add_edge('zero', 1)
+    # invalid edge tail type
+    with pytest.raises(ValueError):
+        graph.add_edge(1, 'zero')
+    # invalid node data
+    with pytest.raises(ValueError):
+        graph.add_node("Not a dict")
 
 
 def test_graphtransliterator_validate_settings():
@@ -241,18 +262,20 @@ def test_GraphTransliterator_transliterate(tmpdir):
         b: [class_b]
         c: [class_c]
         " ": [wb]
+        d: []
         Aa: [contrained_rule]
     rules:
         a: A
         b: B
-        <class_c> a: A(AFTER_CLASS_C)
+        <class_c> <class_c> a: A(AFTER_CLASS_C_AND_CLASS_C)
         (<class_c> b) a: A(AFTER_B_AND_CLASS_C)
-        (<class_c> b b) a: A(AFTER_BB_AND_CLASS_C)
+        (<class_c> b b) a a: AA(AFTER_BB_AND_CLASS_C)
         a <class_c>: A(BEFORE_CLASS_C)
-        a (c <class_b>): A(BEFORE_C_AND_CLASS_B)
+        a b (c <class_b>): AB(BEFORE_C_AND_CLASS_B)
         c: C
         c c: C*2
-        a (b b): A(BEFORE_B_B)
+        a (b b b): A(BEFORE_B_B_B)
+        d (c <class_a>): D(BEFORE_C_AND_CLASS_A)
         (b b) a: A(AFTER_B_B)
         <wb> Aa: A(ONLY_A_CONSTRAINED_RULE)
     onmatch_rules:
@@ -276,15 +299,15 @@ def test_GraphTransliterator_transliterate(tmpdir):
     # assert gt.transliterate('c') == 'C'
 
     # rules with prev class
-    assert gt.transliterate('ca') == 'CA(AFTER_CLASS_C)'
+    assert gt.transliterate('ca') == 'CA'
     # rules with prev class and prev token
-    assert gt.transliterate('cba') == 'CBA(AFTER_B_AND_CLASS_C)'
+    assert gt.transliterate('dca') == 'D(BEFORE_C_AND_CLASS_A)CA'
     # rules with prev class and prev tokens
-    assert gt.transliterate('cbba') == 'CBBA(AFTER_BB_AND_CLASS_C)'
+    assert gt.transliterate('cbba') == 'CBBA(AFTER_B_B)'
     # rules with next class
     assert gt.transliterate('ac') == 'A(BEFORE_CLASS_C)C'
     # rules with next class and next tokens
-    assert gt.transliterate('acb') == 'A(BEFORE_C_AND_CLASS_B)CB'
+    assert gt.transliterate('acb') == 'A(BEFORE_CLASS_C)CB'
     # rules with onmatch rule of length 1
     assert gt.transliterate('ab') == 'A,B'
     # rules that only have constraints on first element
@@ -296,14 +319,17 @@ def test_GraphTransliterator_transliterate(tmpdir):
 
     # rules with longer onmatch rules
     assert gt.transliterate('abab') == 'A,B!A,B'
+
+    # test last_matched_input_tokens
+    assert gt.last_input_tokens == [' ', 'a', 'b', 'a', 'b', ' ']
     # test last_matched_tokens
-    assert gt.last_matched_tokens == [['a'], ['b'], ['a'], ['b']]
+    assert gt.last_matched_rule_tokens == [['a'], ['b'], ['a'], ['b']]
 
     # test last_matched_rules
     assert len(gt.last_matched_rules) == 4
 
     # test serialization
-    assert gt.serialize()['_graph']['edge']
+    assert gt.serialize()['graph']['edge']
 
 
 def test_match_all():
@@ -349,6 +375,8 @@ def test_GraphTransliterator(tmpdir):
       default: ' '
       token_class: 'wb'
       consolidate: true
+    metadata:
+      author: Author
     """
 
     input_dict = yaml.safe_load(yaml_str)
@@ -361,7 +389,7 @@ def test_GraphTransliterator(tmpdir):
     assert gt.whitespace.default
     assert gt.whitespace.token_class
     assert gt.whitespace.consolidate
-
+    assert gt.metadata['author'] == 'Author'
     yaml_file = tmpdir.join("yaml_test.yaml")
     yaml_filename = str(yaml_file)
     yaml_file.write(yaml_str)
@@ -402,23 +430,27 @@ def test_GraphTransliterator_ignore_errors():
            default: ' '
            consolidate: true
            token_class: wb
-        """
+           """
     # check that ignore_errors works
     assert GraphTransliterator.from_yaml(
         yaml_str, ignore_errors=True
     ).transliterate('a') == ''
 
-    with pytest.raises(NoMatchingTransliterationRule):
+    with pytest.raises(NoMatchingTransliterationRuleException):
         gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
         assert gt.ignore_errors is False
         gt.transliterate('a')
 
-    with pytest.raises(UnrecognizableInputToken):
+    with pytest.raises(UnrecognizableInputTokenException):
         gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
         assert gt.ignore_errors is False
         gt.transliterate('!')
 
-    with pytest.raises(UnrecognizableInputToken):
+    gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=True)
+    assert gt.ignore_errors is True
+    assert gt.transliterate('!') == ''
+
+    with pytest.raises(UnrecognizableInputTokenException):
         gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
         assert gt.ignore_errors is False
         gt.transliterate('b!')
@@ -436,6 +468,7 @@ def test_GraphTransliterator_ignore_errors():
     # test ignore_errors setter exception handling
     # with pytest.raises(ValueError):
     #     gt.ignore_errors = "Maybe"
+
 
 def test_GraphParser_check_ambiguity():
     """ Test for rules that can both match the same thing."""
@@ -462,6 +495,24 @@ def test_GraphParser_check_ambiguity():
         """
     with pytest.raises(AmbiguousTransliterationRulesException):
         GraphTransliterator.from_yaml(yaml_for_test, check_for_ambiguity=True)
+    # check that ambiguity matches if rules are of different shape
+    yaml = """
+        tokens:
+          a: []
+          ' ': [wb]
+        rules:
+          <wb> a: _A
+          a <wb>: A_
+          a: a
+          ' ': ' '
+        whitespace:
+          default: " "        # default whitespace token
+          consolidate: true  # whitespace should be consolidated
+          token_class: wb     # whitespace token class
+        """
+    with pytest.raises(AmbiguousTransliterationRulesException):
+        GraphTransliterator.from_yaml(yaml, check_for_ambiguity=True)
+
 
 def test_GraphTransliterator_types():
     """Test internal types."""
@@ -473,13 +524,13 @@ def test_GraphTransliterator_types():
                              next_classes=None,
                              cost=1)
     assert pr.cost == 1
-    assert TransliteratorOutput([pr], 'A').output == 'A'
+#    assert TransliteratorOutput([pr], 'A').output == 'A'
     assert OnMatchRule(prev_classes=['class1'],
                        next_classes=['class2'],
                        production=',')
-    assert Whitespace(default=' ',
-                      token_class='wb',
-                      consolidate=False)
+    assert WhitespaceRules(default=' ',
+                           token_class='wb',
+                           consolidate=False)
 
     graph = DirectedGraph()
 
@@ -522,6 +573,29 @@ def test_GraphTransliterator_pruned_of():
     assert len(gt.rules) == 2
     assert len(gt.pruned_of('B').rules) == 1
     assert gt.pruned_of('B').rules[0].production == 'A'
+
+
+def test_GraphTransliterator_easy_reading():
+    assert _easyreading_rule(
+        TransliterationRule(
+            '', ['class_a'], [], ['a'], [], ['class_a'], 0
+        )
+    ) == '<class_a> a <class_a>'
+    assert _easyreading_rule(
+        TransliterationRule(
+            '', ['class_a'], [], ['a'], [], ['class_a'], 0
+        )
+    ) == '<class_a> a <class_a>'
+    assert _easyreading_rule(
+        TransliterationRule(
+            '', [], ['b'], ['a'], ['b'], [], 0
+        )
+    ) == '(b) a (b)'
+    assert _easyreading_rule(
+        TransliterationRule(
+            '', ['class_a'], ['b'], ['a'], ['b'], ['class_a'], 0
+        )
+    ) == '(<class_a> b) a (b <class_a>)'
 
 
 def test_GraphTransliterator_graph():

@@ -18,9 +18,8 @@ Graph Transliterator
      :target: https://pyup.io/repos/github/seanpue/graphtransliterator/
      :alt: Updates
 
-
-
-A graph-based transliteration tool
+A graph-based transliteration tool that lets you convert the symbols of one
+language or script to those of another using rules that you define.
 
 
 * Free software: MIT license
@@ -30,12 +29,34 @@ A graph-based transliteration tool
 Features
 --------
 
-* TODO
+* Provides a transliteration tool that can be configured to convert the tokens
+* of an input string into an output string using:
 
-Credits
--------
+  * definitions of input **tokens** and **token classes**
+  * **transliteration rules** based on:
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+    * a sequence of input tokens
+    * specific input tokens that precede or follow the token sequence
+    * classes of input tokens preceding or following specific tokens
 
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+  * **"on match" rules** for output to be inserted between between
+    transliteration rules involving particular token classes
+  * defined rules for **whitespace**, including its optional consolidation
+
+* Can be setup using:
+
+    * an **"easy reading"** `YAML <https://yaml.org>`_ format that lets you
+      quickly craft settings for the transliteration tool
+    * **"raw"** settings, perhaps passed programmatically, using a dictionary
+* **Automatically orders rules based on specificity** using the number of
+  tokens in a transliteration rule
+* **Checks for ambiguity** in transliteration rules, where two rules of equal
+  specificity could match the same tokens
+* Can provide **details** about each transliteration rule match
+* Allows **optional matching of all possible rules** in a particular location
+* Permits **pruning of rules** with certain production
+* Can be **serialized** as a dictionary for export to JSON, etc.
+* Provides **full support for Unicode**, including Unicode **character names**
+  in the "easy reading" YAML format
+* Constructs and uses a **directed tree** and performs a **best-first search**
+  to find the most specific transliteration rule in a given context

@@ -18,6 +18,7 @@ History
 * Document error handling and logging.
 * Add and check examples in docstring.
 * Add notes about YAML handling of unicode charnames, link to YAML.
+* Add usage example
 
 0.1.2 (####-##-##)
 ==================
@@ -29,7 +30,8 @@ History
 * Added check_settings parameter to skip validating settings.
 * Added tests for ambiguity and `check_ambiguity` parameter.
 * Changed name to Graph Transliterator in docs.
-* Created validate.py, process.py,  types.py, initialize.py, exceptions.py
+* Created validate.py, process.py,  rules.py, initialize.py, exceptions.py,
+  graph.py
 * Added ignore_errors property and setter for transliteration
   exceptions (UnrecognizableInputToken, NoMatchingTransliterationRule)
 * Added logging to graphtransliterator

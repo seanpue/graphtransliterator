@@ -11,11 +11,11 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['cerberus' ]
+requirements = ['cerberus', 'pyyaml']
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = ['pytest-runner',]
 
-test_requirements = ['pytest', 'cerberus' ]
+test_requirements = ['pytest',]
 
 setup(
     author="A. Sean Pue",

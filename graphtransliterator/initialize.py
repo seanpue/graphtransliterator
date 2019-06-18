@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-graphtransliterator.initialize
-------------------------------
-
-Methods to initialize the internal properties of GraphTransliterator.
-
-This includes the initialization code for tokens rules, onmatch rules, and
-whitespace. It also includes the generation of the token regex and them
-internal graph...
+Functions used to initialize a GraphTransliterator.
 """
+
 from collections import defaultdict
+from .graphs import DirectedGraph
 import math
 import re
-from .types import TransliterationRule, Whitespace, OnMatchRule, DirectedGraph
+from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
 
 # ---------- initialize tokens ----------
 
@@ -65,6 +60,7 @@ def _num_tokens_of(rule):
     total += len(rule.get('tokens'))
     total += len(rule.get('next_tokens', []))
     total += len(rule.get('next_classes', []))
+
     return total
 
 
@@ -73,6 +69,7 @@ def _cost_of(rule):
 
     Rules requiring more tokens to match are made less costly and tried first.
     """
+
     return math.log(1+1/(1+_num_tokens_of(rule)))
 
 
@@ -89,18 +86,25 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
 
     Returns
     -------
-    list of int
-        OnMatchRule indexes valid from this combination
+    dict of {str: dict of {str: list of int}}
+        Dictionary keyed by current token to previous token containing a
+        list of onmatch rules in order that would apply
     """
 
     onmatch_lookup = {}
     # for token_key in tokens:
     #     onmatch_lookup[token_key] = {_: [] for _ in tokens}
 
+    # Interate through onmatch rules
     for rule_i, rule in enumerate(onmatch_rules):
+        # Iterate through all tokens
         for token_key, token_classes in tokens.items():
+            # if the onmatch rule's next is of that class
             if rule.next_classes[0] in token_classes:
+                # interate through all tokens again
                 for prev_token_key, prev_token_classes in tokens.items():
+                    # if second token is of class of onmatch rule's last prev
+                    # add the rule to curr -> prev
                     if rule.prev_classes[-1] in prev_token_classes:
                         if token_key not in onmatch_lookup:
                             onmatch_lookup[token_key] = {}
@@ -116,9 +120,9 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
 
 def _whitespace_of(whitespace):
     """ Converts whitespace into WhiteSpace """
-    return Whitespace(default=whitespace['default'],
-                      token_class=whitespace['token_class'],
-                      consolidate=whitespace['consolidate'])
+    return WhitespaceRules(default=whitespace['default'],
+                           token_class=whitespace['token_class'],
+                           consolidate=whitespace['consolidate'])
 
 
 # ---------- initialize tokenizer ----------
@@ -128,14 +132,11 @@ def _tokenizer_from(tokens):
     """ Generates regular expression tokenizer from token list."""
 
     tokens.sort(key=len, reverse=True)
-
     regex_str = '('+'|'.join([re.escape(_) for _ in tokens])+')'
-
     return re.compile(regex_str, re.S)
 
 
-# ---------- intialize graph ----------
-#
+# ---------- initialize graph ----------
 
 
 def _graph_from(rules):
@@ -145,8 +146,8 @@ def _graph_from(rules):
     intermediate node represents a token. Before trying to match using a
     token, the constraints on the preceding edge must be met. These include
     token and, on the edge before  a rule, previous and next tokens and token
-    classes. The tree is built top-down. Costs of edges are adjust to match
-    lowest class of leaf nodes, so they are tried first."""
+    classes. The tree is built top-down. Costs of edges are adjusted to match
+    the lowest cost of leaf nodes, so they are tried first."""
 
     graph = DirectedGraph()
     graph.add_node({'type': 'Start'})
@@ -170,7 +171,7 @@ def _graph_from(rules):
                 parent_node['token_children'] = token_children
 
             curr_edge = graph.edge[parent_key][token_node_key]
-            curr_cost = curr_edge.get('cost') or 1  # costs are > 0, < 1
+            curr_cost = curr_edge.get('cost', 1)
             if curr_cost > rule.cost:
                 curr_edge['cost'] = rule.cost
 
@@ -183,7 +184,7 @@ def _graph_from(rules):
              'accepting': True}
         )
         parent_node = graph.node[parent_key]
-        rule_children = parent_node.get("rule_children") or []
+        rule_children = parent_node.get("rule_children", [])
         rule_children.append(rule_node_key)
         parent_node['rule_children'] = sorted(
             rule_children,
@@ -213,17 +214,18 @@ def _graph_from(rules):
         ordered_children = {}
         rule_children_keys = node.get('rule_children')
 
-        # add rule children to ordered_children dict under None
+        # add rule children to ordered_children dict under '__rules__''
 
         if rule_children_keys:
             ordered_children['__rules__'] = sorted(
                 rule_children_keys,
                 key=lambda x: graph.edge[node_key][x]['cost'],
             )
+            node.pop('rule_children')
 
         token_children = node.get('token_children')
 
-        # add token children to ordered_children dict
+        # add token children to ordered_children dict by token
 
         if token_children:
             for token, token_key in token_children.items():
@@ -232,7 +234,6 @@ def _graph_from(rules):
                 # add rule children there as well
 
                 if rule_children_keys:
-                    assert type(rule_children_keys), list
                     ordered_children[token] += rule_children_keys
 
                 # sort both by weight
@@ -241,7 +242,7 @@ def _graph_from(rules):
                     key=lambda _new_token_key:
                         graph.edge[node_key][_new_token_key]['cost']
                 )
-            # remove noken children
+            # remove token children
             node.pop('token_children')
         node['ordered_children'] = ordered_children
 

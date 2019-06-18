@@ -5,9 +5,9 @@ import yaml
 from cerberus import Validator
 from .process import RULE_RE, ONMATCH_RE
 
-# ---------- validate raw settings ----------
+# ---------- validate easy reading settings ----------
 
-RAW_SETTINGS_SCHEMA = yaml.safe_load(
+EASYREADING_SETTINGS_SCHEMA = yaml.safe_load(
     '''
     rules:
         type: dict
@@ -59,28 +59,23 @@ RAW_SETTINGS_SCHEMA = yaml.safe_load(
 )
 
 
-def validate_raw_settings(settings):
+def validate_easyreading_settings(settings):
     """
-    Check general structure of raw settings.
-
-
-    This method first checks the tokens, then uses the tokens and token
-    classes to validate the rules, onmatch rules, and whitespace settings,
-    all of which need the information from the tokens.
-    TODO: Add metadata
+    Validate general structure of "easy reading" settings, e.g.
+    structure of YAML
 
     Parameters
     ----------
     settings : dict
-        Raw settings to validate
+        Easy reading settings to validate
 
     Raises
     ------
     ValueError:
-        If the raw settings do not validate.
+        If the easy reading settings do not validate.
     """
     validator = Validator()
-    validator.validate(settings, RAW_SETTINGS_SCHEMA, normalize=False)
+    validator.validate(settings, EASYREADING_SETTINGS_SCHEMA, normalize=False)
     if validator.errors:
         raise ValueError("Errors in GraphTransliterator settings: \n %s" %
                          validator.errors)
@@ -90,12 +85,12 @@ def validate_raw_settings(settings):
 
 def validate_settings(tokens, rules, onmatch_rules, whitespace, metadata):
     """
-    Validate "easy reading" settings for GraphTransliterator.
+    Validate processed settings for GraphTransliterator.
 
     This method first checks the tokens, then uses the tokens and token
     classes to validate the rules, onmatch rules, whitespace settings,
     all of which need the information from the tokens. Then it checks the
-    metadata settings.
+    metadata settings are a dictionary.
 
     Parameters
     ----------
