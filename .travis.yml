@@ -1,9 +1,9 @@
-dist: xenial   # required for Python >= 3.7
+dist: xenial
 language: python
 python:
-  - 3.7
-  - 3.6
-  - 3.5
+- 3.7
+- 3.6
+- 3.5
 install: pip install -U tox-travis
 script: tox
 deploy:
@@ -11,8 +11,7 @@ deploy:
   distributions: sdist bdist_wheel
   user: seanpue
   password:
-    secure: c6AvElVzHBfgLE01r+IkGKvIhSJ28vtbfaW6JUAGnY1kQKNv/Q21v1qmHJ8VNRilP3Z86w576vV1I6dklsMYHTEOdFfd3HABtsijWdNucS1yKAJBUQu6pVa6CPTW8xttcrHPK3wZbAGFkBukroL8VqH3mD/29fLd6eko/RuSJsvDYLca05xyFEb+xNkI6Uhe4FvColNSneBt5j6nKUKSMi2knj3jcm+M99gpAQO7VEO235RptUpmqx7gYqxe1fzZBWFMUdujdcTyO+TO4lT582UZN2di/0gxGPDKF6LFvIsTbvAi+s95VfYQmpChLRjn0iCDfmiM13xaYzn8Sa2HRytKnKEdowYfAoTk44AKa+0hwV9HEx86ipGCgbqBkhGbhH/Targjc0ucNqPBDwZRDVHgGWs3+KxHqlUGpxz2CBTVVF5eEKSdIu+E/hK2WrKXnNYtGARYoD1F3Gw5AGThfUdY0b2XXWFCxW3B40rzY4yZl0nVK+qoo/WgWzmVtE40BxhRE+oVfQ6ywv7VyFPUkDy+c9tuB2fareXWf080m8eK5Yn439Wia3UkG67xGy2hmKOgI7yrpCFMM9XKv5m4iUq1FaNP+HNZWfH/r1GWKq74K7+DiNd/d7l9dtS3TekO/1bADstsItdflXDG68WsxIhNeQWI1V1fxC0G1C8Tnc4=
+    secure: wE0OphJ6LvNtiVAvBJ9TMJwz9GNcudQ1ejVxPj67uBxTOM7zu5+QnESZbyCzYl6PHvenS00Ra0o2ZvmraP+fStOYb6ar6bHd4grM3XscxBBvE+4UqCPacPGPkkTrDU+HWFJTsH/7S158oZXOzkG2rFoHeMSIBRgPpwFMP+c++ptUpN7H17SYHqtQZCOAnksXdDwvgKPzOqkvYSvFpYKWsaGTJHGkSgiR/94he5jv+M4/kV0bzMrYUg1IsgkuLGSvw5C9m9tbODlV4YmjXKgshunHE6qzdsdjY6yhnQOjwWx75vdYM0FIV3yCZGS/VOtgTjDzWoJ0XzgSA3qlFsSdS4pvIJa/8Sz0LjtJ2WGBuRlEd4v71jTtTSU8+EX3E5s8iMXQ8DVx8vS8A/dEQb7/LvOWbGeTGg7PoV6KvZXOcWoS/VuFa5CN6UasJiYdOMg28i46WD2TpKHa5d4VnChMAFjYztylmK0Sa45Ut76joPvLAzGaWvBNQkt66DtVZKZNe9W/CTnYmm+SCqZ6356NvVF+pB8hU9gf/l9TT/dSyOY2V+9DZvp5+qTPbKEImNMNTT2I1NLMhwQM61n2mGwdKF+l5Rlm3j7qtvoc7ylCllvzHU117GHiJ83mCfRhRjLUAaBJWqXzMet3qWipjqMVzoQWN9Auvff1ZOfILc3TO7M=
   on:
-#    tags: true
     repo: seanpue/graphtransliterator
     python: 3.6
