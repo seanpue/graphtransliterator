@@ -1,0 +1,17 @@
+language: python
+python:
+- 3.7
+- 3.6
+- 3.5
+install: pip install -U tox-travis
+script: tox
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: seanpue
+  password:
+    secure: c6AvElVzHBfgLE01r+IkGKvIhSJ28vtbfaW6JUAGnY1kQKNv/Q21v1qmHJ8VNRilP3Z86w576vV1I6dklsMYHTEOdFfd3HABtsijWdNucS1yKAJBUQu6pVa6CPTW8xttcrHPK3wZbAGFkBukroL8VqH3mD/29fLd6eko/RuSJsvDYLca05xyFEb+xNkI6Uhe4FvColNSneBt5j6nKUKSMi2knj3jcm+M99gpAQO7VEO235RptUpmqx7gYqxe1fzZBWFMUdujdcTyO+TO4lT582UZN2di/0gxGPDKF6LFvIsTbvAi+s95VfYQmpChLRjn0iCDfmiM13xaYzn8Sa2HRytKnKEdowYfAoTk44AKa+0hwV9HEx86ipGCgbqBkhGbhH/Targjc0ucNqPBDwZRDVHgGWs3+KxHqlUGpxz2CBTVVF5eEKSdIu+E/hK2WrKXnNYtGARYoD1F3Gw5AGThfUdY0b2XXWFCxW3B40rzY4yZl0nVK+qoo/WgWzmVtE40BxhRE+oVfQ6ywv7VyFPUkDy+c9tuB2fareXWf080m8eK5Yn439Wia3UkG67xGy2hmKOgI7yrpCFMM9XKv5m4iUq1FaNP+HNZWfH/r1GWKq74K7+DiNd/d7l9dtS3TekO/1bADstsItdflXDG68WsxIhNeQWI1V1fxC0G1C8Tnc4=
+  on:
+    tags: true
+    repo: seanpue/graphtransliterator
+    python: 3.6
