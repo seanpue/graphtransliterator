@@ -41,7 +41,7 @@ Features
   * defined rules for **whitespace**, including its optional consolidation
 * Can be setup using:
   * an **"easy reading"** `YAML <https://yaml.org>`_ format that lets you
-      quickly craft settings for the transliteration tool
+    quickly craft settings for the transliteration tool
   * **"raw"** settings, perhaps passed programmatically, using a dictionary
 * **Automatically orders rules based on specificity** using the number of
   tokens in a transliteration rule
