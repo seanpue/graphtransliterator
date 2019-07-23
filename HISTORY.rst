@@ -3,7 +3,7 @@ History
 =======
 
 [Unreleased - Maybe]
-====================
+--------------------
 * Add CLI.
 * Add metadata guidelines
 * Save match location in tokenize
@@ -12,10 +12,18 @@ History
 * Allow insertion of transliteration error messages into output.
 
 [Unreleased-TODO]
-=================
+-----------------
+
+0.2.2 (2019-07-23)
+-----------------
+* added CI
+
+0.2.1 (2019-07-23)
+------------------
+* fixed HISTORY.RST for PyPI
 
 0.2.0 (2019-07-23)
-==================
+------------------
 * Fixed  module naming in docs using __module__.
 * Converted DirectedGraph nodes to a list.
 * Added Code of Conduct.
@@ -35,7 +43,7 @@ History
 * added documentation
 
 0.1.1 (2019-05-30)
-==================
+------------------
 * Adjust copyright in docs.
 * Removed  Python 2 support.
 
