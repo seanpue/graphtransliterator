@@ -14,6 +14,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.3 (2019-07-23)
+-----------------
+* added xenial to travis.yml
+
 0.2.2 (2019-07-23)
 -----------------
 * added CI
