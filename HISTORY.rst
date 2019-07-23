@@ -2,12 +2,51 @@
 History
 =======
 
+[Unreleased - Maybe]
+--------------------
+* Add CLI.
+* Add metadata guidelines
+* Save match location in tokenize
+* Reconsider serialization keys
+* Add tests directly to YAML files
+* Allow insertion of transliteration error messages into output.
+
+[Unreleased-TODO]
+-----------------
+
+0.2.2 (2019-07-23)
+-----------------
+* added CI
+
+0.2.1 (2019-07-23)
+------------------
+* fixed HISTORY.RST for PyPI
+
+0.2.0 (2019-07-23)
+------------------
+* Fixed  module naming in docs using __module__.
+* Converted DirectedGraph nodes to a list.
+* Added Code of Conduct.
+* Added GraphTransliterator class.
+* Updated module dependencies.
+* Added requirements.txt
+* Added check_settings parameter to skip validating settings.
+* Added tests for ambiguity and `check_ambiguity` parameter.
+* Changed name to Graph Transliterator in docs.
+* Created core.py, validate.py, process.py,  rules.py, initialize.py,
+  exceptions.py, graphs.py
+* Added ignore_errors property and setter for transliteration
+  exceptions (UnrecognizableInputToken, NoMatchingTransliterationRule)
+* Added logging to graphtransliterator
+* Added positive cost function based on number of matched tokens in rule
+* added metadata field
+* added documentation
+
 0.1.1 (2019-05-30)
-==================
+------------------
 * Adjust copyright in docs.
-* Removed  Python 2 and 3.4 support.
+* Removed  Python 2 support.
 
 0.1.0 (2019-05-30)
 ------------------
-
 * First release on PyPI.

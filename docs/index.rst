@@ -1,15 +1,16 @@
-Welcome to Graph-based Transliterator's documentation!
-======================================
+Graph Transliterator Documentation
+==================================
+
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    readme
    installation
    usage
-   modules
+   tutorial
    contributing
+   api
    authors
    history
 

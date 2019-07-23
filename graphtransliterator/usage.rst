@@ -14,7 +14,7 @@ Graph Transliterator requires that you must first configure
 a :class:`GraphTransliterator`. Then you can transliterate an input string
 using :meth:`GraphTransliterator.transliterate`. There are a few
 additional methods that can be used to extract information for specific use
-cases, such as details about which rules were matches.
+cases, such as details about which rules were matched.
 
 Configuration
 =============
@@ -33,7 +33,7 @@ Initialization
 --------------
 
 Defining the rules for transliteration can be difficult, especially when
-dealing with complex scripts. That is why Graph Transliterator permits an
+dealing with complex scripts. That is why Graph Transliterator uses an
 "easy reading" format that allows you to enter the transliteration rules in
 the popular `YAML <https://yaml.org/>`_ format, either from a string
 (using :func:`GraphTransliterator.from_yaml`) or by reading from a file
@@ -115,7 +115,7 @@ Tokens can be assigned zero or more classes. Each class is a string of your
 choice. These classes are used in transliteration rules. In YAML they are
 defined as a dictionary, but internally the rules are stored
 as a dictionary of token strings keyed to a set of token classes. They can be
-accessed using the  :attr:`GraphTransliterator.tokens`:
+accessed using :attr:`GraphTransliterator.tokens`:
 
 >>> gt_two.tokens
 {'a': set(), 'aa': set(), ' ': {'wb'}}
