@@ -14,6 +14,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.2 (2019-07-23)
+-----------------
+* added CI
+
 0.2.1 (2019-07-23)
 ------------------
 * fixed HISTORY.RST for PyPI
