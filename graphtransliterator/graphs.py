@@ -14,16 +14,18 @@ class DirectedGraph:
 
     Attributes
     ----------
-    node : list of dict
+    node : `list` of `dict`
         List of node attributes
-    edge : dict of {int: dict of {int: dict}}
+    edge : `dict` of {`int`: `dict` of {`int`: `dict`}}
         Mapping from head to tail of edge, holding edge data
-    edge_list : list of tuple of (int, int)
+    edge_list : `list` of `tuple` of (`int`, `int`)
         List of head and tail of each edge
 
     Examples
     -------
+    >>> from graphtransliterator import DirectedGraph
     >>> DirectedGraph()
+    <graphtransliterator.graphs.DirectedGraph object at 0x106d1c908>
     """
     __slots__ = 'edge', 'node', 'edge_list'
 
@@ -38,11 +40,11 @@ class DirectedGraph:
 
         Parameters
         ----------
-        head: int
+        head: `int`
             Index of head of edge
-        tail: int
+        tail: `int`
             Index of tail of edge
-        edge_data: dict, default {}
+        edge_data: `dict`, default {}
             Edge data
 
         Returns
@@ -53,7 +55,7 @@ class DirectedGraph:
         Raises
         ------
         ValueError
-            The `head or `tail`is invalid, or `edge_data` is not a dict.
+            Invalid ``head`` or ``tail``, or ``edge_data`` is not a dict.
 
         Examples
         --------
@@ -63,7 +65,7 @@ class DirectedGraph:
         >>> g.add_node()
         (1, {})
         >>> g.add_edge(0,1, {'data_key_1': 'some edge data here'})
-        {'data': 'edge data here '}
+        {'data_key_1': 'some edge data here'}
         >>> g.edge
         {0: {1: {'data_key_1': 'some edge data here'}}}
         """
@@ -89,22 +91,22 @@ class DirectedGraph:
         return self.edge[head][tail]
 
     def add_node(self, node_data={}):
-        """Create node and return (int, dict) of node key and object.
+        """Create node and return (`int`, `dict`) of node key and object.
 
         Parameters
         ----------
-        node_data: dict, default {}
+        node_data: `dict`, default {}
             Data to be stored in created node
 
         Returns
         -------
-        tuple of (int, dict)
+        `tuple` of (`int`, `dict`)
             Index of created node and its data
 
         Raises
         ------
         ValueError
-            `node_data` is not a `dict`
+            ``node_data`` is not a ``dict``
 
         Examples
         --------
@@ -116,11 +118,10 @@ class DirectedGraph:
         >>> g.node
         [{}, {'datakey1': 'data value'}]
         """
-        if not type(node_data) == dict:
+        if type(node_data) is not dict:
             raise ValueError("node_data must be a dict: %s" % node_data)
-
         node_key = len(self.node)
-        self.node.append(node_data)  # self.node[node_key] = node_data
+        self.node.append(node_data)
         return node_key, self.node[node_key]
 
     def to_dict(self):
@@ -130,9 +131,18 @@ class DirectedGraph:
         -------
         dict
             Serialization of graph as a dictionary keyed by:
-               "edge": dict of {int: dict of {int: dict}}
-               "node": list of dict
-               "edge_list": list of tuple (int, int)
+
+            ``"edge"``
+               Edge data
+               (`dict` of {`int`: `dict` of {`int`: `dict`}})
+
+            ``"node"``
+                Node data
+                (`list` of `dict`)
+
+            ``"edge_list"``
+                List of edges
+                (`list` of `tuple` (`int`, `int`))
 
         Examples
         --------

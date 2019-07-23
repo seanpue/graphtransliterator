@@ -448,7 +448,8 @@ def test_GraphTransliterator_ignore_errors():
 
     gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=True)
     assert gt.ignore_errors is True
-    assert gt.transliterate('!') == ''
+    assert gt.tokenize('b!b') == [' ','b', 'b',' ']
+    assert gt.transliterate('b!b') == 'BB'
 
     with pytest.raises(UnrecognizableInputTokenException):
         gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)

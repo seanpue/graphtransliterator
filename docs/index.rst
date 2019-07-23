@@ -8,6 +8,7 @@ Graph Transliterator Documentation
    readme
    installation
    usage
+   tutorial
    contributing
    api
    authors

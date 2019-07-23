@@ -5,38 +5,34 @@ History
 [Unreleased - Maybe]
 ====================
 * Add CLI.
-* add _to_metadata function
+* Add metadata guidelines
 * Save match location in tokenize
-* reconsider serialization keys
-* add tests directly to YAML files
-* make pruned_of more elegant
+* Reconsider serialization keys
+* Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output.
 
 [Unreleased-TODO]
 =================
-* Add metadata guidelines and validation.
-* Document error handling and logging.
-* Add and check examples in docstring.
-* Add notes about YAML handling of unicode charnames, link to YAML.
-* Add usage example
 
-0.1.2 (####-##-##)
+0.2.0 (2019-07-23)
 ==================
 * Fixed  module naming in docs using __module__.
 * Converted DirectedGraph nodes to a list.
-* Add Code of Conduct.
+* Added Code of Conduct.
 * Added GraphTransliterator class.
 * Updated module dependencies.
+* Added requirements.txt
 * Added check_settings parameter to skip validating settings.
 * Added tests for ambiguity and `check_ambiguity` parameter.
 * Changed name to Graph Transliterator in docs.
-* Created validate.py, process.py,  rules.py, initialize.py, exceptions.py,
-  graph.py
+* Created core.py, validate.py, process.py,  rules.py, initialize.py,
+  exceptions.py, graphs.py
 * Added ignore_errors property and setter for transliteration
   exceptions (UnrecognizableInputToken, NoMatchingTransliterationRule)
 * Added logging to graphtransliterator
 * Added positive cost function based on number of matched tokens in rule
 * added metadata field
+* added documentation
 
 0.1.1 (2019-05-30)
 ==================

@@ -31,5 +31,5 @@ class UnrecognizableInputTokenException(GraphTransliteratorException):
     """
     Raised when a character in the input string does not correspond to any
     tokens in the GraphTransliterator's token settings. Details of the location
-     are given in a :func:`logging.warning`.
+    are given in a :func:`logging.warning`.
     """

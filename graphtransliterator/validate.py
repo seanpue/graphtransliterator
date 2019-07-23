@@ -68,10 +68,9 @@ def validate_easyreading_settings(settings):
     ----------
     settings : dict
         Easy reading settings to validate
-
     Raises
     ------
-    ValueError:
+    ValueError
         If the easy reading settings do not validate.
     """
     validator = Validator()
@@ -102,11 +101,8 @@ def validate_settings(tokens, rules, onmatch_rules, whitespace, metadata):
         Rules for productions between matches of token classes
     whitespace: {'default':str, 'token_class':str, 'consolidate':bool}
         Whitespace parameters
-    metadata: dict {str:str}
+    metadata: dict {str: str}
         Metadata settings
-    Returns
-    -------
-        None
     Raises
     ------
     ValueError

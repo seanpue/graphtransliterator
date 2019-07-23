@@ -17,6 +17,12 @@ Core Classes
 .. autoclass:: GraphTransliterator
    :members:
 
+Graph Classes
+-------------
+
+.. autoclass:: DirectedGraph
+   :members:
+
 Rule Classes
 ------------
 
@@ -29,9 +35,9 @@ Rule Classes
 Validation Functions
 --------------------
 
-.. autofunction: validate_raw_settings
+.. autofunction:: validate_easyreading_settings
 
-.. autofunction: validate_settings
+.. autofunction:: validate_settings
 
 Exceptions
 ----------

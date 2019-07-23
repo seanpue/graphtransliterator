@@ -70,7 +70,7 @@ def _cost_of(rule):
     Rules requiring more tokens to match are made less costly and tried first.
     """
 
-    return math.log(1+1/(1+_num_tokens_of(rule)))
+    return math.log2(1+1/(1+_num_tokens_of(rule)))
 
 
 def _onmatch_rule_of(onmatch_rule):

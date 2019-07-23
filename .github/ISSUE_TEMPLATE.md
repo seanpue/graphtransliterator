@@ -1,4 +1,4 @@
-* Graph-based Transliterator version:
+* Graph Transliterator version:
 * Python version:
 * Operating System:
 
