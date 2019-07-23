@@ -1,2 +1,2 @@
 cerberus
-pyyaml
+pyyaml==5.1.1
