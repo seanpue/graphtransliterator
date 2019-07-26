@@ -7,7 +7,7 @@ GraphTransliterator core classes.
 from collections import deque
 import itertools
 import logging
-
+import pkg_resources
 import re
 import unicodedata
 import yaml
@@ -905,6 +905,7 @@ class GraphTransliterator:
                   Dictionary of metadata (`dict`)
         """
 
+        version = pkg_resources.require("graphtransliterator")[0].version
         return {
             'graph': self._graph.to_dict(),
             'metadata': self._metadata,
@@ -914,7 +915,8 @@ class GraphTransliterator:
             'onmatch_rules': self._onmatch_rules,
             'onmatch_rules_lookup': self._onmatch_rules_lookup,
             'whitespace': self._whitespace,
-            'tokenizer_pattern': self._tokenizer.pattern
+            'tokenizer_pattern': self._tokenizer.pattern,
+            'graphtransliterator_version': version
         }
 
     def check_for_ambiguity(self):

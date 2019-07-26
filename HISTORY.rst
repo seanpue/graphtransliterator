@@ -14,7 +14,14 @@ History
 [Unreleased-TODO]
 -----------------
 
-0.2.4 (2091-07-23)
+0.2.5 (2019-07-24)
+------------------
+* Fixes to HISTORY.rst and README.rst
+* 100% test coverage.
+* Added draft of paper.
+* Added graphtransliterator_version to serialize().
+
+0.2.4 (2019-07-23)
 ------------------
 * minor changes to readme
 
@@ -28,7 +35,7 @@ History
 
 0.2.1 (2019-07-23)
 ------------------
-* fixed HISTORY.RST for PyPI
+* fixed HISTORY.rst for PyPI
 
 0.2.0 (2019-07-23)
 ------------------
@@ -52,7 +59,7 @@ History
 
 0.1.1 (2019-05-30)
 ------------------
-* Adjust copyright in docs.
+* Adjusted copyright in docs.
 * Removed  Python 2 support.
 
 0.1.0 (2019-05-30)

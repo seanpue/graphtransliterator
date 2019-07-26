@@ -5,6 +5,7 @@
 
 import pytest
 import yaml
+import graphtransliterator
 from graphtransliterator import GraphTransliterator
 from graphtransliterator.core import _easyreading_rule
 from graphtransliterator import process, validate
@@ -330,7 +331,7 @@ def test_GraphTransliterator_transliterate(tmpdir):
 
     # test serialization
     assert gt.serialize()['graph']['edge']
-
+    assert gt.serialize()['graphtransliterator_version'] == graphtransliterator.__version__
 
 def test_match_all():
     """Test GraphTransliterator transliterate."""
@@ -390,6 +391,7 @@ def test_GraphTransliterator(tmpdir):
     assert gt.whitespace.token_class
     assert gt.whitespace.consolidate
     assert gt.metadata['author'] == 'Author'
+    assert type(gt.graph) == DirectedGraph
     yaml_file = tmpdir.join("yaml_test.yaml")
     yaml_filename = str(yaml_file)
     yaml_file.write(yaml_str)

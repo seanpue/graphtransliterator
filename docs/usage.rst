@@ -692,8 +692,7 @@ Search and Preprocessing
 Graph Transliterator uses a best-first search, implemented using a stack,
 that finds the transliteration with the the lowest cost. The cost function is:
 
-:math:`\log_2{\big(1+\frac{1}{1+\text{count of tokens required by
-rule}}\big)}`
+:math:`\text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count_of_tokens_in}(rule)}\big)}`
 
 It results in a number roughly between 1 and 0 that lessens as more tokens
 must be matched. Each edge on the graph has a cost attribute
@@ -707,7 +706,7 @@ will backtrack if the constraint conditions are not met.
 
    Sample graph created for Graph Transliterator that  renders "a" after
    whitespace (a token of the class "<wb>" for wordbreak) as "B", "a" as "b",
-   and " " as " ". Rule nodes are in double circles, whereas token nodes are
+   and " " as " ". Rule nodes are in double circles, and token nodes are
    single circles. The numbers are the cost of the particular edge, and less
    costly edges are tried first. Previous token class (`prev_classes`)
    constraints are in a dictionary on the edge before the leaf rule node.
