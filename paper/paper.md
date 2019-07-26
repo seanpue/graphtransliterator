@@ -27,7 +27,7 @@ also permits the encoding of additional information, which enables
 disambiguation and advanced linguistic analysis, including natural language
 processing tasks, that are often not possible in the original script.
 
-``Graph Transliterator`` is a Python library that makes that process more
+``Graph Transliterator`` is a Python package that makes that process more
 accessible by using a standardized method for encoding rules for
 transliteration. It lets those rules be entered in an "easy reading" YAML
 format [@YAMLAintMarkup] or directly, using standard Python data types. It
