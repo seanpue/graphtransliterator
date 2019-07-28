@@ -12,7 +12,7 @@ authors:
 affiliations:
  - name: Linguistics and Germanic, Slavic, Asian, and African Languages, Michigan State University
    index: 1
-date: 23 July 2019
+date: 28 July 2019
 bibliography: paper.bib
 ---
 
@@ -66,8 +66,6 @@ produces a warning if more than one rule could match the same input. As such,
 ``Graph Transliterator`` provides a rigorous and reproducible framework for
 transliteration.
 
-# How It Works
-
 ![An example graph created for the simple case of a ``Graph Transliterator``
 that takes as input two token types, `a` and `" "` (space), and renders `" "`
 as `" "`, and `a` as `b` unless it follows a token of class `wb` (for
@@ -76,6 +74,8 @@ circles, and `token` nodes  are single circles. The numbers are the cost of
 the particular edge, and less costly edges are searched first. Previous token
 class (`prev_classes`) constraints are found on the edge before the leaf rule
 node.\label{figure1}](figure1.png)
+
+# How It Works
 
 During initialization, a graph is created that is searched to find the best
 transliteration match at a particular index in the tokens of an input string.
@@ -101,6 +101,11 @@ this preprocessing, ``Graph Transliterator`` does not need to iterate through
 all of the outgoing edges of a node to find the next node to search. Instead,
 it uses a best-first search implemented using a stack, and will backtrack if
 necessary to find the best match.
+
+Graph Transliterator is available at
+<https://github.com/seanpue/graphtransliterator> under the MIT License.
+Detailed installation and usage instructions are available at
+<https://graphtransliterator.readthedocs.io>.
 
 # Acknowledgements
 
