@@ -14,6 +14,12 @@ History
 [Unreleased-TODO]
 -----------------
 
+Unreleased (2019-xx-xx)
+-----------------------
+* Modified docs/conf.py
+* Modified equation in docs/usage.rst
+*	modified equation in paper/paper.md
+
 0.2.6 (2019-07-28)
 ------------------
 * Fixes to README.rst, usage.rst, paper.md, and tutorial.rst
