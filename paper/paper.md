@@ -69,7 +69,7 @@ transliteration.
 # How It Works
 
 ![An example graph created for the simple case of a ``Graph Transliterator``
-that takes two token types as input: `a` and `" "` (space), and renders `" "`
+that takes as input two token types, `a` and `" "` (space), and renders `" "`
 as `" "`, and `a` as `b` unless it follows a token of class `wb` (for
 wordbreak), in which case it renders `a` as `B`. The `rule` nodes are in double
 circles, and `token` nodes  are single circles. The numbers are the cost of

@@ -32,30 +32,29 @@ Features
 * Provides a transliteration tool that can be configured to convert the tokens
   of an input string into an output string using:
 
-  * definitions of input **tokens** and **token classes**
+  * user-defined types of input **token** and **token classes**
   * **transliteration rules** based on:
 
     * a sequence of input tokens
     * specific input tokens that precede or follow the token sequence
-    * classes of input tokens preceding or following specific tokens
+    * classes of input tokens preceding or following specified tokens
 
-  * **"on match" rules** for output to be inserted between between
-    transliteration rules involving particular token classes
+  * **"on match" rules** for output to be inserted between transliteration
+    rules involving particular token classes
   * defined rules for **whitespace**, including its optional consolidation
 
 * Can be setup using:
 
   * an **"easy reading"** `YAML <https://yaml.org>`_ format that lets you
     quickly craft settings for the transliteration tool
-  * **"raw"** settings, perhaps passed programmatically, using a dictionary
+  * **"direct"** settings, perhaps passed programmatically, using a dictionary
 
-* **Automatically orders rules based on specificity** using the number of
-  tokens in a transliteration rule
-* **Checks for ambiguity** in transliteration rules, where two rules of equal
-  specificity could match the same tokens
+* **Automatically orders rules** by the number of tokens in a
+  transliteration rule
+* **Checks for ambiguity** in transliteration rules
 * Can provide **details** about each transliteration rule match
 * Allows **optional matching of all possible rules** in a particular location
-* Permits **pruning of rules** with certain production
+* Permits **pruning of rules** with certain productions
 * Can be **serialized** as a dictionary for export to JSON, etc.
 * Provides **full support for Unicode**, including Unicode **character names**
   in the "easy reading" YAML format

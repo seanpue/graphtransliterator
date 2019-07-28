@@ -10,11 +10,11 @@ To use Graph Transliterator in a project::
 
 Overview
 ========
-Graph Transliterator requires that you must first configure
+Graph Transliterator requires that you first configure
 a :class:`GraphTransliterator`. Then you can transliterate an input string
 using :meth:`GraphTransliterator.transliterate`. There are a few
 additional methods that can be used to extract information for specific use
-cases, such as details about which rules were matches.
+cases, such as details about which rules were matched.
 
 Configuration
 =============
@@ -33,12 +33,12 @@ Initialization
 --------------
 
 Defining the rules for transliteration can be difficult, especially when
-dealing with complex scripts. That is why Graph Transliterator permits an
+dealing with complex scripts. That is why Graph Transliterator uses an
 "easy reading" format that allows you to enter the transliteration rules in
 the popular `YAML <https://yaml.org/>`_ format, either from a string
 (using :func:`GraphTransliterator.from_yaml`) or by reading from a file
-or stream (:func:`GraphTransliterator.from_yaml_file`). You can also load
-initialize from the loaded contents of the YAML
+or stream (:func:`GraphTransliterator.from_yaml_file`). You can also
+initialize from the loaded contents of YAML
 (:func:`GraphTransliterator.from_dict`).
 
 Here is a quick sample that parameterizes :class:`GraphTransliterator` using an
@@ -48,7 +48,7 @@ easy reading YAML string (with comments):
 >>> yaml = """
 ...   tokens:
 ...     a: [vowel]               # type of token ("a") and its class (vowel)
-...     bb: [consonant, b_class] # definition of type of token ("bb") and its classes
+...     bb: [consonant, b_class] # type of token ("bb") and its classes (consonant, b_class)
 ...     ' ': [wb]                # type of token (" ") and its class ("wb", for wordbreak)
 ...   rules:
 ...     a: A       # transliterate "a" to "A"
@@ -82,15 +82,15 @@ input string into a list of tokens. This is done internally using
   >>> gt_one.tokenize('abba')
   [' ', 'a', 'bb', 'a', ' ']
 
-Note that the default whitespace is added to the start and end of the input
-tokens.
+Note that the default whitespace  token is added to the start and end of the
+input tokens.
 
 Tokens can be more than one character, and longer tokens are matched first:
 
 >>> yaml = """
 ...   tokens:
 ...     a: []      # "a" token with no classes
-...     aa: []     # "aa" token with no classses
+...     aa: []     # "aa" token with no classes
 ...     ' ': [wb]  # " " token and its class ("wb", for wordbreak)
 ...   rules:
 ...     aa: <DOUBLE_A>  # transliterate "aa" to "<DOUBLE_A>"
@@ -115,7 +115,7 @@ Tokens can be assigned zero or more classes. Each class is a string of your
 choice. These classes are used in transliteration rules. In YAML they are
 defined as a dictionary, but internally the rules are stored
 as a dictionary of token strings keyed to a set of token classes. They can be
-accessed using the  :attr:`GraphTransliterator.tokens`:
+accessed using :attr:`GraphTransliterator.tokens`:
 
 >>> gt_two.tokens
 {'a': set(), 'aa': set(), ' ': {'wb'}}
@@ -147,7 +147,8 @@ the specific tokens required (previous tokens, tokens, next tokens).
 Depending on their complexity, these match conditions can be entered using the
 "easy reading" format in the following ways.
 
-If there are no required additional tokens, the rule can be as follows:
+If there are no required lookahead or lookbehind tokens, the rule can be as
+follows:
 
 .. code-block:: yaml
 
@@ -200,17 +201,21 @@ entered as:
   rules:
     d (b <class_c>): a_before_b_and_class_c # match token 'd' before 'b' and a token of class 'class_c'
     (<class_c> b) a: a_after_b_and_class_c  # match token 'a' after 'b' and a token of class 'class_c'
-    (<class_c> d) a (b <class_c> <class_d>): x # match 'a' after token of 'class_c' and toekn 'd' and before a token of 'class_c' and of 'class_d'
+    (<class_c> d) a (b <class_c> <class_d>): x # match 'a' after token of 'class_c' and 'd' and before a token of 'class_c' and of 'class_d'
   whitespace:
     default: ' '
     token_class: wb
     consolidate: false
 
-By design, Graph Transliterator *picks the most specific rule in a a given
-context*. It does so by assigning a cost to each transliteration rule, and
-it picks the least costly one. The cost is determined by the total number
-of tokens required by the rule. More tokens decreases the cost of a rule
-causing it to be matched first:
+Automatic Ordering of Transliteration Rules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Graph Transliterator automatically orders the transliteration rules based on
+the number of tokens required by the rule. It *picks the rule requiring the
+longest match in a given context*. It does so by assigning a cost to each
+transliteration rule that decreases depending on the number of tokens required
+by the rule. More tokens decreases the cost of a rule causing it to be matched
+first:
 
 >>> yaml = """
 ...   tokens:
@@ -248,7 +253,7 @@ Whitespace Settings
 -------------------
 Whitespace is often very important in transliteration tasks, as the form of
 many letters may change at the start or end of words, as in the
-right-to-left Arabic and left-to-right Indic scripts. Therefore, Graph
+right-to-left Perso-Arabic and left-to-right Indic scripts. Therefore, Graph
 Transliterator requires the following **whitespace settings**:
 
 - the **default** whitespace token
@@ -374,7 +379,7 @@ including in YAML files, using the format "\\N{UNICODE CHARACTER NAME}" or
 ...     ' ': [wb]
 ...   rules:
 ...     b: \N{LATIN CAPITAL LETTER B}
-...     c: \u0043
+...     c: \u0043    # hexadecimal Unicode character code for 'C'
 ...     ' ': ' '
 ...   whitespace:
 ...     default: " "
@@ -459,7 +464,7 @@ Ambiguity checking is only necessary when using an untested Graph
 Transliterator. It can be turned off during initialization. To do so,
 set the initialization parameter :obj:`check_ambiguity` to `False`.
 
-Ambiguity checking can also be done on demand using the
+Ambiguity checking can also be done on demand using
 :meth:`check_for_ambiguity`.
 
 Setup Validation
@@ -474,17 +479,35 @@ Transliteration and Its Exceptions
 ==================================
 
 The main method of Graph Transliterator is
-:meth:`GraphTransliterator.transliterate`. Transliteration error exceptions
-will be logged using :meth:`logging.warning`.
+:meth:`GraphTransliterator.transliterate`. It will return a string:
+
+>>> GraphTransliterator.from_yaml(
+... '''
+... tokens:
+...   a: []
+...   ' ': [wb]
+... rules:
+...   a: A
+...   ' ': '_'
+... whitespace:
+...   default: ' '
+...   consolidate: True
+...   token_class: wb
+... ''').transliterate("a a")
+'A_A'
+
+Details of transliteration error exceptions will be logged using
+:meth:`logging.warning`.
 
 Unrecognizable Input Token
 --------------------------
 
 Unless the :class:`GraphTransliterator` is initialized with or has the property
-:obj:`ignore_errors` set as :obj:`True`, the :meth:`GraphTransliterator.transliterate`
-will raise :exc:`UnrecognizableInputTokenException` when character(s) in the
-input string do not correspond to any defined types of input tokens. In both
-cases, there will be a :meth:`logging.warning`:
+:obj:`ignore_errors` set as :obj:`True`,
+:meth:`GraphTransliterator.transliterate` will raise
+:exc:`UnrecognizableInputTokenException` when character(s) in the input string
+do not correspond to any defined types of input tokens. In both cases, there
+will be a :meth:`logging.warning`:
 
 >>> from graphtransliterator import GraphTransliterator
 >>> yaml_ = """
@@ -514,7 +537,7 @@ Another possible error occurs when no transliteration rule can be identified
 at a particular index in the index string. In that case, there will be a
 :meth:`logging.warning`. If the parameter :obj:`ignore_errors` is set to
 :obj:`True`, the token index will be advanced. Otherwise, there will be a
-:exc:`NoMatchingTransliteratuRuleException`:
+:exc:`NoMatchingTransliterationRuleException`:
 
 >>> yaml_='''
 ...   tokens:
@@ -549,14 +572,15 @@ Serialization
 -------------
 
 The settings of a Graph Transliterator can be serialized using
-:meth:`serialize`. It returns all of the settings of the Graph Transliterator
-as a dictionary.
+:meth:`serialize`. It returns all of the settings of an initialized Graph
+Transliterator as a dictionary.
 
 Matching at an Index
 --------------------
 
 The method :meth:`match_at` is also public. It matches
-the best transliteration rule at a particular index. It also has the
+the best transliteration rule at a particular index, which is the rule that
+contains the largest number of required tokens. The method also has the
 option :obj:`match_all` which, if set, returns all possible transliteration
 matches at a particular location:
 
@@ -590,7 +614,7 @@ Details of Matches
 ------------------
 
 Each Graph Transliterator has a property :attr:`last_matched_rules` which
-returns as a list of the :obj:`TransliterationRule` of the previously matched
+returns a list of :obj:`TransliterationRule` of the previously matched
 transliteration rules:
 
 >>> gt.transliterate("aaa")
@@ -598,7 +622,8 @@ transliteration rules:
 >>> gt.last_matched_rules
 [TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
 
-The particular tokens matched by those rules can be accessed using :attr:`last_matched_rule_tokens`:
+The particular tokens matched by those rules can be accessed using
+:attr:`last_matched_rule_tokens`:
 
 >>> gt.last_matched_rule_tokens
 [['a', 'a'], ['a']]
@@ -655,7 +680,7 @@ Nodes
 The tree has nodes of three types: `Start`, `token`, and `rule`. A single
 `Start` node, the root, is connected to all other nodes. A `token` node
 corresponds to a token having been matched. Finally, `rule` nodes are leaf
-nodes (with no outgoing edges) correspond to transliteration rules:
+nodes (with no outgoing edges) that correspond to matched transliteration rules:
 
 >>> gt.graph.node
 [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [4]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2, 3]}}, {'type': 'rule', 'rule_key': 0, 'rule': TransliterationRule(production='B', prev_classes=['wb'], prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), 'accepting': True, 'ordered_children': {}}, {'type': 'rule', 'rule_key': 1, 'rule': TransliterationRule(production='b', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [5]}}, {'type': 'rule', 'rule_key': 2, 'rule': TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562), 'accepting': True, 'ordered_children': {}}]
@@ -692,9 +717,11 @@ Search and Preprocessing
 Graph Transliterator uses a best-first search, implemented using a stack,
 that finds the transliteration with the the lowest cost. The cost function is:
 
-:math:`\text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count_of_tokens_in}(rule)}\big)}`
+.. math::
 
-It results in a number roughly between 1 and 0 that lessens as more tokens
+   \text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count_of_tokens_in}(rule)}\big)}
+
+It results in a number between 1 and 0 that lessens as more tokens
 must be matched. Each edge on the graph has a cost attribute
 that is set to the lowest cost transliteration rule following it.
 When transliterating, Graph Transliterator will try lower cost edges first and
@@ -704,12 +731,15 @@ will backtrack if the constraint conditions are not met.
 .. figure:: figure1.png
    :alt: Sample graph
 
-   Sample graph created for Graph Transliterator that  renders "a" after
-   whitespace (a token of the class "<wb>" for wordbreak) as "B", "a" as "b",
-   and " " as " ". Rule nodes are in double circles, and token nodes are
-   single circles. The numbers are the cost of the particular edge, and less
-   costly edges are tried first. Previous token class (`prev_classes`)
-   constraints are in a dictionary on the edge before the leaf rule node.
+   An example graph created for the simple case of a Graph Transliterator
+   that takes as input two token types, ``a`` and ``" "`` (space), and
+   renders ``" "`` as ``" "``, and ``a`` as ``b`` unless it follows a token
+   of class ``wb`` (for wordbreak), in which case it renders ``a`` as ``B``.
+   The `rule` nodes are in double circles, and `token` nodes  are single
+   circles. The numbers are the cost of the particular edge, and less costly
+   edges are searched first. Previous token class (``prev_classes``)
+   constraints are found on the edge before the leftmost leaf rule
+   node.
 
 To optimize the search, during initialization an :obj:`ordered_children`
 dictionary is added to each non-leaf node. Its values are a sorted list of

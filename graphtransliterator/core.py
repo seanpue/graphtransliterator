@@ -813,7 +813,7 @@ class GraphTransliterator:
         Example
         -------
         >>> from graphtransliterator import GraphTransliterator
-        >>> yaml = '''
+        >>> yaml_ = '''
         ... tokens:
         ...   a: [class1]
         ...   ' ': [wb]
@@ -827,7 +827,7 @@ class GraphTransliterator:
         ... onmatch_rules:
         ...   - <class1> + <class1>: "+"
         ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml)
+        >>> gt = GraphTransliterator.from_yaml(yaml_)
         >>> gt.transliterate("a aa")
         'A A+A'
 
@@ -895,7 +895,13 @@ class GraphTransliterator:
 
                 ``"onmatch_rules"``
                   Onmatch settings
-                  (`OnMatchRules`)
+                  (`list` of `OnMatchRule`)
+
+                ``"onmatch_rules_lookup"``
+                  Dictionary keyed by current token to previous token
+                  containing a list of indexes of applicable `OnmatchRule`
+                  to try
+                  (`dict` of {`str`: `dict` of {`str`: `list` of `int`}})
 
                 ``"whitespace"``
                   Whitespace settings
@@ -903,7 +909,69 @@ class GraphTransliterator:
 
                 ``"metadata"``
                   Dictionary of metadata (`dict`)
-        """
+
+                ``"graphtransliterator_version"``
+                  Module version of `graphtransliterator` (`str`)
+
+        Note
+        ----
+        `OnmatchRule`, `TransliterationRule`, and `WhitespaceRules` are
+        initialized from :meth:`collections.namedtuple`. Therefore, their keys
+        will always be in the same order and can be accessed by index if
+        reading from a non-Python format.
+
+        Example
+        -------
+        >>> from graphtransliterator import GraphTransliterator
+        >>> yaml_ = '''
+        ...  tokens:
+        ...    a: [vowel]
+        ...    ' ': [wb]
+        ...  rules:
+        ...    a: A
+        ...    ' ': ' '
+        ...  whitespace:
+        ...    default: " "
+        ...    consolidate: false
+        ...    token_class: wb
+        ...  onmatch_rules:
+        ...    - <vowel> + <vowel>: ','  # add a comma between vowels
+        ... '''
+        >>> gt = GraphTransliterator.from_yaml(yaml_)
+        >>> import pprint
+        >>> pprint.pprint(gt.serialize())
+        {'graph': {'edge': {0: {1: {'cost': 0.5849625007211562, 'token': 'a'},
+                                3: {'cost': 0.5849625007211562, 'token': ' '}},
+                            1: {2: {'cost': 0.5849625007211562}},
+                            3: {4: {'cost': 0.5849625007211562}}},
+                   'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)],
+                   'node': [{'ordered_children': {' ': [3], 'a': [1]}, 'type': 'Start'},
+                            {'ordered_children': {'__rules__': [2]},
+                             'token': 'a',
+                             'type': 'token'},
+                            {'accepting': True,
+                             'ordered_children': {},
+                             'rule': TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+                             'rule_key': 0,
+                             'type': 'rule'},
+                            {'ordered_children': {'__rules__': [4]},
+                             'token': ' ',
+                             'type': 'token'},
+                            {'accepting': True,
+                             'ordered_children': {},
+                             'rule': TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+                             'rule_key': 1,
+                             'type': 'rule'}]},
+         'graphtransliterator_version': '0.2.5',
+         'metadata': {},
+         'onmatch_rules': [OnMatchRule(prev_classes=['vowel'], next_classes=['vowel'], production=',')],
+         'onmatch_rules_lookup': {'a': {'a': [0]}},
+         'rules': [TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+                   TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562)],
+         'tokenizer_pattern': '(a|\\ )',
+         'tokens': {' ': ['wb'], 'a': ['vowel']},
+         'whitespace': WhitespaceRules(default=' ', token_class='wb', consolidate=False)}
+        """  # noqa
 
         version = pkg_resources.require("graphtransliterator")[0].version
         return {
@@ -943,7 +1011,7 @@ class GraphTransliterator:
         Example
         -------
         >>> from graphtransliterator import GraphTransliterator
-        >>> yaml = '''
+        >>> yaml_filename = '''
         ... tokens:
         ...   a: [class1, class2]
         ...   ' ': [wb]
@@ -955,7 +1023,7 @@ class GraphTransliterator:
         ...   consolidate: True
         ...   token_class: wb
         ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml, check_ambiguity=False)
+        >>> gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
         >>> gt.check_for_ambiguity()
         WARNING:root:The pattern [{'a'}, {'a'}] can be matched by both:
           <class1> a

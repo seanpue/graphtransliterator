@@ -18,7 +18,7 @@ transliterate Indic-language using the latin alphabet and punctuation marks
 before there were Unicode fonts.
 
 The Devanagari alphabet is an abugida (alphasyllabary), where each "syllable"
-is a separate symbol. Vowels, except for the default "a," have a unique
+is a separate symbol. Vowels, except for the default अ ("a") have a unique
 symbol that connects to a consonant. At the start of the words, they have a
 unique shape. Consonants in sequence, without intermediary vowels, change
 their shape and are joined together. In Unicode, that is accomplished by using
@@ -51,8 +51,8 @@ Token Definitions
 
 Graph Transliterator tokenizes its input before transliterating. The ``tokens``
 section will map the input tokens to their token classes. The main class you
-will need is one for consonants, so you can use ``consonant``. Graph
-Transliterator also requires a dedicated whitespace class, so you can use
+will need is one for consonants, so you can use ``consonant`` as the class.
+Graph Transliterator also requires a dedicated whitespace class, so you can use
 ``whitespace``.
 
 Graph Transliterator allows the use of Unicode character names in files using
@@ -186,10 +186,11 @@ individual tokens and also any preceding token classes:
 These rules will replace "b" with the devanagari equivalent (ब), and "A" with
 with a full letter अा if it is at a start of a word (following a token of class
 "wb", for wordbreak) or otherwise with a vowel sign ा if it is not, presumably
-following a consonant. Graph Transliterator automatically sorts rules by
-their specificity, so the "A" following a consonant would be matched before
-an "A" after any other character. Graph Transliterator will also check for
-ambiguity in these rules, unless ``check_ambiguity`` is set to False.
+following a consonant. Graph Transliterator automatically sorts rules by how
+many tokens are required for them to be matched, and it picks the one with
+that requires the most tokens. So the "A" following a consonant would be
+matched before an "A" after any other character. Graph Transliterator will also
+check for ambiguity in these rules, unless ``check_ambiguity`` is set to False.
 
 While not necessary for this tutorial, Graph Transliterator can also
 require matching of specific previous or following tokens and also
@@ -199,7 +200,7 @@ classes preceding and following those tokens, e.g.
 
   k a r (U M g A <wb>): k,a,r_followed_by_U,M,g,A_and_a_wordbreak
   s o (n a): s,o_followed_by_n,a
-  (<wb> p y) aa r: aa,r_preceded_by_p,y_and_a_wordbreak
+  (<wb> p y) aa r: aa,r_preceded_by_a_wordbreak,p,and_y
 
 You can enter the rules as follows:
 
@@ -378,7 +379,7 @@ are no restrictions on these values, so you can put whatever is useful:
 .. code-block:: yaml
 
   metadata:
-    title: "ITRANS to Unicode"
+    title: "ITRANS Devanagari to Unicode"
     version: "0.1.0"
 
 Creating a Transliterator

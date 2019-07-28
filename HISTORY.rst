@@ -14,6 +14,11 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.6 (2019-07-28)
+------------------
+* Fixes to README.rst, usage.rst, paper.md, and tutorial.rst
+* Modifications to core.py documentation
+
 0.2.5 (2019-07-24)
 ------------------
 * Fixes to HISTORY.rst and README.rst
