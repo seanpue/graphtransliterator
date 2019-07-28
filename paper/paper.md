@@ -86,7 +86,7 @@ transliteration rules. Each transliteration rule is assigned a particular cost
 between one and zero that lessens with more tokens, using the following cost
 function:
 
-$$\text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count\textunderscore of\textunderscore tokens\textunderscore in}(rule)}\big)}$$
+$$\text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count}\_\text{of}\_ \text{tokens}\_ \text{in}(rule)}\big)}$$
 
 Each edge is assigned a cost corresponding to the least costly transliteration
 rule leaf node that can be reached from it. Edges contain constraints that must

@@ -719,7 +719,7 @@ that finds the transliteration with the the lowest cost. The cost function is:
 
 .. math::
 
-   \text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count\textunderscore of\textunderscore tokens\textunderscore in}(rule)}\big)}
+  \text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count}\_\text{of}\_ \text{tokens}\_ \text{in}(rule)}\big)}
 
 It results in a number between 1 and 0 that lessens as more tokens
 must be matched. Each edge on the graph has a cost attribute
