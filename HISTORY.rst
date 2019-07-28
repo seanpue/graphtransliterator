@@ -4,21 +4,21 @@ History
 
 [Unreleased - Maybe]
 --------------------
-* Add CLI.
+* Add CLI
 * Add metadata guidelines
 * Save match location in tokenize
 * Reconsider serialization keys
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output.
+* Fix Devanagari output in doc PDF
 
 [Unreleased-TODO]
 -----------------
 
-Unreleased (2019-xx-xx)
+0.2.7 (2019-07-28)
 -----------------------
 * Modified docs/conf.py
-* Modified equation in docs/usage.rst
-*	modified equation in paper/paper.md
+* Modified equation in docs/usage.rst and paper/paper.md to fix doc build
 
 0.2.6 (2019-07-28)
 ------------------
