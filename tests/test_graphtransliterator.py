@@ -576,7 +576,7 @@ def test_GraphTransliterator_pruned_of():
     assert len(gt.rules) == 2
     assert len(gt.pruned_of('B').rules) == 1
     assert gt.pruned_of('B').rules[0].production == 'A'
-
+    assert gt.pruned_of(['A', 'B']) # if no rules present will still work
 
 def test_GraphTransliterator_easy_reading():
     assert _easyreading_rule(
