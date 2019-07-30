@@ -17,8 +17,8 @@ History
 
 X.X.X (XXXX-XX-XX)
 ------------------
-* Fixed check_ambiguity() to return True in core.py if no rules present
-* Fixes to README.rst
+* Fixed ambiguity check if no rules present
+* Updates to README.rst
 
 0.2.7 (2019-07-28)
 -----------------------
