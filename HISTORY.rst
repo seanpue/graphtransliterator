@@ -15,7 +15,7 @@ History
 [Unreleased-TODO]
 -----------------
 
-X.X.X (XXXX-XX-XX)
+0.2.8 (2019-07-30)
 ------------------
 * Fixed ambiguity check if no rules present
 * Updates to README.rst
