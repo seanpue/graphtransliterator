@@ -32,7 +32,7 @@ Features
 * Provides a transliteration tool that can be configured to convert the tokens
   of an input string into an output string using:
 
-  * user-defined types of input **token** and **token classes**
+  * user-defined types of input **tokens** and **token classes**
   * **transliteration rules** based on:
 
     * a sequence of input tokens

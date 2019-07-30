@@ -1039,6 +1039,9 @@ class GraphTransliterator:
 
         rules = self._rules
 
+        if not rules:
+            return True
+
         max_prev = [_count_of_prev(rule) for rule in rules]
         global_max_prev = max(max_prev)
         max_curr_next = [_count_of_curr_and_next(rule) for rule in rules]

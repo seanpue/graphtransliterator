@@ -15,6 +15,11 @@ History
 [Unreleased-TODO]
 -----------------
 
+X.X.X (XXXX-XX-XX)
+------------------
+* Fixed check_ambiguity() to return True in core.py if no rules present
+* Fixes to README.rst
+
 0.2.7 (2019-07-28)
 -----------------------
 * Modified docs/conf.py
