@@ -15,6 +15,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.10 (2019-08-03)
+-------------------
+* fixed test not working on travis
+
 0.2.9 (2019-08-03)
 ------------------
 * Used Black code formatter
