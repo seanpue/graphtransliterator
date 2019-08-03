@@ -15,13 +15,17 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.13 (2019-08-03)
+-------------------
+* changed setup.cfg for double quotes in bumpversion due to Black formatting of setup.py
+
 0.2.12 (2019-08-03)
 -------------------
-* fixed version str error in setup.py
+* fixed version error in setup.py
 
 0.2.11 (2019-08-03)
 -------------------
-* travis issue 
+* travis issue
 
 0.2.10 (2019-08-03)
 -------------------
