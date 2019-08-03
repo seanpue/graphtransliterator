@@ -15,6 +15,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.12 (2019-08-03)
+-------------------
+* fixed version str error in setup.py
+
 0.2.11 (2019-08-03)
 -------------------
 * travis issue 
