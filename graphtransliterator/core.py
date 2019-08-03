@@ -14,16 +14,22 @@ import yaml
 from .validate import validate_easyreading_settings, validate_settings
 from .process import _process_easyreading_settings
 from .initialize import (
-    _graph_from, _onmatch_rule_of, _onmatch_rules_lookup, _tokenizer_from,
-    _tokens_by_class_of, _tokens_of, _transliteration_rule_of, _whitespace_of
+    _graph_from,
+    _onmatch_rule_of,
+    _onmatch_rules_lookup,
+    _tokenizer_from,
+    _tokens_by_class_of,
+    _tokens_of,
+    _transliteration_rule_of,
+    _whitespace_of,
 )
 from .exceptions import (
     AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRuleException,
-    UnrecognizableInputTokenException
+    UnrecognizableInputTokenException,
 )
 
-logger = logging.getLogger('graphtransliterator')
+logger = logging.getLogger("graphtransliterator")
 
 
 class GraphTransliterator:
@@ -162,38 +168,45 @@ class GraphTransliterator:
     from_dict : constructor from  dictionary in "easy reading" format
     from_yaml : constructor from YAML string in "easy reading" format
     from_yaml_file : constructor from YAML in "easy reading" format
-""" # noqa
+"""  # noqa
 
-    def __init__(self, tokens, rules, onmatch_rules, whitespace, metadata,
-                 check_settings=True, check_ambiguity=True,
-                 ignore_errors=False, **kwargs):
+    def __init__(
+        self,
+        tokens,
+        rules,
+        onmatch_rules,
+        whitespace,
+        metadata,
+        check_settings=True,
+        check_ambiguity=True,
+        ignore_errors=False,
+        **kwargs
+    ):
         if check_settings:
-            validate_settings(
-                tokens, rules, onmatch_rules, whitespace, metadata
-            )
+            validate_settings(tokens, rules, onmatch_rules, whitespace, metadata)
         self._metadata = metadata
         self._tokens = _tokens_of(tokens)
         self._tokens_by_class = _tokens_by_class_of(tokens)
         self._rules = sorted(
             [_transliteration_rule_of(rule) for rule in rules],
-            key=lambda transliteration_rule: transliteration_rule.cost)
+            key=lambda transliteration_rule: transliteration_rule.cost,
+        )
         if check_ambiguity:
             self.check_for_ambiguity()
         self._onmatch_rules = [_onmatch_rule_of(_) for _ in onmatch_rules]
-        self._onmatch_rules_lookup = \
-            _onmatch_rules_lookup(tokens, self._onmatch_rules)
+        self._onmatch_rules_lookup = _onmatch_rules_lookup(tokens, self._onmatch_rules)
         self._whitespace = _whitespace_of(whitespace)
         self._ignore_errors = ignore_errors
-        self.__init_parameters__ = {     # used by pruned_of
-            'tokens': tokens,
-            'rules': rules,
-            'onmatch_rules': onmatch_rules,
-            'whitespace': whitespace,
-            'metadata': metadata,
-            'check_settings': check_settings,
-            'ignore_errors': ignore_errors,
-            'check_ambiguity': check_ambiguity,
-            'kwargs': kwargs
+        self.__init_parameters__ = {  # used by pruned_of
+            "tokens": tokens,
+            "rules": rules,
+            "onmatch_rules": onmatch_rules,
+            "whitespace": whitespace,
+            "metadata": metadata,
+            "check_settings": check_settings,
+            "ignore_errors": ignore_errors,
+            "check_ambiguity": check_ambiguity,
+            "kwargs": kwargs,
         }
         self._tokenizer = _tokenizer_from(list(tokens.keys()))
         self._graph = _graph_from(self.rules)
@@ -210,7 +223,7 @@ class GraphTransliterator:
         """
         target_edge = self._graph.edge[source][target]
 
-        constraints = target_edge.get('constraints')
+        constraints = target_edge.get("constraints")
 
         if not constraints:
             return True
@@ -218,8 +231,8 @@ class GraphTransliterator:
         for c_type, c_value in constraints.items():
             # logger.debug("Constraints::c_type: %s c_value: %s" %
             #     (c_type, c_value))
-            if c_type == 'prev_tokens':
-                num_tokens = len(self._graph.node[target]['rule'].tokens)
+            if c_type == "prev_tokens":
+                num_tokens = len(self._graph.node[target]["rule"].tokens)
                 # presume for rule (a) a, with input "aa"
                 # ' ', a, a, ' '  start (token_i=3)
                 #             ^
@@ -229,25 +242,33 @@ class GraphTransliterator:
                 start_at -= num_tokens
                 start_at -= len(c_value)
 
-                if not self._match_tokens(start_at, c_value,
-                                          tokens,
-                                          check_prev=True, check_next=False,
-                                          by_class=False):
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=True,
+                    check_next=False,
+                    by_class=False,
+                ):
                     return False
-            elif c_type == 'next_tokens':
+            elif c_type == "next_tokens":
                 # presume for rule a (a), with input "aa"
                 # ' ', a, a, ' '  start (token_i=2)
                 #         ^
                 start_at = token_i
 
-                if not self._match_tokens(start_at, c_value,
-                                          tokens,
-                                          check_prev=False, check_next=True,
-                                          by_class=False):
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=False,
+                    check_next=True,
+                    by_class=False,
+                ):
                     return False
 
-            elif c_type == 'prev_classes':
-                num_tokens = len(self._graph.node[target]['rule'].tokens)
+            elif c_type == "prev_classes":
+                num_tokens = len(self._graph.node[target]["rule"].tokens)
                 # presume for rule (a <class_a>) a, with input "aaa"
                 # ' ', a, a, a, ' '
                 #                ^     start (token_i=4)
@@ -256,29 +277,37 @@ class GraphTransliterator:
                 #  ^                   -len(prev_classes)
                 start_at = token_i
                 start_at -= num_tokens
-                prev_tokens = constraints.get('prev_tokens')
+                prev_tokens = constraints.get("prev_tokens")
                 if prev_tokens:
                     start_at -= len(prev_tokens)
                 start_at -= len(c_value)
-                if not self._match_tokens(start_at, c_value,
-                                          tokens,
-                                          check_prev=True, check_next=False,
-                                          by_class=True):
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=True,
+                    check_next=False,
+                    by_class=True,
+                ):
                     return False
 
-            elif c_type == 'next_classes':
+            elif c_type == "next_classes":
                 # presume for rule a (a <class_a>), with input "aaa"
                 # ' ', a, a, a, ' '
                 #         ^          start (token_i=2)
                 #            ^       + len of next_tokens (a)
                 start_at = token_i
-                next_tokens = constraints.get('next_tokens')
+                next_tokens = constraints.get("next_tokens")
                 if next_tokens:
                     start_at += len(next_tokens)
-                if not self._match_tokens(start_at, c_value,
-                                          tokens,
-                                          check_prev=False, check_next=True,
-                                          by_class=True):
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=False,
+                    check_next=True,
+                    by_class=True,
+                ):
                     return False
 
         # logger.debug("Matched constraints! %s:%s" % (c_type, c_value))#
@@ -341,7 +370,7 @@ class GraphTransliterator:
         >>> [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)]
         [TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
         >>>
-        """ # noqa
+        """  # noqa
 
         graph = self._graph
         if match_all:
@@ -350,23 +379,22 @@ class GraphTransliterator:
 
         def _append_children(node_key, token_i):
             children = None
-            ordered_children = graph.node[node_key].get('ordered_children')
+            ordered_children = graph.node[node_key].get("ordered_children")
             if ordered_children:
                 children = ordered_children.get(tokens[token_i])
                 if children:
                     # reordered high to low for stack:
                     for child_key in reversed(children):
-                        stack.appendleft(
-                            (child_key, node_key, token_i)
-                        )
+                        stack.appendleft((child_key, node_key, token_i))
                 else:
-                    rules_keys = ordered_children.get('__rules__')  # leafs
+                    rules_keys = ordered_children.get("__rules__")  # leafs
                     if rules_keys:
                         # There may be more than one as certain rules have
                         # constraints on them.
                         # reordered so high cost go on stack last
                         for rule_key in reversed(rules_keys):
                             stack.appendleft((rule_key, node_key, token_i))
+
         _append_children(0, token_i)  # append all children of root node
 
         while stack:  # LIFO
@@ -374,23 +402,25 @@ class GraphTransliterator:
             assert token_i < len(tokens), "way past boundary"
             curr_node = graph.node[node_key]
             # check constraints on preceding edge
-            if curr_node.get('accepting') and \
-               self._match_constraints(parent_key, node_key, token_i, tokens):
+            if curr_node.get("accepting") and self._match_constraints(
+                parent_key, node_key, token_i, tokens
+            ):
                 if match_all:
-                    matches.append(curr_node['rule_key'])
+                    matches.append(curr_node["rule_key"])
                     continue
                 else:
-                    return curr_node['rule_key']
+                    return curr_node["rule_key"]
             else:
-                if token_i < len(tokens)-1:
+                if token_i < len(tokens) - 1:
                     token_i += 1
                 _append_children(node_key, token_i)
         if match_all:
             # logger.debug("matched: %s " % matches)
             return matches
 
-    def _match_tokens(self, start_i, c_value, tokens, check_prev=True,
-                      check_next=True, by_class=False):
+    def _match_tokens(
+        self, start_i, c_value, tokens, check_prev=True, check_next=True, by_class=False
+    ):
         """Match tokens, with boundary checks."""
 
         if check_prev and start_i < 0:
@@ -399,9 +429,9 @@ class GraphTransliterator:
             return False
         for i in range(0, len(c_value)):
             if by_class:
-                if not c_value[i] in self._tokens[tokens[start_i+i]]:
+                if not c_value[i] in self._tokens[tokens[start_i + i]]:
                     return False
-            elif tokens[start_i+i] != c_value[i]:
+            elif tokens[start_i + i] != c_value[i]:
                 return False
         return True
 
@@ -487,13 +517,13 @@ class GraphTransliterator:
         ... ''').transliterate("a a")
         'A_A'
         """
-        tokens = self.tokenize(input)   # adds initial+final whitespace
-        self._input_tokens = tokens     # <--- tokens are saved here
+        tokens = self.tokenize(input)  # adds initial+final whitespace
+        self._input_tokens = tokens  # <--- tokens are saved here
         self._rule_keys = []
         output = ""
-        token_i = 1                     # adjust for initial whitespace
+        token_i = 1  # adjust for initial whitespace
 
-        while token_i < len(tokens)-1:  # adjust for final whitespace
+        while token_i < len(tokens) - 1:  # adjust for final whitespace
             rule_key = self.match_at(token_i, tokens)
             if rule_key is None:
                 logger.warning(
@@ -512,7 +542,7 @@ class GraphTransliterator:
             tokens_matched = rule.tokens
             if self._onmatch_rules:
                 curr_match_rules = None
-                prev_t = tokens[token_i-1]
+                prev_t = tokens[token_i - 1]
                 curr_t = tokens[token_i]
                 curr_t_rules = self._onmatch_rules_lookup.get(curr_t)
                 if curr_t_rules:
@@ -525,15 +555,19 @@ class GraphTransliterator:
                         #     ^
                         # ^      - len(onmatch.prev_rules)
                         if self._match_tokens(
-                            token_i-len(onmatch.prev_classes),
+                            token_i - len(onmatch.prev_classes),
                             onmatch.prev_classes,  # double checks last value
                             tokens,
-                            check_prev=True, check_next=False, by_class=True
+                            check_prev=True,
+                            check_next=False,
+                            by_class=True,
                         ) and self._match_tokens(
                             token_i,
                             onmatch.next_classes,  # double checks first value
                             tokens,
-                            check_prev=False, check_next=True, by_class=True
+                            check_prev=False,
+                            check_next=True,
+                            by_class=True,
                         ):
                             output += onmatch.production
                             break  # only match best onmatch rule
@@ -573,6 +607,7 @@ class GraphTransliterator:
         >>> gt.tokenize('ab ')
         >>> [' ', 'ab', ' ']
         """
+
         def is_whitespace(token):
             """Check if token is whitespace."""
             return self.whitespace.token_class in self.tokens[token]
@@ -609,9 +644,8 @@ class GraphTransliterator:
             else:
                 # if match_at != len(input):
                 logger.warning(
-                    "Unrecognizable token %s at pos %s of %s" % (
-                        input[match_at], match_at, input
-                    )
+                    "Unrecognizable token %s at pos %s of %s"
+                    % (input[match_at], match_at, input)
                 )
                 if not self.ignore_errors:
                     raise UnrecognizableInputTokenException
@@ -668,20 +702,23 @@ class GraphTransliterator:
         [TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
         >>> gt.pruned_of(['<A>', '<AA>']).rules
         []
-        """ # noqa
+        """  # noqa
         __init_parameters__ = self.__init_parameters__
-        pruned_rules = [_ for _ in __init_parameters__['rules']
-                        if not _['production'] in productions]
+        pruned_rules = [
+            _
+            for _ in __init_parameters__["rules"]
+            if not _["production"] in productions
+        ]
         return GraphTransliterator(
-            __init_parameters__['tokens'],
+            __init_parameters__["tokens"],
             pruned_rules,
-            __init_parameters__['onmatch_rules'],
-            __init_parameters__['whitespace'],
-            __init_parameters__['metadata'],
-            ignore_errors=__init_parameters__['ignore_errors'],
-            check_settings=__init_parameters__['check_settings'],
-            check_ambiguity=__init_parameters__['check_ambiguity'],
-            **__init_parameters__['kwargs']
+            __init_parameters__["onmatch_rules"],
+            __init_parameters__["whitespace"],
+            __init_parameters__["metadata"],
+            ignore_errors=__init_parameters__["ignore_errors"],
+            check_settings=__init_parameters__["check_settings"],
+            check_ambiguity=__init_parameters__["check_ambiguity"],
+            **__init_parameters__["kwargs"]
         )
 
     @property
@@ -790,8 +827,12 @@ class GraphTransliterator:
         settings = _process_easyreading_settings(settings)
 
         return GraphTransliterator(
-            settings['tokens'], settings['rules'], settings['onmatch_rules'],
-            settings['whitespace'], settings['metadata'], **kwargs
+            settings["tokens"],
+            settings["rules"],
+            settings["onmatch_rules"],
+            settings["whitespace"],
+            settings["metadata"],
+            **kwargs
         )
 
     @classmethod
@@ -863,7 +904,7 @@ class GraphTransliterator:
         graphtransliterator.GraphTransliterator.from_yaml
         graphtransliterator.GraphTransliterator.from_dict
         """
-        with open(yaml_filename, 'r') as f:
+        with open(yaml_filename, "r") as f:
             yaml_string = f.read()
 
         return cls.from_yaml(yaml_string, **kwargs)
@@ -975,16 +1016,15 @@ class GraphTransliterator:
 
         version = pkg_resources.require("graphtransliterator")[0].version
         return {
-            'graph': self._graph.to_dict(),
-            'metadata': self._metadata,
-            'tokens': {token: list(classes)
-                       for token, classes in self._tokens.items()},
-            'rules': self._rules,
-            'onmatch_rules': self._onmatch_rules,
-            'onmatch_rules_lookup': self._onmatch_rules_lookup,
-            'whitespace': self._whitespace,
-            'tokenizer_pattern': self._tokenizer.pattern,
-            'graphtransliterator_version': version
+            "graph": self._graph.to_dict(),
+            "metadata": self._metadata,
+            "tokens": {token: list(classes) for token, classes in self._tokens.items()},
+            "rules": self._rules,
+            "onmatch_rules": self._onmatch_rules,
+            "onmatch_rules_lookup": self._onmatch_rules_lookup,
+            "whitespace": self._whitespace,
+            "tokenizer_pattern": self._tokenizer.pattern,
+            "graphtransliterator_version": version,
         }
 
     def check_for_ambiguity(self):
@@ -1068,9 +1108,7 @@ class GraphTransliterator:
 
             intersections = []
             for k in range(width):
-                intersection = matrix[i][k].intersection(
-                    matrix[j][k]
-                )
+                intersection = matrix[i][k].intersection(matrix[j][k])
                 if not intersection:
                     return None
                 intersections += [intersection]
@@ -1088,17 +1126,17 @@ class GraphTransliterator:
         # If there are ambiguities, then see if a less costly rule
         # would match the rule. If it does not, there is ambiguity.
 
-        grouper = lambda x: (_count_of_tokens(x)) # noqa, could replace by cost
+        grouper = lambda x: (_count_of_tokens(x))  # noqa, could replace by cost
 
         for group_val, group_iter in itertools.groupby(
-                enumerate(self._rules),
-                key=lambda x: grouper(x[1])):
+            enumerate(self._rules), key=lambda x: grouper(x[1])
+        ):
 
             group = list(group_iter)
             if len(group) == 1:
                 continue
             for i in range(len(group) - 1):
-                for j in range(i+1, len(group)):
+                for j in range(i + 1, len(group)):
                     i_index = group[i][0]
                     j_index = group[j][0]
                     intersection = full_intersection(i_index, j_index)
@@ -1125,7 +1163,7 @@ class GraphTransliterator:
                             "  {}\n".format(
                                 intersection,
                                 _easyreading_rule(rules[i_index]),
-                                _easyreading_rule(rules[j_index])
+                                _easyreading_rule(rules[j_index]),
                             )
                         )
                         ambiguity = True
@@ -1144,8 +1182,9 @@ def _easyreading_rule(rule):
 
     out = ""
     if rule.prev_classes and rule.prev_tokens:
-        out = "({} {}) ".format(_class_str(rule.prev_classes),
-                                _token_str(rule.prev_tokens))
+        out = "({} {}) ".format(
+            _class_str(rule.prev_classes), _token_str(rule.prev_tokens)
+        )
     elif rule.prev_classes:
         out = "{} ".format(_class_str(rule.prev_classes))
     elif rule.prev_tokens:
@@ -1154,8 +1193,9 @@ def _easyreading_rule(rule):
     out += _token_str(rule.tokens)
 
     if rule.next_tokens and rule.next_classes:
-        out += " ({} {})".format(_token_str(rule.next_tokens),
-                                 _class_str(rule.next_classes))
+        out += " ({} {})".format(
+            _token_str(rule.next_tokens), _class_str(rule.next_classes)
+        )
     elif rule.next_tokens:
         out += " ({})".format(_token_str(rule.next_tokens))
     elif rule.next_classes:
@@ -1166,56 +1206,50 @@ def _easyreading_rule(rule):
 def _count_of_prev(rule):
     """Count previous tokens to be present before a match in a rule."""
 
-    return (
-        len(rule.prev_classes or []) +
-        len(rule.prev_tokens or [])
-    )
+    return len(rule.prev_classes or []) + len(rule.prev_tokens or [])
 
 
 def _count_of_curr_and_next(rule):
     """Count tokens to be matched and those to follow them in rule."""
 
-    return (len(rule.tokens) +
-            len(rule.next_tokens or []) +
-            len(rule.next_classes or []))
+    return len(rule.tokens) + len(rule.next_tokens or []) + len(rule.next_classes or [])
 
 
 def _count_of_tokens(rule):
     return (
-        len(rule.prev_classes or []) +
-        len(rule.prev_tokens or []) +
-        len(rule.tokens) +
-        len(rule.next_tokens or []) +
-        len(rule.next_classes or [])
+        len(rule.prev_classes or [])
+        + len(rule.prev_tokens or [])
+        + len(rule.tokens)
+        + len(rule.next_tokens or [])
+        + len(rule.next_classes or [])
     )
 
 
 def _prev_tokens_possible(rule, tokens_by_class):
     """`list` of set of possible preceding tokens for a rule."""
 
-    return (
-        [tokens_by_class[_] for _ in rule.prev_classes or []] +
-        [set([_]) for _ in rule.prev_tokens or []]
-    )
+    return [tokens_by_class[_] for _ in rule.prev_classes or []] + [
+        set([_]) for _ in rule.prev_tokens or []
+    ]
 
 
 def _curr_and_next_tokens_possible(rule, tokens_by_class):
     """`list` of sets of possible current and following tokens for a rule."""
 
     return (
-        [set([_]) for _ in rule.tokens] +
-        [set([_]) for _ in rule.next_tokens or []] +
-        [tokens_by_class[_] for _ in rule.next_classes or []]
+        [set([_]) for _ in rule.tokens]
+        + [set([_]) for _ in rule.next_tokens or []]
+        + [tokens_by_class[_] for _ in rule.next_classes or []]
     )
 
 
 def _tokens_possible(row, tokens_by_class):
     """`list` of sets of possible tokens matched for a rule."""
 
-    return (
-        _prev_tokens_possible(row, tokens_by_class) +
-        _curr_and_next_tokens_possible(row, tokens_by_class)
+    return _prev_tokens_possible(row, tokens_by_class) + _curr_and_next_tokens_possible(
+        row, tokens_by_class
     )
+
 
 # initialization-related functions for unescaping unicode
 
@@ -1245,8 +1279,8 @@ def _unescape_charnames(input_str):
     def get_unicode_char(matchobj):
         """Get Unicode character value from escaped character sequences."""
         charname = matchobj.group(0)
-        match = re.match(r'\\N{([A-Z ]+)}', charname)
+        match = re.match(r"\\N{([A-Z ]+)}", charname)
         char = unicodedata.lookup(match.group(1))  # KeyError if invalid
         return char
 
-    return re.sub(r'\\N{[A-Z ]+}', get_unicode_char, input_str)
+    return re.sub(r"\\N{[A-Z ]+}", get_unicode_char, input_str)

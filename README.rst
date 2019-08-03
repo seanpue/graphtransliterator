@@ -18,6 +18,9 @@ Graph Transliterator
      :target: https://pyup.io/repos/github/seanpue/graphtransliterator/
      :alt: Updates
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+     :target: https://github.com/ambv/black
+
 A graph-based transliteration tool that lets you convert the symbols of one
 language or script to those of another using rules that you define.
 

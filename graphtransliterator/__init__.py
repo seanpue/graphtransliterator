@@ -13,30 +13,27 @@ convert between transliteration systems.
 """
 
 __author__ = """A. Sean Pue"""
-__email__ = 'pue@msu.edu'
-__version__ = '0.2.8'
+__email__ = "pue@msu.edu"
+__version__ = "0.2.8"
 
 # Core classes
 from .core import GraphTransliterator  # noqa
 
 # Graphs
-from .graphs import DirectedGraph # noqa
+from .graphs import DirectedGraph  # noqa
 
 # Rules
-from .rules import (TransliterationRule, OnMatchRule, WhitespaceRules) # noqa
+from .rules import TransliterationRule, OnMatchRule, WhitespaceRules  # noqa
 
 # Exceptions
 from .exceptions import (
     GraphTransliteratorException,
     AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRuleException,
-    UnrecognizableInputTokenException
-) # noqa
+    UnrecognizableInputTokenException,
+)  # noqa
 
-from .validate import (
-    validate_easyreading_settings,
-    validate_settings
-)
+from .validate import validate_easyreading_settings, validate_settings
 
 __all__ = [
     # core
@@ -54,6 +51,5 @@ __all__ = [
     "WhitespaceRules",
     # validate
     "validate_easyreading_settings",
-    "validate_settings"
-
+    "validate_settings",
 ]

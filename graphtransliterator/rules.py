@@ -7,14 +7,20 @@ Graph Transliterator rule classes.
 from collections import namedtuple
 
 
-class TransliterationRule(namedtuple('TransliterationRule',
-                                     ['production',
-                                      'prev_classes',
-                                      'prev_tokens',
-                                      'tokens',
-                                      'next_tokens',
-                                      'next_classes',
-                                      'cost'])):
+class TransliterationRule(
+    namedtuple(
+        "TransliterationRule",
+        [
+            "production",
+            "prev_classes",
+            "prev_tokens",
+            "tokens",
+            "next_tokens",
+            "next_classes",
+            "cost",
+        ],
+    )
+):
     """
     A transliteration rule containing the specific match conditions and
     string output to be produced, as well as the rule's cost.
@@ -41,9 +47,9 @@ class TransliterationRule(namedtuple('TransliterationRule',
     __slots__ = ()
 
 
-class OnMatchRule(namedtuple('OnMatchRule', ['prev_classes',
-                                             'next_classes',
-                                             'production'])):
+class OnMatchRule(
+    namedtuple("OnMatchRule", ["prev_classes", "next_classes", "production"])
+):
     """
     Rules about adding text between certain combinations of matched rules.
 
@@ -64,9 +70,9 @@ class OnMatchRule(namedtuple('OnMatchRule', ['prev_classes',
     __slots__ = ()
 
 
-class WhitespaceRules(namedtuple('Whitespace', ['default',
-                                                'token_class',
-                                                'consolidate'])):
+class WhitespaceRules(
+    namedtuple("Whitespace", ["default", "token_class", "consolidate"])
+):
     """
     Whitespace rules of GraphTransliterator.
 

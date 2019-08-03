@@ -15,6 +15,14 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.9 (2019-08-03)
+------------------
+* Used Black code formatter
+* Adjusted tox.ini, contributing.rst
+* Set development status to Beta in setup.py
+* Added black badge to README.rst
+* Fixed comments and minor changes in initialize.py
+
 0.2.8 (2019-07-30)
 ------------------
 * Fixed ambiguity check if no rules present

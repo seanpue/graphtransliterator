@@ -27,7 +27,8 @@ class DirectedGraph:
     >>> DirectedGraph()
     <graphtransliterator.graphs.DirectedGraph object at 0x106d1c908>
     """
-    __slots__ = 'edge', 'node', 'edge_list'
+
+    __slots__ = "edge", "node", "edge_list"
 
     def __init__(self):
         self.edge = {}
@@ -74,8 +75,7 @@ class DirectedGraph:
         if type(tail) is not int:
             raise ValueError("Edge tail is not an integer: %s." % tail)
         if head < 0 or head >= len(self.node):
-            raise ValueError(
-                "Head index of edge not in graph: %s." % head)
+            raise ValueError("Head index of edge not in graph: %s." % head)
         if tail < 0 or tail >= len(self.node):
             raise ValueError("Tail index of edge not in graph: %s." % tail)
         if type(edge_data) is not dict:
@@ -163,8 +163,4 @@ class DirectedGraph:
 
         """
 
-        return {
-            "edge": self.edge,
-            "node": self.node,
-            "edge_list": self.edge_list
-        }
+        return {"edge": self.edge, "node": self.node, "edge_list": self.edge_list}
