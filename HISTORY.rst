@@ -15,6 +15,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.2.11 (2019-08-03)
+-------------------
+* travis issue 
+
 0.2.10 (2019-08-03)
 -------------------
 * fixed test for version not working on travis
