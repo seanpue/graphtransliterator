@@ -14,7 +14,7 @@ convert between transliteration systems.
 
 __author__ = """A. Sean Pue"""
 __email__ = "pue@msu.edu"
-__version__ = "__version__ = '0.2.9'"
+__version__ = "__version__ = '0.2.10'"
 
 # Core classes
 from .core import GraphTransliterator  # noqa
