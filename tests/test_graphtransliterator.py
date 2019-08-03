@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `graphtransliterator` package."""
-import pkg_resources
+import graphtransliterator
 import pytest
+import re
 import yaml
 from graphtransliterator import GraphTransliterator
 from graphtransliterator.core import _easyreading_rule
@@ -329,7 +330,16 @@ def test_GraphTransliterator_transliterate(tmpdir):
 
     # test serialization
     assert gt.serialize()["graph"]["edge"]
-    assert gt.serialize()["graphtransliterator_version"]
+    assert re.match(r"\d+\.\d+\.\d+$", gt.serialize()["graphtransliterator_version"])
+    assert (
+        gt.serialize()["graphtransliterator_version"] == graphtransliterator.__version__
+    )
+
+
+def test_version():
+    """Tests to make sure version is not a mess due to Black formatting"""
+
+    assert re.match(r"\d+\.\d+\.\d+$", graphtransliterator.__version__)
 
 
 def test_match_all():

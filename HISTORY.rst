@@ -18,6 +18,7 @@ History
 0.2.13 (2019-08-03)
 -------------------
 * changed setup.cfg for double quotes in bumpversion due to Black formatting of setup.py
+* added version test
 
 0.2.12 (2019-08-03)
 -------------------
