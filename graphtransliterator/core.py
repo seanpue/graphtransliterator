@@ -229,8 +229,6 @@ class GraphTransliterator:
             return True
         # should these be ordered?
         for c_type, c_value in constraints.items():
-            # logger.debug("Constraints::c_type: %s c_value: %s" %
-            #     (c_type, c_value))
             if c_type == "prev_tokens":
                 num_tokens = len(self._graph.node[target]["rule"].tokens)
                 # presume for rule (a) a, with input "aa"
@@ -310,7 +308,6 @@ class GraphTransliterator:
                 ):
                     return False
 
-        # logger.debug("Matched constraints! %s:%s" % (c_type, c_value))#
         return True
 
     def match_at(self, token_i, tokens, match_all=False):
@@ -415,7 +412,6 @@ class GraphTransliterator:
                     token_i += 1
                 _append_children(node_key, token_i)
         if match_all:
-            # logger.debug("matched: %s " % matches)
             return matches
 
     def _match_tokens(
@@ -612,17 +608,9 @@ class GraphTransliterator:
             """Check if token is whitespace."""
             return self.whitespace.token_class in self.tokens[token]
 
-        # def match_generator():
-        #     """Generate matches."""
-        #     match = self._tokenizer.match(input, 0)
-        #     while match:
-        #         yield match
-        #         match = self._tokenizer.match(input, match.end())
-
         # start with a whitespace token
         tokens = [self.whitespace.default]
 
-        # matches = match_generator()
         prev_whitespace = True
 
         match_at = 0
@@ -642,7 +630,6 @@ class GraphTransliterator:
                     prev_whitespace = False
                 tokens.append(token)
             else:
-                # if match_at != len(input):
                 logger.warning(
                     "Unrecognizable token %s at pos %s of %s"
                     % (input[match_at], match_at, input)
