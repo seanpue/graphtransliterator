@@ -1,63 +1,46 @@
 # -*- coding: utf-8 -*-
 """Methods and schemas to validate GraphTransliterator parameters."""
 
-import yaml
 from cerberus import Validator
 from .process import RULE_RE, ONMATCH_RE
 
 # ---------- validate easy reading settings ----------
 
-EASYREADING_SETTINGS_SCHEMA = yaml.safe_load(
-    """
-    rules:
-        type: dict
-        required: True
-        keysrules:
-            type: string
-            regex: {rule_regex}
-        valuesrules:
-            type: string
-    onmatch_rules:
-        type: list
-        required: False
-        schema:
-            type: dict
-            minlength: 1
-            maxlength: 1
-            keysrules:
-                type: string
-                regex: {onmatch_regex}
-            valuesrules:
-                type: string
-    tokens:
-        type: dict
-        required: True
-        keysrules:
-            type: string
-        valuesrules:
-            type: list
-            schema:
-                type: string
-    whitespace:
-        type: dict
-        required: True
-        schema:
-            default:
-                required: True
-                type: string
-            token_class:
-                required: True
-                type: string
-            consolidate:
-                required: True
-                type: boolean
-    metadata:
-        type: dict
-        required: False
-    """.format(
-        rule_regex=RULE_RE.pattern, onmatch_regex=ONMATCH_RE.pattern
-    )
-)
+EASYREADING_SETTINGS_SCHEMA = {
+    "rules": {
+        "type": "dict",
+        "required": True,
+        "keysrules": {"type": "string", "regex": RULE_RE.pattern},
+        "valuesrules": {"type": "string"},
+    },
+    "onmatch_rules": {
+        "type": "list",
+        "required": False,
+        "schema": {
+            "type": "dict",
+            "minlength": 1,
+            "maxlength": 1,
+            "keysrules": {"type": "string", "regex": ONMATCH_RE.pattern},
+            "valuesrules": {"type": "string"},
+        },
+    },
+    "tokens": {
+        "type": "dict",
+        "required": True,
+        "keysrules": {"type": "string"},
+        "valuesrules": {"type": "list", "schema": {"type": "string"}},
+    },
+    "whitespace": {
+        "type": "dict",
+        "required": True,
+        "schema": {
+            "default": {"required": True, "type": "string"},
+            "token_class": {"required": True, "type": "string"},
+            "consolidate": {"required": True, "type": "boolean"},
+        },
+    },
+    "metadata": {"type": "dict", "required": False},
+}
 
 
 def validate_easyreading_settings(settings):
@@ -113,18 +96,13 @@ def validate_settings(tokens, rules, onmatch_rules, whitespace, metadata):
     """
     validator = Validator()
 
-    tokens_schema = yaml.safe_load(
-        """
-        tokens:
-            type: dict
-            keysrules:
-                type: string
-            valuesrules:
-                type: list
-                schema:
-                    type: string
-    """
-    )
+    tokens_schema = {
+        "tokens": {
+            "keysrules": {"type": "string"},
+            "type": "dict",
+            "valuesrules": {"schema": {"type": "string"}, "type": "list"},
+        }
+    }
 
     validator.validate({"tokens": tokens}, tokens_schema)
 

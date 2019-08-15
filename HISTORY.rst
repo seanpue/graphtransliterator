@@ -7,13 +7,18 @@ History
 * Add CLI
 * Add metadata guidelines
 * Save match location in tokenize
-* Reconsider serialization keys
+* Reconsider serialization, perhaps using marshmallow
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output.
 * Fix Devanagari output in doc PDF
 
 [Unreleased-TODO]
 -----------------
+
+0.2.14 (2019-08-15)
+-------------------
+* minor code cleanup
+* removed yaml from validate.py
 
 0.2.13 (2019-08-03)
 -------------------
