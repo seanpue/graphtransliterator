@@ -11,12 +11,14 @@ from graphtransliterator.core import _easyreading_rule
 from graphtransliterator import process, validate
 from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
 from graphtransliterator.graphs import DirectedGraph
+import marshmallow
 
 from graphtransliterator.exceptions import (
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
     AmbiguousTransliterationRulesException,
 )
+from marshmallow import ValidationError
 
 yaml_for_test = r"""
 tokens:
@@ -67,7 +69,22 @@ def test_GraphTransliterator_from_YAML():
         consolidate: true
         token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+    bad_yaml = """
+      tokens:
+        a: class1
+        ' ': wb
+      rules:
+        a: A
+      whitespace:
+        default: ' '
+        consolidate: true
+        token_class: wb
+    """
+    # tokens values are not lists
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
 
     bad_yaml = """
@@ -78,7 +95,21 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+    bad_yaml = """
+          rules:
+            a: A
+          tokens:
+            a: [token]
+            ' ': [wb]
+          whitespace:
+            default: 'BAD'
+            consolidate: true
+            token_class: bad
+    """
+    # whitespace errors
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
     bad_yaml = """
           tokens:
@@ -89,7 +120,7 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
     bad_yaml = """
           tokens:
@@ -109,7 +140,7 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
 
     bad_yaml = """
@@ -123,7 +154,7 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
 
     bad_yaml = """
@@ -137,7 +168,7 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
 
     bad_yaml = """
@@ -151,7 +182,7 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
 
     # test for bad tokens
@@ -164,7 +195,7 @@ def test_GraphTransliterator_from_YAML():
             consolidate: true
             token_class: wb
     """
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationError):
         GraphTransliterator.from_yaml(bad_yaml)
 
 
@@ -244,7 +275,7 @@ def test_graphtransliterator_validate_settings():
     settings = yaml.safe_load(yaml_for_test)
     # check for bad tokens
     settings["tokens"] = "bad token"
-    with pytest.raises(ValueError):
+    with pytest.raises(marshmallow.ValidationError):
         validate.validate_settings(
             settings["tokens"],
             settings["rules"],

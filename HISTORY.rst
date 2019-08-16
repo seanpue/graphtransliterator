@@ -11,9 +11,18 @@ History
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output.
 * Fix Devanagari output in doc PDF
+* add translated messages using Transifex
 
 [Unreleased-TODO]
 -----------------
+* move schemas to separate module
+* remove validate submodule and add schemas.
+* Add schemas to docs/api.rst
+
+X.X.XX (XXXX-XX-XX)
+-------------------
+* removed cerberus and added marshmallow to validate.py
+* adjusted tests
 
 0.2.14 (2019-08-15)
 -------------------
