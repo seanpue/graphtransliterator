@@ -75,7 +75,7 @@ class GraphTransliteratorSchema(Schema):
             data[key] = {k: set(v) for k, v in data[key].items()}
         # Do not check ambiguity if deserializing serialized GraphTransliterator
         data["check_ambiguity"] = False
-        return GraphTransliterator(**data, **kwargs)
+        return GraphTransliterator(**data)
 
 
 class GraphTransliterator:
