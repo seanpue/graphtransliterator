@@ -22,14 +22,13 @@ def _process_easyreading_settings(settings):
                        'prev_classes', 'next_classes', 'production'}
     """
 
-    processed_settings = {
+    return {
         "tokens": settings.get("tokens"),
         "rules": _process_rules(settings.get("rules")),
         "onmatch_rules": _process_onmatch_rules(settings.get("onmatch_rules")),
         "whitespace": settings.get("whitespace"),
         "metadata": settings.get("metadata", {}),
     }
-    return processed_settings
 
 
 # ----------- process rules ----------

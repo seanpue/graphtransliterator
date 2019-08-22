@@ -8,10 +8,9 @@ import re
 import yaml
 from graphtransliterator import GraphTransliterator
 from graphtransliterator.core import _easyreading_rule
-from graphtransliterator import process, validate
+from graphtransliterator import process
 from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
 from graphtransliterator.graphs import DirectedGraph
-import marshmallow
 
 from graphtransliterator.exceptions import (
     NoMatchingTransliterationRuleException,
@@ -270,19 +269,19 @@ def test_graphtransliterator_structures():
         graph.add_node("Not a dict")
 
 
-def test_graphtransliterator_validate_settings():
-    """Test graph transliterator validation of settings."""
-    settings = yaml.safe_load(yaml_for_test)
-    # check for bad tokens
-    settings["tokens"] = "bad token"
-    with pytest.raises(marshmallow.ValidationError):
-        validate.validate_settings(
-            settings["tokens"],
-            settings["rules"],
-            settings["onmatch_rules"],
-            settings["whitespace"],
-            {},
-        )
+# def test_graphtransliterator_validate_settings():
+#     """Test graph transliterator validation of settings."""
+#     settings = yaml.safe_load(yaml_for_test)
+#     # check for bad tokens
+#     settings["tokens"] = "bad token"
+#     with pytest.raises(marshmallow.ValidationError):
+#         validate.validate_settings(
+#             settings["tokens"],
+#             settings["rules"],
+#             settings["onmatch_rules"],
+#             settings["whitespace"],
+#             {},
+#         )
 
 
 def test_GraphTransliterator_transliterate(tmpdir):
@@ -359,12 +358,16 @@ def test_GraphTransliterator_transliterate(tmpdir):
     # test last_matched_rules
     assert len(gt.last_matched_rules) == 4
 
-    # test serialization
-    assert gt.serialize()["graph"]["edge"]
-    assert re.match(r"\d+\.\d+\.\d+$", gt.serialize()["graphtransliterator_version"])
-    assert (
-        gt.serialize()["graphtransliterator_version"] == graphtransliterator.__version__
-    )
+    # test dump
+    assert gt.dump()["graph"]["edge"]
+    assert type(GraphTransliterator.load(gt.dump())) == GraphTransliterator
+    assert "graph" in gt.dumps()
+    assert re.match(r"\d+\.\d+\.\d+$", gt.dump()["graphtransliterator_version"])
+    assert gt.dump()["graphtransliterator_version"] == graphtransliterator.__version__
+    x = gt.dumps()
+    assert type(x) == str
+    new_gt = GraphTransliterator.loads(x)
+    assert type(new_gt) == GraphTransliterator
 
 
 def test_version():
@@ -421,8 +424,8 @@ def test_GraphTransliterator(tmpdir):
     """
 
     input_dict = yaml.safe_load(yaml_str)
-    assert "a" in GraphTransliterator.from_dict(input_dict).tokens.keys()
-    gt = GraphTransliterator.from_dict(input_dict)
+    assert "a" in GraphTransliterator.from_easyreading_dict(input_dict).tokens.keys()
+    gt = GraphTransliterator.from_easyreading_dict(input_dict)
     assert gt.onmatch_rules[0].production == ","
     assert gt.tokens
     assert gt.rules
@@ -440,14 +443,14 @@ def test_GraphTransliterator(tmpdir):
 
     assert GraphTransliterator.from_yaml_file(yaml_filename)
 
-    assert len(set(GraphTransliterator.from_dict(input_dict).tokens)) == 4
+    assert len(set(GraphTransliterator.from_easyreading_dict(input_dict).tokens)) == 4
 
     assert GraphTransliterator.from_yaml(yaml_str).transliterate("ab") == "A,B"
     assert (
         GraphTransliterator.from_yaml_file(yaml_filename).transliterate("ab") == "A,B"
     )
     assert (
-        GraphTransliterator.from_dict(
+        GraphTransliterator.from_easyreading_dict(
             {
                 "tokens": {"a": ["class_a"], "b": ["class_b"], " ": ["wb"]},
                 "onmatch_rules": [{"<class_a> + <class_b>": ","}],
@@ -457,8 +460,7 @@ def test_GraphTransliterator(tmpdir):
                     "consolidate": True,
                 },
                 "rules": {"a": "A", "b": "B"},
-            },
-            raw=True,
+            }
         ).transliterate("ab")
         == "A,B"
     )
@@ -601,7 +603,9 @@ def test_GraphTransliterator_productions():
     whitespace = {"default": " ", "token_class": "wb", "consolidate": True}
     rules = {"ab": "AB", " ": "_"}
     settings = {"tokens": tokens, "rules": rules, "whitespace": whitespace}
-    assert set(GraphTransliterator.from_dict(settings).productions) == set(["AB", "_"])
+    assert set(GraphTransliterator.from_easyreading_dict(settings).productions) == set(
+        ["AB", "_"]
+    )
 
 
 def test_GraphTransliterator_pruned_of():
@@ -657,7 +661,7 @@ def test_GraphTransliterator_graph():
     whitespace = {"default": " ", "token_class": "wb", "consolidate": True}
     rules = {"ab": "AB", " ": "_"}
     settings = {"tokens": tokens, "rules": rules, "whitespace": whitespace}
-    gt = GraphTransliterator.from_dict(settings)
+    gt = GraphTransliterator.from_easyreading_dict(settings)
     assert gt._graph
     assert gt._graph.node[0]["type"] == "Start"  # test for Start
     assert gt

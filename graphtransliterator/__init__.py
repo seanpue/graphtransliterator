@@ -17,13 +17,22 @@ __email__ = "pue@msu.edu"
 __version__ = "0.2.14"
 
 # Core classes
-from .core import GraphTransliterator  # noqa
+from .core import GraphTransliterator, GraphTransliteratorSchema  # noqa
 
 # Graphs
 from .graphs import DirectedGraph  # noqa
 
 # Rules
 from .rules import TransliterationRule, OnMatchRule, WhitespaceRules  # noqa
+
+# Schemas
+from .schemas import (
+    WhitespaceSettingsSchema,
+    EasyReadingSettingsSchema,
+    TransliterationRuleSchema,
+    OnMatchRuleSchema,
+    SettingsSchema,
+)
 
 # Exceptions
 from .exceptions import (
@@ -32,8 +41,6 @@ from .exceptions import (
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )  # noqa
-
-from .validate import validate_easyreading_settings, validate_settings
 
 __all__ = [
     # core
@@ -49,7 +56,12 @@ __all__ = [
     "TransliterationRule",
     "OnMatchRule",
     "WhitespaceRules",
-    # validate
-    "validate_easyreading_settings",
-    "validate_settings",
+    # schemas
+    "WhitesapceDictSettingsSchema",
+    "WhitespaceSettingsSchema",
+    "EasyReadingSettingsSchema",
+    "OnMatchRuleSchema",
+    "SettingsSchema",
+    "TransliterationRuleSchema",
+    "DirectedGraphSchema",
 ]

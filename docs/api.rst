@@ -32,13 +32,6 @@ Rule Classes
 
 .. autoclass:: WhitespaceRules
 
-Validation Functions
---------------------
-
-.. autofunction:: validate_easyreading_settings
-
-.. autofunction:: validate_settings
-
 Exceptions
 ----------
 
@@ -49,3 +42,24 @@ Exceptions
 .. autoexception:: NoMatchingTransliterationRuleException
 
 .. autoexception:: UnrecognizableInputTokenException
+
+Schemas
+-------
+
+.. autoclass:: DirectedGraphSchema
+
+.. autoclass:: EasyReadingSettingsSchema
+
+.. autoclass:: GraphTransliteratorSchema
+
+.. autoclass:: OnMatchRuleSchema
+
+.. autoclass:: SettingsSchema
+
+.. autoclass:: TransliterationRule
+
+.. autoclass:: TransliterationRuleSchema
+
+.. autoclass:: WhitespaceDictSettingsSchema
+
+.. autoclass:: WhitespaceSettingsSchema

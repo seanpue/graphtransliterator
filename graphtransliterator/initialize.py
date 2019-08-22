@@ -13,10 +13,11 @@ from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
 # ---------- initialize tokens ----------
 
 
-def _tokens_of(tokens):
-    """Converts values of dict of tokens from list to set."""
-
-    return {key: set(value) for key, value in tokens.items()}
+# def _tokens_of(tokens):
+#     """Converts values of dict of tokens from list to set."""
+#
+#     return {key: set(value) for key, value in tokens.items()}
+#
 
 
 def _tokens_by_class_of(tokens):
@@ -35,7 +36,7 @@ def _tokens_by_class_of(tokens):
 def _transliteration_rule_of(rule):
     """Converts rule dict into a TransliterationRule."""
 
-    _cost = _cost_of(rule)
+    _cost = rule.get("cost", _cost_of(rule))
 
     transliteration_rule = TransliterationRule(
         production=rule.get("production"),
@@ -52,15 +53,11 @@ def _transliteration_rule_of(rule):
 
 def _num_tokens_of(rule):
     """Calculate the total number of tokens in a rule."""
-
-    total = (
-        len(rule.get("prev_classes", []))
-        + len(rule.get("prev_tokens", []))
-        + len(rule.get("tokens"))
-        + len(rule.get("next_tokens", []))
-        + len(rule.get("next_classes", []))
-    )
-
+    total = len(rule.get("tokens"))
+    for _ in ("prev_classes", "prev_tokens", "next_tokens", "next_classes"):
+        val = rule.get(_)
+        if val:
+            total += len(val)
     return total
 
 
@@ -94,8 +91,6 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
     """
 
     onmatch_lookup = {}
-    # for token_key in tokens:
-    #     onmatch_lookup[token_key] = {_: [] for _ in tokens}
 
     # Interate through onmatch rules
     for rule_i, rule in enumerate(onmatch_rules):
@@ -121,7 +116,7 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
 # ---------- initialize whitespace ---------
 
 
-def _whitespace_of(whitespace):
+def _whitespace_rules_of(whitespace):
     """ Converts whitespace into WhiteSpace """
     return WhitespaceRules(
         default=whitespace["default"],
@@ -133,12 +128,12 @@ def _whitespace_of(whitespace):
 # ---------- initialize tokenizer ----------
 
 
-def _tokenizer_from(tokens):
-    """ Generates regular expression tokenizer from token list."""
+def _tokenizer_pattern_from(tokens):
+    """ Generates regular expression tokenizer pattern from token list."""
 
     tokens.sort(key=len, reverse=True)
     regex_str = "(" + "|".join([re.escape(_) for _ in tokens]) + ")"
-    return re.compile(regex_str, re.S)
+    return regex_str
 
 
 # ---------- initialize graph ----------

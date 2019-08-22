@@ -31,7 +31,7 @@ processing tasks, that are often not possible in the original script.
 accessible by using a standardized method for encoding rules for
 transliteration. It lets those rules be entered in an "easy reading" YAML
 format [@YAMLAintMarkup] or directly, using standard Python data types. It
-differs  from other software [@GeneralTransformsICUa] designed for handling
+differs from other software [@GeneralTransformsICUa] designed for handling
 transliteration in two primary ways. First, other software works directly on an
 input string, performing operations based on matches of particular characters.
 ``Graph Transliterator`` instead tokenizes the input into user-defined

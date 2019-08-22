@@ -39,7 +39,7 @@ the popular `YAML <https://yaml.org/>`_ format, either from a string
 (using :func:`GraphTransliterator.from_yaml`) or by reading from a file
 or stream (:func:`GraphTransliterator.from_yaml_file`). You can also
 initialize from the loaded contents of YAML
-(:func:`GraphTransliterator.from_dict`).
+(:func:`GraphTransliterator.from_easyreading_dict`).
 
 Here is a quick sample that parameterizes :class:`GraphTransliterator` using an
 easy reading YAML string (with comments):

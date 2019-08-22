@@ -4,32 +4,78 @@
 GraphTransliterator core classes.
 """
 
-from collections import deque
 import itertools
 import logging
 import pkg_resources
 import re
 import unicodedata
 import yaml
-from .validate import validate_easyreading_settings, validate_settings
-from .process import _process_easyreading_settings
-from .initialize import (
-    _graph_from,
-    _onmatch_rule_of,
-    _onmatch_rules_lookup,
-    _tokenizer_from,
-    _tokens_by_class_of,
-    _tokens_of,
-    _transliteration_rule_of,
-    _whitespace_of,
-)
+
+from collections import deque
 from .exceptions import (
     AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
+from .process import _process_easyreading_settings
+from .schemas import EasyReadingSettingsSchema, SettingsSchema
+from .initialize import (
+    _graph_from,
+    _onmatch_rules_lookup,
+    _tokenizer_pattern_from,
+    _tokens_by_class_of,
+)
+from marshmallow import fields, post_load, Schema
+from .schemas import (
+    DirectedGraphSchema,
+    TransliterationRuleSchema,
+    WhitespaceSettingsSchema,
+    OnMatchRuleSchema,
+)
 
 logger = logging.getLogger("graphtransliterator")
+
+
+class GraphTransliteratorSchema(Schema):
+    tokens = fields.Dict(
+        keys=fields.Str(), values=fields.List(fields.Str()), required=True
+    )
+    rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
+    whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
+    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
+    onmatch_rules_lookup = fields.Dict()
+    metadata = fields.Dict(
+        keys=fields.Str(), required=False  # no restriction on values
+    )
+    tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str))
+    graph = fields.Nested(DirectedGraphSchema)
+    tokenizer_pattern = fields.Str()
+    graphtransliterator_version = fields.Str()
+
+    class Meta:
+        fields = (
+            "tokens",
+            "rules",
+            "whitespace",
+            "onmatch_rules",
+            "metadata",
+            # "check_ambiguity",
+            "onmatch_rules_lookup",
+            "tokens_by_class",
+            "graph",
+            "tokenizer_pattern",
+            "graphtransliterator_version",
+        )
+        ordered = True
+
+    @post_load
+    def make_GraphTransliterator(self, data, **kwargs):
+        # Convert lists to sets
+        for key in ("tokens", "tokens_by_class"):
+            data[key] = {k: set(v) for k, v in data[key].items()}
+        # Do not check ambiguity if deserializing serialized GraphTransliterator
+        data["check_ambiguity"] = False
+        return GraphTransliterator(**data, **kwargs)
 
 
 class GraphTransliterator:
@@ -38,23 +84,23 @@ class GraphTransliterator:
     of one language or script to those of another using rules that you define.
 
     Transliteration of tokens of an input string to an output string is
-    configured by: a set of input token types with classes, pattern-match rules
+    configured by: a set of input token types with classes, pattern-matching rules
     involving sequences of tokens as well as preceding or following tokens and
     token classes, insertion rules between matches, and optional consolidation
     of whitespace. Rules are ordered by specificity.
 
     Note
     ----
-    This constructor should typically not be called directly unless
-    constructing a GraphTransliterator programmatically. Use
-    :meth:`from_dict`, :meth:`from_yaml`, or :meth:`from_yaml_file` instead
-    for "easy reading" support.  Keyword parameters used here (
-    ``check_settings``, ``check_ambiguity``, ``ignore_errors``) can be passed
+    This constructor does not validate settings and should typically not be called
+    directly unless constructing a GraphTransliterator programmatically. Use
+    :meth:`from_dict`, :meth:`from_easyreading_dict`, :meth:`from_yaml`, or
+    :meth:`from_yaml_file` instead for "easy reading" support.
+    Keyword parameters used here (``check_ambiguity``, ``ignore_errors``) can be passed
     from those other constructors.
 
     Parameters
     ----------
-    tokens : `dict` of {`str`: `list` of `str`}
+    tokens : `dict` of {`str`: `set` of `str`}
         Mapping of input token types to token classes
     rules : `list` of `dict`
         `list` of dictionaries of transliteration rules with keys:
@@ -118,10 +164,13 @@ class GraphTransliterator:
 
     metadata: `dict` or `None`
         Metadata settings
+
     check_settings: `bool`, optional
         If true (default), the input settings are validated.
+
     check_ambiguity: `bool`, optional
         If true (default), transliteration rules are checked for ambiguity.
+
     ignore_errors: `bool`, optional
         If true, transliteration errors are ignored and do not raise an
         exception. The default is false.
@@ -130,9 +179,9 @@ class GraphTransliterator:
     -------
     >>> from graphtransliterator import GraphTransliterator
     >>> settings = {
-    ...    'tokens': {'a': ['class1'],
-    ...               'b': ['class2'],
-    ...               ' ': ['wb']},
+    ...    'tokens': {'a': set(['class1']),
+    ...               'b': set(['class2']),
+    ...               ' ': set(['wb']},
     ...    'rules': [
     ...        {'production': 'A', 'tokens': ['a']},
     ...        {'production': 'B', 'tokens': ['b']},
@@ -165,53 +214,92 @@ class GraphTransliterator:
 
     See Also
     --------
-    from_dict : constructor from  dictionary in "easy reading" format
+    from_easyreading_dict : constructor from  dictionary in "easy reading" format
     from_yaml : constructor from YAML string in "easy reading" format
     from_yaml_file : constructor from YAML in "easy reading" format
 """  # noqa
+
+    # def internal_settings_of(settings):
+    #     metadata = settings.get("metadata")
+    #     tokens = _tokens_of(settings["tokens"])
+    #     tokens_by_class = _tokens_by_class_of(tokens)
+    #     rules = sorted(
+    #         [_transliteration_rule_of(rule) for rule in settings["rules"]],
+    #         key=lambda transliteration_rule: transliteration_rule.cost,
+    #     )
+    #     onmatch_rules = [_onmatch_rule_of(_) for _ in settings.get("onmatch_rules")]
+    #     onmatch_rules_lookup = _onmatch_rules_lookup(tokens, onmatch_rules)
+    #     whitespace = _whitespace_rules_of(settings["whitespace"])
+    #     ignore_errors = settings.get("ignore_errors", False)
+    #
+    #     return dict(
+    #         metadata=metadata,
+    #         tokens=tokens,
+    #         tokens_by_class=tokens_by_class,
+    #         rules=rules,
+    #         onmatch_rules=onmatch_rules,
+    #         onmatch_rules_lookup=onmatch_rules_lookup,
+    #         whitespace=whitespace,
+    #         ignore_errors=ignore_errors,
+    #     )
 
     def __init__(
         self,
         tokens,
         rules,
-        onmatch_rules,
         whitespace,
-        metadata,
-        check_settings=True,
-        check_ambiguity=True,
+        onmatch_rules=None,
+        metadata=None,
         ignore_errors=False,
-        **kwargs
+        check_ambiguity=True,
+        onmatch_rules_lookup=None,
+        tokens_by_class=None,
+        graph=None,
+        tokenizer_pattern=None,
+        graphtransliterator_version=None,
     ):
-        if check_settings:
-            validate_settings(tokens, rules, onmatch_rules, whitespace, metadata)
-        self._metadata = metadata
-        self._tokens = _tokens_of(tokens)
-        self._tokens_by_class = _tokens_by_class_of(tokens)
-        self._rules = sorted(
-            [_transliteration_rule_of(rule) for rule in rules],
-            key=lambda transliteration_rule: transliteration_rule.cost,
-        )
+        self._tokens = tokens
+        self._rules = rules
+        self._tokens_by_class = tokens_by_class or _tokens_by_class_of(tokens)
+
+        self._check_ambiguity = check_ambiguity  # used by pruned_of
         if check_ambiguity:
             self.check_for_ambiguity()
-        self._onmatch_rules = [_onmatch_rule_of(_) for _ in onmatch_rules]
-        self._onmatch_rules_lookup = _onmatch_rules_lookup(tokens, self._onmatch_rules)
-        self._whitespace = _whitespace_of(whitespace)
+
+        self._whitespace = whitespace
+
+        if onmatch_rules:
+            self._onmatch_rules = onmatch_rules
+            if onmatch_rules_lookup:
+                self._onmatch_rules_lookup = onmatch_rules_lookup
+            else:
+                self._onmatch_rules_lookup = _onmatch_rules_lookup(
+                    tokens, onmatch_rules
+                )
+        else:
+            self._onmatch_rules = None
+            self._onmatch_rules_lookup = None
+
+        self._metadata = metadata
         self._ignore_errors = ignore_errors
-        self.__init_parameters__ = {  # used by pruned_of
-            "tokens": tokens,
-            "rules": rules,
-            "onmatch_rules": onmatch_rules,
-            "whitespace": whitespace,
-            "metadata": metadata,
-            "check_settings": check_settings,
-            "ignore_errors": ignore_errors,
-            "check_ambiguity": check_ambiguity,
-            "kwargs": kwargs,
-        }
-        self._tokenizer = _tokenizer_from(list(tokens.keys()))
-        self._graph = _graph_from(self.rules)
-        # self._input_tokens = None
+
+        if not tokenizer_pattern:
+            tokenizer_pattern = _tokenizer_pattern_from(list(tokens.keys()))
+        self._tokenizer_pattern = tokenizer_pattern
+        self._tokenizer = re.compile(tokenizer_pattern, re.S)
+
+        if not graph:
+            graph = _graph_from(rules)
+        self._graph = graph
+
         self._rule_keys = []  # last matched rules
+
+        # When or if necessary, add version checking here
+        if not graphtransliterator_version:
+            graphtransliterator_version = pkg_resources.require("graphtransliterator")[
+                0
+            ].version
+        self._graphtransliterator_version = graphtransliterator_version
 
     def _match_constraints(self, source, target, token_i, tokens):
         """
@@ -222,12 +310,9 @@ class GraphTransliterator:
 
         """
         target_edge = self._graph.edge[source][target]
-
         constraints = target_edge.get("constraints")
-
         if not constraints:
             return True
-        # should these be ordered?
         for c_type, c_value in constraints.items():
             if c_type == "prev_tokens":
                 num_tokens = len(self._graph.node[target]["rule"].tokens)
@@ -437,6 +522,11 @@ class GraphTransliterator:
         return self._graph
 
     @property
+    def graphtransliterator_version(self):
+        """`str`: Graph Transliterator version"""
+        return self._graphtransliterator_version
+
+    @property
     def ignore_errors(self):
         """`bool`: Ignore transliteration errors setting."""
         return self._ignore_errors
@@ -470,6 +560,27 @@ class GraphTransliterator:
         `dict`: Metadata of transliterator
         """
         return self._metadata
+
+    @property
+    def onmatch_rules_lookup(self):
+        """
+        `dict`: On Match Rules lookup
+        """
+        return self._onmatch_rules_lookup
+
+    @property
+    def tokenizer_pattern(self):
+        """
+        `str`: Tokenizer pattern from transliterator
+        """
+        return self._tokenizer_pattern
+
+    @property
+    def tokens_by_class(self):
+        """
+        `dict` of {`str`: `list` of `str`}: Tokenizer pattern from transliterator
+        """
+        return self._tokens_by_class
 
     def transliterate(self, input):
         """
@@ -599,7 +710,7 @@ class GraphTransliterator:
         >>> w = {'default': ' ', 'token_class': 'wb', 'consolidate': True}
         >>> r = {'ab': 'AB', ' ': '_'}
         >>> settings = {'tokens': t, 'rules': r, 'whitespace': w}
-        >>> gt = GraphTransliterator.from_dict(settings)
+        >>> gt = GraphTransliterator.from_easyreading_dict(settings)
         >>> gt.tokenize('ab ')
         >>> [' ', 'ab', ' ']
         """
@@ -690,22 +801,15 @@ class GraphTransliterator:
         >>> gt.pruned_of(['<A>', '<AA>']).rules
         []
         """  # noqa
-        __init_parameters__ = self.__init_parameters__
-        pruned_rules = [
-            _
-            for _ in __init_parameters__["rules"]
-            if not _["production"] in productions
-        ]
+        pruned_rules = [_ for _ in self._rules if _.production not in productions]
         return GraphTransliterator(
-            __init_parameters__["tokens"],
+            self._tokens,
             pruned_rules,
-            __init_parameters__["onmatch_rules"],
-            __init_parameters__["whitespace"],
-            __init_parameters__["metadata"],
-            ignore_errors=__init_parameters__["ignore_errors"],
-            check_settings=__init_parameters__["check_settings"],
-            check_ambiguity=__init_parameters__["check_ambiguity"],
-            **__init_parameters__["kwargs"]
+            self._whitespace,
+            onmatch_rules=self._onmatch_rules,
+            metadata=self._metadata,
+            ignore_errors=self._ignore_errors,
+            check_ambiguity=self._check_ambiguity,
         )
 
     @property
@@ -713,7 +817,7 @@ class GraphTransliterator:
         """
         `list` of `str`: List of productions of each transliteration rule.
         """
-        return [_.production for _ in self._rules]
+        return [_.production for _ in self.rules]
 
     @property
     def tokens(self):
@@ -741,13 +845,29 @@ class GraphTransliterator:
 
     @classmethod
     def from_dict(cls, settings, **kwargs):
+        return GraphTransliterator(
+            settings["tokens"],
+            settings["rules"],
+            settings["whitespace"],
+            onmatch_rules=settings.get("onmatch_rules"),
+            metadata=settings.get("metadata"),
+            tokens_by_class=settings.get("tokens_by_class"),  # will be generated
+            graph=settings.get("graph"),  # will be generated
+            tokenizer_pattern=settings.get("tokenizer_pattern"),  # will be generated
+            ignore_errors=kwargs.get("ignore_errors", False),
+            check_ambiguity=kwargs.get("check_ambiguity", True),
+            # **kwargs
+        )
+
+    @classmethod
+    def from_easyreading_dict(cls, easyreading_settings, **kwargs):
         """
         Constructs `GraphTransliterator` from a dictionary of settings in
         "easy reading" format, i.e. the loaded contents of a YAML string.
 
         Parameters
         ----------
-        settings : `dict`
+        easyreading_settings : `dict`
             Settings dictionary in easy reading format with keys:
 
                 ``"tokens"``
@@ -800,7 +920,7 @@ class GraphTransliterator:
         ...             'rules': rules,
         ...             'whitespace': whitespace,
         ...             'onmatch_rules': onmatch_rules}
-        >>> gt = GraphTransliterator.from_dict(settings)
+        >>> gt = GraphTransliterator.from_easyreading_dict(settings)
         >>> gt.transliterate("ab abab")
         'AB_AB,AB'
         >>>
@@ -810,17 +930,14 @@ class GraphTransliterator:
         GraphTransliterator.yaml()
         GraphTransliterator.from_yaml_file()
         """
-        validate_easyreading_settings(settings)
-        settings = _process_easyreading_settings(settings)
-
-        return GraphTransliterator(
-            settings["tokens"],
-            settings["rules"],
-            settings["onmatch_rules"],
-            settings["whitespace"],
-            settings["metadata"],
-            **kwargs
-        )
+        # validate_easyreading_settings
+        _ = EasyReadingSettingsSchema().load(easyreading_settings)
+        # convert to regular settings
+        _ = _process_easyreading_settings(_)
+        # validate settings
+        settings = SettingsSchema().load(_)
+        # return GraphTransliterator
+        return GraphTransliterator.from_dict(settings, **kwargs)
 
     @classmethod
     def from_yaml(cls, yaml_str, charnames_escaped=True, **kwargs):
@@ -836,7 +953,7 @@ class GraphTransliterator:
 
         Note
         ----
-        Called by :meth:`from_yaml_file` and calls :meth:`from_dict`.
+        Called by :meth:`from_yaml_file` and calls :meth:`from_easyreading_dict`.
 
         Example
         -------
@@ -861,7 +978,7 @@ class GraphTransliterator:
 
         See Also
         --------
-        GraphTransliterator.from_dict()
+        GraphTransliterator.from_easyreading_dict()
         GraphTransliterator.from_yaml_file()
         """
         if charnames_escaped:
@@ -869,7 +986,7 @@ class GraphTransliterator:
 
         settings = yaml.safe_load(yaml_str)
 
-        return cls.from_dict(settings, **kwargs)
+        return cls.from_easyreading_dict(settings, **kwargs)
 
     @classmethod
     def from_yaml_file(cls, yaml_filename, **kwargs):
@@ -889,20 +1006,63 @@ class GraphTransliterator:
         See Also
         --------
         graphtransliterator.GraphTransliterator.from_yaml
-        graphtransliterator.GraphTransliterator.from_dict
+        graphtransliterator.GraphTransliterator.from_easyreading_dict
         """
         with open(yaml_filename, "r") as f:
             yaml_string = f.read()
 
         return cls.from_yaml(yaml_string, **kwargs)
 
-    def serialize(self):
+    def dumps(self):
         """
-        Serialize all relevant settings of Graph Transliterator.
+        Dump settings of Graph Transliterator to Javascript Object Notation (JSON).
+        Returns
+        -------
+        str
+            JSON string
+
+        Note
+        ----
+        `OnmatchRule`, `TransliterationRule`, and `WhitespaceRules` are initialized from
+        :meth:`collections.namedtuple`. Their keys will always be in the same order and
+        can be accessed by index.
+
+        Examples
+        --------
+        >>> from graphtransliterator import GraphTransliterator
+        >>> yaml_ = '''
+        ...   tokens:
+        ...     a: [vowel]
+        ...     ' ': [wb]
+        ...   rules:
+        ...     a: A
+        ...     ' ': ' '
+        ...   whitespace:
+        ...     default: " "
+        ...     consolidate: false
+        ...     token_class: wb
+        ...   onmatch_rules:
+        ...     - <vowel> + <vowel>: ','  # add a comma between vowels
+        ...   metadata:
+        ...     author: "Author McAuthorson"
+        ... '''
+        >>> gt = GraphTransliterator.from_yaml(yaml_)
+        >>> gt.dumps()
+        '{"tokens": {"a": ["class1"], "b": ["class1"], " ": ["wb"]}, "rules": [{"production": "B2", "prev_classes": null, "prev_tokens": null, "tokens": ["a", "a"], "next_classes": null, "next_tokens": null, "cost": 0.41503749927884376}, {"production": "B", "prev_classes": null, "prev_tokens": null, "tokens": ["b"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"default": " ", "token_class": "wb", "consolidate": true}, "metadata": {"author": "James Joyce"}, "ignore_errors": true, "tokens_by_class": {"class1": ["a", "b"], "wb": [" "]}, "graph": {"edge_list": [[0, 1], [1, 2], [2, 3], [0, 4], [4, 5]], "edge": {"0": {"1": {"token": "a", "cost": 0.41503749927884376}, "4": {"token": "b", "cost": 0.5849625007211562}}, "1": {"2": {"token": "a", "cost": 0.41503749927884376}}, "2": {"3": {"cost": 0.41503749927884376}}, "4": {"5": {"cost": 0.5849625007211562}}}, "node": [{"type": "Start", "ordered_children": {"a": [1], "b": [4]}}, {"type": "token", "token": "a", "ordered_children": {"a": [2]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [3]}}, {"type": "rule", "rule_key": 0, "rule": ["B2", null, null, ["a", "a"], null, null, 0.41503749927884376], "accepting": true, "ordered_children": {}}, {"type": "token", "token": "b", "ordered_children": {"__rules__": [5]}}, {"type": "rule", "rule_key": 1, "rule": ["B", null, null, ["b"], null, null, 0.5849625007211562], "accepting": true, "ordered_children": {}}]}, "tokenizer_pattern": "(a|b|\\\\ )", "graphtransliterator_version": "0.2.14"}'
+                     ('graphtransliterator_version', '0.2.14')])
+        See Also
+        --------
+        dump: Dump GraphTransliterator configuration to Python types
+        """  # noqa
+        return GraphTransliteratorSchema().dumps(self)
+
+    def dump(self):
+        """
+        Dump configuration of Graph Transliterator to Python types.
 
         Returns
         -------
-        dict
+        OrderedDict
             GraphTransliterator configuration as a dictionary with keys:
 
                 ``"graph"``
@@ -941,78 +1101,95 @@ class GraphTransliterator:
                 ``"graphtransliterator_version"``
                   Module version of `graphtransliterator` (`str`)
 
-        Note
-        ----
-        `OnmatchRule`, `TransliterationRule`, and `WhitespaceRules` are
-        initialized from :meth:`collections.namedtuple`. Therefore, their keys
-        will always be in the same order and can be accessed by index if
-        reading from a non-Python format.
-
         Example
         -------
         >>> from graphtransliterator import GraphTransliterator
         >>> yaml_ = '''
-        ...  tokens:
-        ...    a: [vowel]
-        ...    ' ': [wb]
-        ...  rules:
-        ...    a: A
-        ...    ' ': ' '
-        ...  whitespace:
-        ...    default: " "
-        ...    consolidate: false
-        ...    token_class: wb
-        ...  onmatch_rules:
-        ...    - <vowel> + <vowel>: ','  # add a comma between vowels
+        ...   tokens:
+        ...     a: [vowel]
+        ...     ' ': [wb]
+        ...   rules:
+        ...     a: A
+        ...     ' ': ' '
+        ...   whitespace:
+        ...     default: " "
+        ...     consolidate: false
+        ...     token_class: wb
+        ...   onmatch_rules:
+        ...     - <vowel> + <vowel>: ','  # add a comma between vowels
+        ...   metadata:
+        ...     author: "Author McAuthorson"
         ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml_)
-        >>> import pprint
-        >>> pprint.pprint(gt.serialize())
-        {'graph': {'edge': {0: {1: {'cost': 0.5849625007211562, 'token': 'a'},
-                                3: {'cost': 0.5849625007211562, 'token': ' '}},
-                            1: {2: {'cost': 0.5849625007211562}},
-                            3: {4: {'cost': 0.5849625007211562}}},
-                   'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)],
-                   'node': [{'ordered_children': {' ': [3], 'a': [1]}, 'type': 'Start'},
-                            {'ordered_children': {'__rules__': [2]},
-                             'token': 'a',
-                             'type': 'token'},
-                            {'accepting': True,
-                             'ordered_children': {},
-                             'rule': TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562),
-                             'rule_key': 0,
-                             'type': 'rule'},
-                            {'ordered_children': {'__rules__': [4]},
-                             'token': ' ',
-                             'type': 'token'},
-                            {'accepting': True,
-                             'ordered_children': {},
-                             'rule': TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562),
-                             'rule_key': 1,
-                             'type': 'rule'}]},
-         'graphtransliterator_version': '0.2.5',
-         'metadata': {},
-         'onmatch_rules': [OnMatchRule(prev_classes=['vowel'], next_classes=['vowel'], production=',')],
-         'onmatch_rules_lookup': {'a': {'a': [0]}},
-         'rules': [TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562),
-                   TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562)],
-         'tokenizer_pattern': '(a|\\ )',
-         'tokens': {' ': ['wb'], 'a': ['vowel']},
-         'whitespace': WhitespaceRules(default=' ', token_class='wb', consolidate=False)}
-        """  # noqa
+            >>> gt = GraphTransliterator.from_yaml(yaml_)
+            >>> gt.dump()
+            OrderedDict([('tokens', {'a': ['class1'], 'b': ['class1'], ' ': ['wb']}),
+             ('rules',
+              [OrderedDict([('production', 'B2'),
+                            ('prev_classes', None),
+                            ('prev_tokens', None),
+                            ('tokens', ['a', 'a']),
+                            ('next_classes', None),
+                            ('next_tokens', None),
+                            ('cost', 0.41503749927884376)]),
+               OrderedDict([('production', 'B'),
+                            ('prev_classes', None),
+                            ('prev_tokens', None),
+                            ('tokens', ['b']),
+                            ('next_classes', None),
+                            ('next_tokens', None),
+                            ('cost', 0.5849625007211562)])]),
+             ('whitespace',
+              OrderedDict([('default', ' '),
+                           ('token_class', 'wb'),
+                           ('consolidate', True)])),
+             ('metadata', {'author': 'James Joyce'}),
+             ('ignore_errors', True),
+             ('tokens_by_class', {'class1': ['a', 'b'], 'wb': [' ']}),
+             ('graph',
+              {'edge_list': [(0, 1), (1, 2), (2, 3), (0, 4), (4, 5)],
+               'edge': {0: {1: {'token': 'a', 'cost': 0.41503749927884376},
+                 4: {'token': 'b', 'cost': 0.5849625007211562}},
+                1: {2: {'token': 'a', 'cost': 0.41503749927884376}},
+                2: {3: {'cost': 0.41503749927884376}},
+                4: {5: {'cost': 0.5849625007211562}}},
+               'node': [{'type': 'Start',
+                 'ordered_children': {'a': [1], 'b': [4]}},
+                {'type': 'token',
+                 'token': 'a',
+                 'ordered_children': {'a': [2]}},
+                {'type': 'token',
+                 'token': 'a',
+                 'ordered_children': {'__rules__': [3]}},
+                {'type': 'rule',
+                 'rule_key': 0,
+                 'rule': TransliterationRule(production='B2', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+                 'accepting': True,
+                 'ordered_children': {}},
+                {'type': 'token',
+                 'token': 'b',
+                 'ordered_children': {'__rules__': [5]}},
+                {'type': 'rule',
+                 'rule_key': 1,
+                 'rule': TransliterationRule(production='B', prev_classes=None, prev_tokens=None, tokens=['b'], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+                 'accepting': True,
+                 'ordered_children': {}}]}),
+             ('tokenizer_pattern', '(a|b|\\ )'),
+             ('graphtransliterator_version', '0.2.14')])
+        See Also
+        --------
+        dump: Dump GraphTransliterator settings to Javascript Object Notation (JSON) str
+"""  # noqa
+        return GraphTransliteratorSchema().dump(self)
 
-        version = pkg_resources.require("graphtransliterator")[0].version
-        return {
-            "graph": self._graph.to_dict(),
-            "metadata": self._metadata,
-            "tokens": {token: list(classes) for token, classes in self._tokens.items()},
-            "rules": self._rules,
-            "onmatch_rules": self._onmatch_rules,
-            "onmatch_rules_lookup": self._onmatch_rules_lookup,
-            "whitespace": self._whitespace,
-            "tokenizer_pattern": self._tokenizer.pattern,
-            "graphtransliterator_version": version,
-        }
+    @staticmethod
+    def load(settings, **kwargs):
+        """Create GraphTransliterator from settings as Python data types."""
+        return GraphTransliteratorSchema().load(settings, **kwargs)
+
+    @staticmethod
+    def loads(settings, **kwargs):
+        """Create GraphTransliterator from JSON settings."""
+        return GraphTransliteratorSchema().loads(settings, **kwargs)
 
     def check_for_ambiguity(self):
         """
@@ -1130,7 +1307,7 @@ class GraphTransliterator:
                     if not intersection:
                         break
 
-                    # check if a less costly rule matches intersection
+                    # Check if a less costly rule matches intersection
 
                     def covered_by_less_costly():
                         for r_i, rule in enumerate(rules):
@@ -1238,7 +1415,7 @@ def _tokens_possible(row, tokens_by_class):
     )
 
 
-# initialization-related functions for unescaping unicode
+# Initialization-related functions for unescaping Unicode
 
 
 def _unescape_charnames(input_str):

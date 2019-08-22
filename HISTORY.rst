@@ -7,7 +7,6 @@ History
 * Add CLI
 * Add metadata guidelines
 * Save match location in tokenize
-* Reconsider serialization, perhaps using marshmallow
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output.
 * Fix Devanagari output in doc PDF
@@ -15,14 +14,29 @@ History
 
 [Unreleased-TODO]
 -----------------
-* move schemas to separate module
-* remove validate submodule and add schemas.
-* Add schemas to docs/api.rst
+* Add schemas to docs/api.rst and remove validate.
+* check docs for changes listed below
+* check keyword arguments (especially in docs)
+* Add load and loads
 
 X.X.XX (XXXX-XX-XX)
 -------------------
+* Removed _tokens_of() from init
+* Removed serialize()
+* Added load() to GraphTransliterator, without ambiguity checking
+* Added dump() and dumps() to GraphTransliterator to export configuration
+* renamed _tokenizer_from() to _tokenizer_pattern_from(), and so that regex is compiled
+  on load and passed as pattern string (tokenizer_pattern)
+* added settings parameters to DirectedGraph
+* added OnMatchRule as namedtuple for consistency
+* added new GraphTransliterator.from_dict()
+* renamed GraphTransliterator.from_dict() to GraphTransliterator.from_easyreading_dict()
+* added schemas.py
+* removed validate.py
 * removed cerberus and added marshmallow to validate.py
 * adjusted tests
+* Removed check_settings parameter
+* Removed validate.py
 
 0.2.14 (2019-08-15)
 -------------------
