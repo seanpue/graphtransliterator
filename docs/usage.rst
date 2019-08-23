@@ -396,7 +396,8 @@ Configuring Directly
 --------------------
 In addition to using  :meth:`GraphTansliterator.from_yaml` and
 :meth:`GraphTransliterator.from_yaml_file`, Graph Transliterator can
-also be configured and initialized directly using basic Python types:
+also be configured and initialized directly using basic Python types
+passed as dictionary to :meth:`GraphTransliterator.from_dict`
 
 >>> settings = {
 ...   'tokens': {'a': ['vowel'],
@@ -415,8 +416,7 @@ also be configured and initialized directly using basic Python types:
 ...   'metadata': {
 ...       'author': 'Author McAuthorson'}
 ... }
->>> gt = GraphTransliterator(settings['tokens'], settings['rules'], settings['onmatch_rules'],
-... settings['whitespace'], settings['metadata'])
+>>> gt = GraphTransliterator.from_dict(settings)
 >>> gt.transliterate('a')
 'A'
 
@@ -467,13 +467,13 @@ set the initialization parameter :obj:`check_ambiguity` to `False`.
 Ambiguity checking can also be done on demand using
 :meth:`check_for_ambiguity`.
 
+Ambiguity checking is not performed if loading from a serialized GraphTransliterator
+using :meth:`GraphTransliterator.load` or :meth:`GraphTransliterator.loads`.
+
 Setup Validation
 ----------------
 Graph Transliterator validates both the "easy reading" configuration and the
-direct configuration using the module :py:mod:`cerberus`. To turn off
-validation, set the initialization parameter :obj:`check_settings` to
-``False``. Setup errors will result in a :obj:`ValueError`, and errors will be
-reported using :func:`logging.warning`.
+direct configuration using the :py:mod:`marshmallow` library.
 
 Transliteration and Its Exceptions
 ==================================
@@ -568,12 +568,19 @@ Additional Methods
 Graph Transliterator also offers a few additional methods that may be
 useful for particular tasks.
 
-Serialization
--------------
+Serialization and Deserialization
+---------------------------------
 
 The settings of a Graph Transliterator can be serialized using
-:meth:`serialize`. It returns all of the settings of an initialized Graph
-Transliterator as a dictionary.
+:meth:`GraphTransliterator.dump`, which returns a dictionary of native Python data
+types. A JSON string of the same can be accessed using
+:meth:`GraphTransliterator.dumps`.
+
+A GraphTransliterator can be loaded from serialized settings, e.g. in an API context,
+using :meth:`GraphTransliterator.load` and from JSON data as
+:meth:`GraphTransliterator.loads`. Because they are intended to be quick, neither method
+performs ambiguity checks or strict validation checking.
+
 
 Matching at an Index
 --------------------
