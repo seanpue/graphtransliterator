@@ -18,7 +18,11 @@ from .exceptions import (
     UnrecognizableInputTokenException,
 )
 from .process import _process_easyreading_settings
-from .schemas import EasyReadingSettingsSchema, SettingsSchema
+from .schemas import (
+    EasyReadingSettingsSchema,
+    SettingsSchema,
+    TransliterationRuleSchema,
+)
 from .initialize import (
     _graph_from,
     _onmatch_rules_lookup,
@@ -26,9 +30,11 @@ from .initialize import (
     _tokens_by_class_of,
 )
 from marshmallow import fields, post_load, Schema
+
+# from .rules import TransliterationRule
 from .schemas import (
     DirectedGraphSchema,
-    TransliterationRuleSchema,
+    # TransliterationRuleSchema,
     WhitespaceSettingsSchema,
     OnMatchRuleSchema,
 )
@@ -41,12 +47,14 @@ class GraphTransliteratorSchema(Schema):
         keys=fields.Str(), values=fields.List(fields.Str()), required=True
     )
     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
+
     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
     onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
-    onmatch_rules_lookup = fields.Dict()
+
     metadata = fields.Dict(
         keys=fields.Str(), required=False  # no restriction on values
     )
+    onmatch_rules_lookup = fields.Dict()
     tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str))
     graph = fields.Nested(DirectedGraphSchema)
     tokenizer_pattern = fields.Str()
@@ -102,78 +110,42 @@ class GraphTransliterator:
     ----------
     tokens : `dict` of {`str`: `set` of `str`}
         Mapping of input token types to token classes
-    rules : `list` of `dict`
-        `list` of dictionaries of transliteration rules with keys:
+    rules : `list` of `TransliterationRule`
+        `list` of transliteration rules ordered by cost
 
-            ``"prev_classes"``
-              Token classes to be matched before previous tokens and tokens
-              (`list` of `str`, or `None`)
-
-            ``"prev_tokens"``
-                Specific tokens to be matched before tokens
-                (`list` of `str`, or `None`)
-
-            ``"tokens"``
-                Tokens to be matched
-                (`list` of `str`)
-
-            ``"next_tokens"``
-                Specific tokens to follow matched tokens
-                (`list` of `str`, or `None`)
-
-            ``"next_classes"``
-                Token classes to follow tokens and next tokens
-                (`list` of `str`, or `None`)
-
-    onmatch_rules : `list` of `dict`, or `None`
+    onmatch_rules : `list` of `OnMatchRule`, or `None`
         Rules for output to be inserted between tokens
         of certain classes when a transliteration rule has been matched
-        but before its production string has been added to the output,
-        consisting of a list of dictionaries with the keys:
+        but before its production string has been added to the output
 
-            ``"prev_classes"``
-                Tokens classes to be found right before start of
-                match with transliteration rule
-                (`list` of `str`, or `None`)
-
-            ``"next_classes"``
-                Token classes to be found from start of transliteration rule
-                (`list` of `str`, or `None`)
-
-            ``"production"``
-                String to be added to output before transliteration rule
-                production
-                (`str`)
-
-    whitespace: `dict`
-        Whitespace settings as dictionary with the keys:
-
-            ``"default"``
-                Default whitespace token
-                (`str`)
-
-            ``"token_class"``
-                Comon class of whitespace tokens
-                (`str`)
-
-            ``"consolidate"``
-                If true (default), sequential whitespace characters will be
-                consolidated and treated as one token, and any whitespace
-                at the start or end of the input will be removed.
-                (`bool`)
+    whitespace: `WhitespaceRules`
+        Rules for handling whitespace
 
     metadata: `dict` or `None`
         Metadata settings
 
-    check_settings: `bool`, optional
-        If true (default), the input settings are validated.
+    ignore_errors: `bool`, optional
+        If true, transliteration errors are ignored and do not raise an
+        exception. The default is false.
 
     check_ambiguity: `bool`, optional
         If true (default), transliteration rules are checked for ambiguity.
 
-    ignore_errors: `bool`, optional
-        If true, transliteration errors are ignored and do not raise an
-        exception. The default is false.
+    onmatch_rules_lookup: `dict` of {`str`: dict o f {`str`: `list` of `int`}}, optional`
+        OnMatchRules lookup, used internally, will be generated if not present.
+
+    tokens_by_class: `dict` of {`str`: `set` of `str`}, optional
+        Tokens by class, used internally, will be generated if not present.
+
+    graph: `DirectedGraph`, optional
+        Directed graph used by Graph Transliterator, will be generated if not present.
+
+    tokenizer_pattern: `str`, optional
+        Regular expression pattern for input string tokenization, will be generated if
+        not present.
+
+    graphtransliterator_version: `str`, optional
+        Version of graphtransliterator used by `dump()` and `dumps()`.
 
     Example
     -------

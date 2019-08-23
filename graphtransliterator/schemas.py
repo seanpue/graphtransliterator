@@ -1,6 +1,7 @@
 from marshmallow import (
     fields,
     post_load,
+    post_dump,
     Schema,
     validate,
     ValidationError,
@@ -10,6 +11,7 @@ from collections import defaultdict
 from .graphs import DirectedGraph
 from .initialize import _onmatch_rule_of, _transliteration_rule_of, _whitespace_rules_of
 from .process import RULE_RE, ONMATCH_RE
+from .rules import TransliterationRule
 
 
 class WhitespaceDictSettingsSchema(Schema):
@@ -18,10 +20,6 @@ class WhitespaceDictSettingsSchema(Schema):
     default = fields.Str(required=True)
     token_class = fields.Str(required=True)
     consolidate = fields.Boolean(required=True)
-
-    class Meta:
-        fields = ("default", "token_class", "consolidate")
-        ordered = True
 
 
 class WhitespaceSettingsSchema(WhitespaceDictSettingsSchema):
@@ -207,6 +205,21 @@ class DirectedGraphSchema(Schema):
     class Meta:
         fields = ("node", "edge", "edge_list")
 
+    @post_dump
+    def dict_of_rule(self, data, **kwargs):
+        # make TransliterationRule a dict
+        for node in data["node"]:
+            rule = node.get("rule")
+            if rule:
+                if type(rule) == TransliterationRule:
+                    node["rule"] = rule._asdict()
+        return data
+
     @post_load
     def make_graph(self, data, **kwargs):
+        # adjust TransliterationRule
+        for node in data["node"]:
+            rule = node.get("rule")
+            if rule:
+                node["rule"] = TransliterationRule(**rule)
         return DirectedGraph(**data)

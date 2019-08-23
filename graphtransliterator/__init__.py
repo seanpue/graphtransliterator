@@ -27,11 +27,13 @@ from .rules import TransliterationRule, OnMatchRule, WhitespaceRules  # noqa
 
 # Schemas
 from .schemas import (
-    WhitespaceSettingsSchema,
+    DirectedGraphSchema,
     EasyReadingSettingsSchema,
-    TransliterationRuleSchema,
     OnMatchRuleSchema,
     SettingsSchema,
+    TransliterationRuleSchema,
+    WhitespaceDictSettingsSchema,
+    WhitespaceSettingsSchema,
 )
 
 # Exceptions
@@ -57,7 +59,7 @@ __all__ = [
     "OnMatchRule",
     "WhitespaceRules",
     # schemas
-    "WhitesapceDictSettingsSchema",
+    "WhitespaceDictSettingsSchema",
     "WhitespaceSettingsSchema",
     "EasyReadingSettingsSchema",
     "OnMatchRuleSchema",

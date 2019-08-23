@@ -362,6 +362,7 @@ def test_GraphTransliterator_transliterate(tmpdir):
     assert gt.dump()["graph"]["edge"]
     assert type(GraphTransliterator.load(gt.dump())) == GraphTransliterator
     assert "graph" in gt.dumps()
+    assert GraphTransliterator.loads(gt.dumps()).dumps()
     assert re.match(r"\d+\.\d+\.\d+$", gt.dump()["graphtransliterator_version"])
     assert gt.dump()["graphtransliterator_version"] == graphtransliterator.__version__
     x = gt.dumps()
