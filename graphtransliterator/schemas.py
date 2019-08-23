@@ -33,8 +33,6 @@ class WhitespaceSettingsSchema(WhitespaceDictSettingsSchema):
 class EasyReadingSettingsSchema(Schema):
     """Schema for easy reading settings.
 
-    Notes
-    -----
     Provides initial validation based on easy reading format.
     """
 
@@ -105,7 +103,7 @@ class OnMatchRuleSchema(Schema):
 
 
 class SettingsSchema(Schema):
-    """Schema for settings.
+    """Schema for settings in dictionary format.
 
     Performs validation.
     """
@@ -197,8 +195,6 @@ class SettingsSchema(Schema):
 class DirectedGraphSchema(Schema):
     """ Schema for DirectedGraph.
 
-    Notes
-    -----
     Does not rigorously validate graph.
     """
 

@@ -10,16 +10,13 @@ History
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output.
 * Fix Devanagari output in doc PDF
-* add translated messages using Transifex
+* Add translated messages using Transifex
 
 [Unreleased-TODO]
 -----------------
-* Add schemas to docs/api.rst and remove validate.
-* check docs for changes listed below
-* check keyword arguments (especially in docs)
-* Add load and loads
+* Check docs
 
-X.X.XX (XXXX-XX-XX)
+0.3.0 (2019-08-23)
 -------------------
 * Removed _tokens_of() from init
 * Removed serialize()
@@ -29,7 +26,7 @@ X.X.XX (XXXX-XX-XX)
   on load and passed as pattern string (tokenizer_pattern)
 * added settings parameters to DirectedGraph
 * added OnMatchRule as namedtuple for consistency
-* added new GraphTransliterator.from_dict()
+* added new GraphTransliterator.from_dict(), which validates from_yaml()
 * renamed GraphTransliterator.from_dict() to GraphTransliterator.from_easyreading_dict()
 * added schemas.py
 * removed validate.py

@@ -43,6 +43,8 @@ logger = logging.getLogger("graphtransliterator")
 
 
 class GraphTransliteratorSchema(Schema):
+    """Schema for Graph Transliterator."""
+
     tokens = fields.Dict(
         keys=fields.Str(), values=fields.List(fields.Str()), required=True
     )
@@ -101,7 +103,7 @@ class GraphTransliterator:
     ----
     This constructor does not validate settings and should typically not be called
     directly. Use :meth:`from_dict` instead. For "easy reading" support, use
-    :meth:`from_easyreading_dict`, :meth:`from_yaml`, or :meth:`from_yaml_file` instead.
+    :meth:`from_easyreading_dict`, :meth:`from_yaml`, or :meth:`from_yaml_file`.
     Keyword parameters used here (``check_ambiguity``, ``ignore_errors``) can be passed
     from those other constructors.
 
@@ -150,71 +152,19 @@ class GraphTransliterator:
 
     Example
     -------
-    >>> from graphtransliterator import GraphTransliterator
-    >>> settings = {
-    ...    'tokens': {'a': set(['class1']),
-    ...               'b': set(['class2']),
-    ...               ' ': set(['wb']},
-    ...    'rules': [
-    ...        {'production': 'A', 'tokens': ['a']},
-    ...        {'production': 'B', 'tokens': ['b']},
-    ...        {'production': ' ', 'tokens': [' ']},
-    ...        {'production': 'A*',
-    ...         'prev_classes': ['class2'],
-    ...         'prev_tokens': ['a'],
-    ...         'tokens': ['a'],
-    ...         'next_tokens': ['a'],
-    ...         'next_classes': ['class2'] }],
-    ...    'onmatch_rules': [
-    ...        {'prev_classes': ['class1'],
-    ...         'next_classes': ['class1'],
-    ...         'production': ','}],
-    ...    'whitespace': {
-    ...        'default': ' ',
-    ...        'consolidate': False,
-    ...        'token_class': 'wb'},
-    ...    'metadata': {
-    ...        'author': 'Author McAuthorson',
-    ...        'version': '0.0.1'}
-    ... }
-    >>> gt = GraphTransliterator(
-    ...         settings['tokens'], settings['rules'], settings['onmatch_rules'],
-    ...         settings['whitespace'], settings['metadata']
-    ...      )
-    >>> gt.transliterate('baaab')
-    'BA,A*,AB'
-    >>>
+    >>> from graphtransliterator import *
+    >>> settings = {'tokens': {'a': {'vowel'}, ' ': {'wb'}}, 'onmatch_rules': [OnMatchRule(prev_classes=['vowel'], next_classes=['vowel'], production=',')], 'rules': [TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562), TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562)], 'metadata': {'author': 'Author McAuthorson'}, 'whitespace': WhitespaceRules(default=' ', token_class='wb', consolidate=False)}
+    >>> gt = GraphTransliterator(**settings)
+    >>> gt.transliterate('a')
+    'A'
 
     See Also
     --------
-    from_easyreading_dict : constructor from  dictionary in "easy reading" format
-    from_yaml : constructor from YAML string in "easy reading" format
-    from_yaml_file : constructor from YAML in "easy reading" format
+    from_dict : Constructor from dictionary of settings
+    from_easyreading_dict : Constructor from  dictionary in "easy reading" format
+    from_yaml : Constructor from YAML string in "easy reading" format
+    from_yaml_file : Constructor from YAML file in "easy reading" format
 """  # noqa
-
-    # def internal_settings_of(settings):
-    #     metadata = settings.get("metadata")
-    #     tokens = _tokens_of(settings["tokens"])
-    #     tokens_by_class = _tokens_by_class_of(tokens)
-    #     rules = sorted(
-    #         [_transliteration_rule_of(rule) for rule in settings["rules"]],
-    #         key=lambda transliteration_rule: transliteration_rule.cost,
-    #     )
-    #     onmatch_rules = [_onmatch_rule_of(_) for _ in settings.get("onmatch_rules")]
-    #     onmatch_rules_lookup = _onmatch_rules_lookup(tokens, onmatch_rules)
-    #     whitespace = _whitespace_rules_of(settings["whitespace"])
-    #     ignore_errors = settings.get("ignore_errors", False)
-    #
-    #     return dict(
-    #         metadata=metadata,
-    #         tokens=tokens,
-    #         tokens_by_class=tokens_by_class,
-    #         rules=rules,
-    #         onmatch_rules=onmatch_rules,
-    #         onmatch_rules_lookup=onmatch_rules_lookup,
-    #         whitespace=whitespace,
-    #         ignore_errors=ignore_errors,
-    #     )
 
     def __init__(
         self,
@@ -914,8 +864,8 @@ class GraphTransliterator:
 
         See Also
         --------
-        GraphTransliterator.yaml()
-        GraphTransliterator.from_yaml_file()
+        from_yaml : Constructor from YAML string in "easy reading" format
+        from_yaml_file : Constructor from YAML file in "easy reading" format
         """
         # validate_easyreading_settings
         _ = EasyReadingSettingsSchema().load(easyreading_settings)
@@ -963,8 +913,8 @@ class GraphTransliterator:
 
         See Also
         --------
-        GraphTransliterator.from_easyreading_dict()
-        GraphTransliterator.from_yaml_file()
+        from_easyreading_dict : Constructor from dictionary in "easy reading" format
+        from_yaml_file : Constructor from YAML file in "easy reading" format
         """
         if charnames_escaped:
             yaml_str = _unescape_charnames(yaml_str)
@@ -990,8 +940,8 @@ class GraphTransliterator:
 
         See Also
         --------
-        graphtransliterator.GraphTransliterator.from_yaml
-        graphtransliterator.GraphTransliterator.from_easyreading_dict
+        from_yaml : Constructor from YAML string in "easy reading" format
+        from_easyreading_dict : Constructor from dictionary in "easy reading" format
         """
         with open(yaml_filename, "r") as f:
             yaml_string = f.read()
@@ -1037,7 +987,7 @@ class GraphTransliterator:
 
         See Also
         --------
-        dump: Dump GraphTransliterator configuration to Python types
+        dump : Dump GraphTransliterator configuration to Python types
         """  # noqa
         return GraphTransliteratorSchema().dumps(self)
 
@@ -1086,7 +1036,7 @@ class GraphTransliterator:
 
                 ``"onmatch_rules"``
                   Onmatch settings
-                  (`list` of `OnMatchRule`)
+                  (`list` of `OrderedDict`)
 
                 ``"onmatch_rules_lookup"``
                   Dictionary keyed by current token to previous token
@@ -1122,7 +1072,7 @@ OrderedDict([('tokens', {'a': ['vowel'], ' ': ['wb']}), ('rules', [OrderedDict([
 
         See Also
         --------
-        dump: Dump GraphTransliterator settings to Javascript Object Notation (JSON) str
+        dumps: Dump GraphTransliterator settings to Javascript Object Notation (JSON) str
 """  # noqa
         return GraphTransliteratorSchema().dump(self)
 
