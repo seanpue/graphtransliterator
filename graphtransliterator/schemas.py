@@ -23,7 +23,7 @@ class WhitespaceDictSettingsSchema(Schema):
 
 
 class WhitespaceSettingsSchema(WhitespaceDictSettingsSchema):
-    """Schema for Whitespace definition thatlaods as `WhitespaceRules.`"""
+    """Schema for Whitespace definition that loads as `WhitespaceRules.`"""
 
     @post_load
     def make_whitespace_rules(self, data, **kwargs):

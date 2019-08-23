@@ -15,6 +15,11 @@ History
 [Unreleased-TODO]
 -----------------
 * Check docs
+* Add validationerror to functions
+
+X.X.X (XXXX-XX-XX)
+------------------
+* adjusted requirements.txt
 
 0.3.0 (2019-08-23)
 -------------------
