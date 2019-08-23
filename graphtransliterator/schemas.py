@@ -23,7 +23,7 @@ class WhitespaceDictSettingsSchema(Schema):
 
 
 class WhitespaceSettingsSchema(WhitespaceDictSettingsSchema):
-    """Schema for Whitespace definition that loads as `WhitespaceRules.`"""
+    """Schema for Whitespace definition that loads as :class:`WhitespaceRules.`"""
 
     @post_load
     def make_whitespace_rules(self, data, **kwargs):
@@ -60,7 +60,7 @@ class EasyReadingSettingsSchema(Schema):
 
 
 class TransliterationRuleSchema(Schema):
-    """Schema for TransliterationRule."""
+    """Schema for :class:`TransliterationRule`."""
 
     production = fields.Str(required=True)
     tokens = fields.List(fields.Str(), required=True)
@@ -87,7 +87,7 @@ class TransliterationRuleSchema(Schema):
 
 
 class OnMatchRuleSchema(Schema):
-    """Schema for OnMatchRule."""
+    """Schema for :class:`OnMatchRule`."""
 
     prev_classes = fields.List(fields.Str())
     next_classes = fields.List(fields.Str())
@@ -193,7 +193,7 @@ class SettingsSchema(Schema):
 
 
 class DirectedGraphSchema(Schema):
-    """ Schema for DirectedGraph.
+    """ Schema for :class:`DirectedGraph`.
 
     Does not rigorously validate graph.
     """

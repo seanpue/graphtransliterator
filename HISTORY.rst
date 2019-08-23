@@ -15,11 +15,12 @@ History
 [Unreleased-TODO]
 -----------------
 * Check docs
-* Add validationerror to functions
 
 X.X.X (XXXX-XX-XX)
 ------------------
 * adjusted requirements.txt
+* removed note about namedtuple in dump docs
+* adjusted docs
 
 0.3.0 (2019-08-23)
 -------------------

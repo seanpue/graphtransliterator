@@ -115,7 +115,7 @@ class GraphTransliterator:
     rules : `list` of `TransliterationRule`
         `list` of transliteration rules ordered by cost
 
-    onmatch_rules : `list` of `OnMatchRule`, or `None`
+    onmatch_rules : `list` of :class:`OnMatchRule`, or `None`
         Rules for output to be inserted between tokens
         of certain classes when a transliteration rule has been matched
         but before its production string has been added to the output
@@ -131,10 +131,10 @@ class GraphTransliterator:
         exception. The default is false.
 
     check_ambiguity: `bool`, optional
-        If true (default), transliteration rules are checked for ambiguity. `load()`
-        and `load(s)` do not check ambiguity by default.
+        If true (default), transliteration rules are checked for ambiguity. :meth:`load()`
+        and :meth:`loads` do not check ambiguity by default.
 
-    onmatch_rules_lookup: `dict` of {`str`: dict o f {`str`: `list` of `int`}}, optional`
+    onmatch_rules_lookup: `dict` of {`str`: dict of {`str`: `list` of `int`}}, optional`
         OnMatchRules lookup, used internally, will be generated if not present.
 
     tokens_by_class: `dict` of {`str`: `set` of `str`}, optional
@@ -758,7 +758,7 @@ class GraphTransliterator:
 
     @property
     def onmatch_rules(self):
-        """`list` of `OnMatchRules`: Rules for productions between matches."""
+        """`list` of :class:`OnMatchRules`: Rules for productions between matches."""
         return self._onmatch_rules
 
     @property
@@ -769,6 +769,7 @@ class GraphTransliterator:
     @classmethod
     def from_dict(cls, dict_settings, **kwargs):
         """Generate GraphTransliterator from `dict` settings.
+
         Parameters
         ----------
         dict_settings : `dict`
@@ -776,10 +777,8 @@ class GraphTransliterator:
 
         Returns
         -------
-        graphtransliterator.GraphTransliterator
+        GraphTransliterator
             Graph transliterator
-
-
         """
         settings = SettingsSchema().load(dict_settings)
         return GraphTransliterator(
@@ -951,16 +950,11 @@ class GraphTransliterator:
     def dumps(self):
         """
         Dump settings of Graph Transliterator to Javascript Object Notation (JSON).
+
         Returns
         -------
         str
             JSON string
-
-        Note
-        ----
-        `OnmatchRule`, `TransliterationRule`, and `WhitespaceRules` are initialized from
-        :meth:`collections.namedtuple`. Their keys will always be in the same order and
-        can be accessed by index.
 
         Examples
         --------
@@ -983,7 +977,7 @@ class GraphTransliterator:
         ... '''
         >>> gt = GraphTransliterator.from_yaml(yaml_)
         >>> gt.dumps()
-'{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"consolidate": false, "default": " ", "token_class": "wb"}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a|\\\\ )", "graphtransliterator_version": "0.2.14"}'
+        '{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"consolidate": false, "default": " ", "token_class": "wb"}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a|\\\\ )", "graphtransliterator_version": "0.2.14"}'
 
         See Also
         --------
@@ -1040,7 +1034,7 @@ class GraphTransliterator:
 
                 ``"onmatch_rules_lookup"``
                   Dictionary keyed by current token to previous token
-                  containing a list of indexes of applicable `OnmatchRule`
+                  containing a list of indexes of applicable :class:`OnmatchRule`
                   to try
                   (`dict` of {`str`: `dict` of {`str`: `list` of `int`}})
 
