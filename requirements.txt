@@ -1,2 +1,2 @@
 pyyaml==5.1.2
-marshmallow==3.0.0rc9
+marshmallow==3.0.1
