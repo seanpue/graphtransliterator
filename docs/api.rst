@@ -7,7 +7,7 @@ is below.
 
 Public members can (and should) be imported from :class:`graphtransliterator`::
 
-  from graphtransliterator import GraphTransliterator, validate_raw_settings
+  from graphtransliterator import GraphTransliterator
 
 .. module:: graphtransliterator
 

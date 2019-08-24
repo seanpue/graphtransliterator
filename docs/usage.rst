@@ -566,10 +566,10 @@ The settings of a Graph Transliterator can be serialized using
 types. A JSON string of the same can be accessed using
 :meth:`GraphTransliterator.dumps`. Validation is not performed during a dump.
 
-A GraphTransliterator can be loaded from serialized settings
+A GraphTransliterator can be loaded from serialized settings, e.g. in an API context,
 using :meth:`GraphTransliterator.load` and from JSON data as
-:meth:`GraphTransliterator.loads`. Because they are intended to be *quick, neither method
-performs ambiguity checks or strict validation checking.*
+:meth:`GraphTransliterator.loads`. Because they are intended to be quick, neither method
+performs ambiguity checks or strict validation checking.
 
 Serialization can be useful if providing an API or making the configured Graph
 Transliterator available in other programming languages, e.g. Javascript.

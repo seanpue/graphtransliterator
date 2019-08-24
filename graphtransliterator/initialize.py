@@ -13,13 +13,6 @@ from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
 # ---------- initialize tokens ----------
 
 
-# def _tokens_of(tokens):
-#     """Converts values of dict of tokens from list to set."""
-#
-#     return {key: set(value) for key, value in tokens.items()}
-#
-
-
 def _tokens_by_class_of(tokens):
     """Generates lookup table of tokens in each class."""
 
@@ -36,8 +29,6 @@ def _tokens_by_class_of(tokens):
 def _transliteration_rule_of(rule):
     """Converts rule dict into a TransliterationRule."""
 
-    _cost = rule.get("cost", _cost_of(rule))
-
     transliteration_rule = TransliterationRule(
         production=rule.get("production"),
         prev_classes=rule.get("prev_classes"),
@@ -45,9 +36,8 @@ def _transliteration_rule_of(rule):
         tokens=rule.get("tokens"),
         next_tokens=rule.get("next_tokens"),
         next_classes=rule.get("next_classes"),
-        cost=_cost,
+        cost=rule.get("cost", _cost_of(rule)),
     )
-
     return transliteration_rule
 
 
@@ -70,6 +60,9 @@ def _cost_of(rule):
     return math.log2(1 + 1 / (1 + _num_tokens_of(rule)))
 
 
+# ---------- initialize onmatch rules ----------
+
+
 def _onmatch_rule_of(onmatch_rule):
     """ Converts onmatch_rule into OnMatchRule. """
 
@@ -86,8 +79,8 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
     Returns
     -------
     dict of {str: dict of {str: list of int}}
-        Dictionary keyed by current token to previous token containing a
-        list of onmatch rules in order that would apply
+        Dictionary keyed by current token to previous token containing a list of
+        :class:`OnMatchRule` in order that would apply
     """
 
     onmatch_lookup = {}
@@ -142,12 +135,12 @@ def _tokenizer_pattern_from(tokens):
 def _graph_from(rules):
     """Generates a parsing graph from the given rules.
 
-    The directed graph is a tree, and the rules are its leaves. Each
-    intermediate node represents a token. Before trying to match using a
-    token, the constraints on the preceding edge must be met. These include
-    token and, on the edge before  a rule, previous and next tokens and token
-    classes. The tree is built top-down. Costs of edges are adjusted to match
-    the lowest cost of leaf nodes, so they are tried first."""
+    The directed graph is a tree, and the rules are its leaves. Each intermediate node
+    represents a token. Before trying to match using a token, the constraints on the
+    preceding edge must be met. These include token and, on the edge before  a rule,
+    previous and next tokens and token classes. The tree is built top-down. Costs of
+    edges are adjusted to match the lowest cost of leaf nodes, so they are tried
+    first."""
 
     graph = DirectedGraph()
     graph.add_node({"type": "Start"})

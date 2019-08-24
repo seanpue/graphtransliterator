@@ -134,7 +134,7 @@ class SettingsSchema(Schema):
         errors = defaultdict(list)
         token_classes = list(set().union(*data["tokens"].values()))
 
-        # validate onmatch_rules and rules
+        # Validate onmatch_rules and rules
         for rule_type in ("onmatch_rules", "rules"):
             for rule in data[rule_type]:
                 for property in ("prev_classes", "next_classes"):
@@ -149,7 +149,7 @@ class SettingsSchema(Schema):
                                 )
                             )
 
-        # validate whitespace token_class
+        # Validate whitespace token_class
         whitespace = data["whitespace"]
         whitespace_token_class = whitespace.token_class
         if whitespace_token_class not in token_classes:
@@ -166,7 +166,7 @@ class SettingsSchema(Schema):
         errors = defaultdict(list)
         token_types = data["tokens"].keys()
 
-        # validate whitespace
+        # Validate whitespace
         whitespace = data["whitespace"]
         default_whitespace = whitespace.default
         if default_whitespace not in token_types:
@@ -174,7 +174,7 @@ class SettingsSchema(Schema):
                 'Invalid default token "{}" in whitespace.'.format(default_whitespace)
             )
 
-        # validate rules
+        # Validate rules
         rules = data["rules"]
         for rule in rules:
             for property in ("tokens", "prev_tokens", "next_tokens"):
@@ -203,7 +203,7 @@ class DirectedGraphSchema(Schema):
 
     @post_dump
     def dict_of_rule(self, data, **kwargs):
-        # make TransliterationRule a dict
+        # Make TransliterationRule a dict
         for node in data["node"]:
             rule = node.get("rule")
             if rule:
@@ -213,7 +213,7 @@ class DirectedGraphSchema(Schema):
 
     @post_load
     def make_graph(self, data, **kwargs):
-        # adjust TransliterationRule
+        # Make TransliterationRule
         for node in data["node"]:
             rule = node.get("rule")
             if rule:

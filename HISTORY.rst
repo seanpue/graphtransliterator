@@ -18,9 +18,10 @@ History
 
 X.X.X (XXXX-XX-XX)
 ------------------
+* adjusted setup.cfg for bumpversion of core.py
 * adjusted requirements.txt
 * removed note about namedtuple in dump docs
-* adjusted docs
+* adjusted docs (api.rst, etc.)
 
 0.3.0 (2019-08-23)
 -------------------

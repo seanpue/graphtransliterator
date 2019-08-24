@@ -19,6 +19,13 @@ __version__ = "0.3.0"
 # Core classes
 from .core import GraphTransliterator, GraphTransliteratorSchema  # noqa
 
+# Exceptions
+from .exceptions import (
+    AmbiguousTransliterationRulesException,
+    NoMatchingTransliterationRuleException,
+    UnrecognizableInputTokenException,
+)  # noqa
+
 # Graphs
 from .graphs import DirectedGraph  # noqa
 
@@ -36,20 +43,12 @@ from .schemas import (
     WhitespaceSettingsSchema,
 )
 
-# Exceptions
-from .exceptions import (
-    GraphTransliteratorException,
-    AmbiguousTransliterationRulesException,
-    NoMatchingTransliterationRuleException,
-    UnrecognizableInputTokenException,
-)  # noqa
-
 __all__ = [
     # core
     "GraphTransliterator",
     # exceptions
     "AmbiguousTransliterationRulesException",
-    "GraphTransliteratorException",
+    "GraphTran_transliteration_rule_ofsliteratorException",
     "NoMatchingTransliterationRuleException",
     "UnrecognizableInputTokenException",
     # graphs
