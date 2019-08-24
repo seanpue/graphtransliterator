@@ -564,12 +564,12 @@ Serialization and Deserialization
 The settings of a Graph Transliterator can be serialized using
 :meth:`GraphTransliterator.dump`, which returns a dictionary of native Python data
 types. A JSON string of the same can be accessed using
-:meth:`GraphTransliterator.dumps`. Validation is performed during a dump.
+:meth:`GraphTransliterator.dumps`. Validation is not performed during a dump.
 
-A GraphTransliterator can be loaded from serialized settings, e.g. in an API context,
+A GraphTransliterator can be loaded from serialized settings
 using :meth:`GraphTransliterator.load` and from JSON data as
-:meth:`GraphTransliterator.loads`. Because they are intended to be quick, neither method
-performs ambiguity checks or strict validation checking.
+:meth:`GraphTransliterator.loads`. Because they are intended to be *quick, neither method
+performs ambiguity checks or strict validation checking.*
 
 Serialization can be useful if providing an API or making the configured Graph
 Transliterator available in other programming languages, e.g. Javascript.
