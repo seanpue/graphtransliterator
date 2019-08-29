@@ -8,14 +8,14 @@ History
 * Add metadata guidelines
 * Save match location in tokenize
 * Add tests directly to YAML files
-* Allow insertion of transliteration error messages into output.
+* Allow insertion of transliteration error messages into output
 * Fix Devanagari output in doc PDF
 * Add translated messages using Transifex
 
 [Unreleased-TODO]
 -----------------
 
-X.X.X (XXXX-XX-XX)
+0.3.1 (2019-08-29)
 ------------------
 * adjustments to README.rst
 * cleanup in initialize.py and core.py
