@@ -14,10 +14,12 @@ History
 
 [Unreleased-TODO]
 -----------------
-* Check docs
 
 X.X.X (XXXX-XX-XX)
 ------------------
+* adjustments to README.rst
+* cleanup in initialize.py and core.py
+* fix to docs/api.rst
 * adjusted setup.cfg for bumpversion of core.py
 * adjusted requirements.txt
 * removed note about namedtuple in dump docs
@@ -40,7 +42,6 @@ X.X.X (XXXX-XX-XX)
 * removed cerberus and added marshmallow to validate.py
 * adjusted tests
 * Removed check_settings parameter
-* Removed validate.py
 
 0.2.14 (2019-08-15)
 -------------------

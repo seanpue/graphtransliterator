@@ -137,7 +137,7 @@ def _graph_from(rules):
 
     The directed graph is a tree, and the rules are its leaves. Each intermediate node
     represents a token. Before trying to match using a token, the constraints on the
-    preceding edge must be met. These include token and, on the edge before  a rule,
+    preceding edge must be met. These include tokens and, on the edge before a rule,
     previous and next tokens and token classes. The tree is built top-down. Costs of
     edges are adjusted to match the lowest cost of leaf nodes, so they are tried
     first."""
@@ -198,7 +198,7 @@ def _graph_from(rules):
         ordered_children = {}
         rule_children_keys = node.get("rule_children")
 
-        # add rule children to ordered_children dict under '__rules__''
+        # Add rule children to ordered_children dict under '__rules__''
         if rule_children_keys:
             ordered_children["__rules__"] = sorted(
                 rule_children_keys, key=lambda x: graph.edge[node_key][x]["cost"]
@@ -207,20 +207,20 @@ def _graph_from(rules):
 
         token_children = node.get("token_children")
 
-        # add token children to ordered_children dict by token
+        # Add token children to ordered_children dict by token
         if token_children:
             for token, token_key in token_children.items():
                 ordered_children[token] = [token_key]
 
-                # add rule children there as well
+                # Add rule children there as well
                 if rule_children_keys:
                     ordered_children[token] += rule_children_keys
 
-                # sort both by weight
+                # Sort both by cost
                 ordered_children[token].sort(
                     key=lambda _new_tkn_key: graph.edge[node_key][_new_tkn_key]["cost"]
                 )
-            # remove token children
+            # Remove token_children
             node.pop("token_children")
         node["ordered_children"] = ordered_children
 

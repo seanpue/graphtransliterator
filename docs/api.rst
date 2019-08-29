@@ -56,8 +56,6 @@ Schemas
 
 .. autoclass:: SettingsSchema
 
-.. autoclass:: TransliterationRule
-
 .. autoclass:: TransliterationRuleSchema
 
 .. autoclass:: WhitespaceDictSettingsSchema

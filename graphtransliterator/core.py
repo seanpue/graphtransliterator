@@ -10,18 +10,10 @@ import pkg_resources
 import re
 import unicodedata
 import yaml
-
-from collections import deque
 from .exceptions import (
     AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
-)
-from .process import _process_easyreading_settings
-from .schemas import (
-    EasyReadingSettingsSchema,
-    SettingsSchema,
-    TransliterationRuleSchema,
 )
 from .initialize import (
     _graph_from,
@@ -29,15 +21,17 @@ from .initialize import (
     _tokenizer_pattern_from,
     _tokens_by_class_of,
 )
-from marshmallow import fields, post_load, Schema
-
-# from .rules import TransliterationRule
+from .process import _process_easyreading_settings
 from .schemas import (
     DirectedGraphSchema,
-    # TransliterationRuleSchema,
-    WhitespaceSettingsSchema,
+    EasyReadingSettingsSchema,
     OnMatchRuleSchema,
+    SettingsSchema,
+    TransliterationRuleSchema,
+    WhitespaceSettingsSchema,
 )
+from collections import deque
+from marshmallow import fields, post_load, Schema
 
 logger = logging.getLogger("graphtransliterator")
 
@@ -54,7 +48,7 @@ class GraphTransliteratorSchema(Schema):
     onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
 
     metadata = fields.Dict(
-        keys=fields.Str(), required=False  # no restriction on values
+        keys=fields.Str(), required=False  # No restriction on values
     )
     onmatch_rules_lookup = fields.Dict()
     tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str))
@@ -69,7 +63,6 @@ class GraphTransliteratorSchema(Schema):
             "whitespace",
             "onmatch_rules",
             "metadata",
-            # "check_ambiguity",
             "onmatch_rules_lookup",
             "tokens_by_class",
             "graph",
@@ -217,7 +210,7 @@ class GraphTransliterator:
 
         self._rule_keys = []  # last matched rules
 
-        # When or if necessary, add version checking here
+        # When, or if, necessary, add version checking here
         if not graphtransliterator_version:
             graphtransliterator_version = pkg_resources.require("graphtransliterator")[
                 0
@@ -547,13 +540,13 @@ class GraphTransliterator:
         ... ''').transliterate("a a")
         'A_A'
         """
-        tokens = self.tokenize(input)  # adds initial+final whitespace
-        self._input_tokens = tokens  # <--- tokens are saved here
-        self._rule_keys = []
+        tokens = self.tokenize(input)  # Adds initial+final whitespace
+        self._input_tokens = tokens  # Tokens are saved here
+        self._rule_keys = []  # Matched ule keys are saved here
         output = ""
-        token_i = 1  # adjust for initial whitespace
+        token_i = 1  # Adjust for initial whitespace
 
-        while token_i < len(tokens) - 1:  # adjust for final whitespace
+        while token_i < len(tokens) - 1:  # Adjust for final whitespace
             rule_key = self.match_at(token_i, tokens)
             if rule_key is None:
                 logger.warning(
@@ -586,21 +579,21 @@ class GraphTransliterator:
                         # ^      - len(onmatch.prev_rules)
                         if self._match_tokens(
                             token_i - len(onmatch.prev_classes),
-                            onmatch.prev_classes,  # double checks last value
+                            onmatch.prev_classes,  # Checks last value
                             tokens,
                             check_prev=True,
                             check_next=False,
                             by_class=True,
                         ) and self._match_tokens(
                             token_i,
-                            onmatch.next_classes,  # double checks first value
+                            onmatch.next_classes,  # Checks first value
                             tokens,
                             check_prev=False,
                             check_next=True,
                             by_class=True,
                         ):
                             output += onmatch.production
-                            break  # only match best onmatch rule
+                            break  # Only match best onmatch rule
             output += rule.production
             token_i += len(tokens_matched)
         return output
@@ -866,11 +859,11 @@ class GraphTransliterator:
         from_yaml : Constructor from YAML string in "easy reading" format
         from_yaml_file : Constructor from YAML file in "easy reading" format
         """
-        # validate_easyreading_settings
+        # Validate easyreading settings
         _ = EasyReadingSettingsSchema().load(easyreading_settings)
-        # convert to regular settings
+        # Convert those to regular settings
         _ = _process_easyreading_settings(_)
-        # validation done in from_dict
+        # Validation of regular settings is done in from_dict
         return GraphTransliterator.from_dict(_, **kwargs)
 
     @classmethod
