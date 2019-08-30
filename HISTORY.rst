@@ -15,6 +15,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+0.3.2 (2019-08-30)
+------------------
+* fixed error in README.rst
+
 0.3.1 (2019-08-29)
 ------------------
 * adjustments to README.rst
