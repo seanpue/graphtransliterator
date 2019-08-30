@@ -60,7 +60,7 @@ Features
 * Permits **pruning of rules** with certain productions
 * **Validates**, as well as **serializes** to and **deserializes** from JSON
   and Python data types, using accessible
-  `marshmallow <https://github.com/marshmallow-code/marshmallow>` schemas
+  `marshmallow <https://github.com/marshmallow-code/marshmallow>`_ schemas
 * Provides **full support for Unicode**, including Unicode **character names**
   in the "easy reading" YAML format
 * Constructs and uses a **directed tree** and performs a **best-first search**
