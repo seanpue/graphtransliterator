@@ -29,5 +29,5 @@ steps:
   displayName: 'Install dependencies'
 
 - script: |
-    tox
+    tox -e py
   displayName: 'tox'
