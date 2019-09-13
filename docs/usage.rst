@@ -285,10 +285,8 @@ whitespace character. At the start and end of input, it removes any whitespace:
 '_A'
 >>> gt.transliterate('a ')  # consolidate removes whitespace at end of string
 '_A'
->>> gt.transliterate('a')   # whitespace present at start of string
 
-
-Whitespace settings are stored internally as a :class:`WhitespaceRules` and can be
+Whitespace settings are stored internally as :class:`WhitespaceRules` and can be
 accessed using :attr:`GraphTransliterator.whitespace`:
 
 >>> gt.whitespace
@@ -296,7 +294,7 @@ WhitespaceRules(default=' ', token_class='wb', consolidate=False)
 
 On Match Rules
 --------------
-Graph Transliterator allows the specification of strings to be inserted
+Graph Transliterator allows strings to be inserted right
 before the productions of transliteration rules. These take as parameters:
 
 - a list of **previous token classes**, preceding the location of the transliteration
@@ -387,7 +385,7 @@ the hexadecimal character code):
 
 Configuring Directly
 --------------------
-In addition to using  :meth:`GraphTansliterator.from_yaml` and
+In addition to using :meth:`GraphTansliterator.from_yaml` and
 :meth:`GraphTransliterator.from_yaml_file`, Graph Transliterator can also be configured
 and initialized directly using basic Python types passed as dictionary to
 :meth:`GraphTransliterator.from_dict`
@@ -734,7 +732,7 @@ first and will backtrack if the constraint conditions are not met.
    are found on the edge before the leftmost leaf rule node.
 
 To optimize the search, during initialization an :obj:`ordered_children` dictionary is
-added to each non-leaf node. Its values are a sorted list of node indexes sorted by cost
+added to each non-leaf node. Its values are a list of node indexes sorted by cost
 and keyed by the following `token`:
 
 >>> gt.graph.node[0]

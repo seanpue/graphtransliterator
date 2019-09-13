@@ -387,19 +387,19 @@ class GraphTransliterator:
                 else:
                     rules_keys = ordered_children.get("__rules__")  # leafs
                     if rules_keys:
-                        # There may be more than one as certain rules have
+                        # There may be more than one rule, as certain rules have
                         # constraints on them.
-                        # reordered so high cost go on stack last
+                        # Reordered so higher cost go on stack last.
                         for rule_key in reversed(rules_keys):
                             stack.appendleft((rule_key, node_key, token_i))
 
-        _append_children(0, token_i)  # append all children of root node
+        _append_children(0, token_i)  # Append all children of root node
 
         while stack:  # LIFO
             node_key, parent_key, token_i = stack.popleft()
             assert token_i < len(tokens), "way past boundary"
             curr_node = graph.node[node_key]
-            # check constraints on preceding edge
+            # Check constraints on preceding edge
             if curr_node.get("accepting") and self._match_constraints(
                 parent_key, node_key, token_i, tokens
             ):
@@ -906,6 +906,7 @@ class GraphTransliterator:
         See Also
         --------
         from_easyreading_dict : Constructor from dictionary in "easy reading" format
+        from_yaml : Constructor from YAML string in "easy reading" format
         from_yaml_file : Constructor from YAML file in "easy reading" format
         """
         if charnames_escaped:

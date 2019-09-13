@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from marshmallow import (
     fields,
     post_load,
@@ -7,6 +9,7 @@ from marshmallow import (
     ValidationError,
     validates_schema,
 )
+
 from collections import defaultdict
 from .graphs import DirectedGraph
 from .initialize import _onmatch_rule_of, _transliteration_rule_of, _whitespace_rules_of
