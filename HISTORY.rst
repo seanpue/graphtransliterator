@@ -19,7 +19,7 @@ History
 ------------------
 * fixed missing marshmallow dependency (:pr:`47`). Thanks :user:`vc1492a`.
 * removed unused code from test (:pr:`47`). Thanks :user:`vc1492a`.
-* removed cerberus dependency.
+* removed cerberus dependency
 
 0.3.2 (2019-08-30)
 ------------------
