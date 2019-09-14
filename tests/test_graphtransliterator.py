@@ -126,13 +126,6 @@ def test_GraphTransliterator_from_YAML():
             a: [class1]
             ' ': [wb]
           rules:
-            a: A
-    """
-    bad_yaml = """
-          tokens:
-            a: [class1]
-            ' ': [wb]
-          rules:
             b: A
           whitespace:
             default: ' '
@@ -267,21 +260,6 @@ def test_graphtransliterator_structures():
     # invalid node data
     with pytest.raises(ValueError):
         graph.add_node("Not a dict")
-
-
-# def test_graphtransliterator_validate_settings():
-#     """Test graph transliterator validation of settings."""
-#     settings = yaml.safe_load(yaml_for_test)
-#     # check for bad tokens
-#     settings["tokens"] = "bad token"
-#     with pytest.raises(marshmallow.ValidationError):
-#         validate.validate_settings(
-#             settings["tokens"],
-#             settings["rules"],
-#             settings["onmatch_rules"],
-#             settings["whitespace"],
-#             {},
-#         )
 
 
 def test_GraphTransliterator_transliterate(tmpdir):
@@ -509,19 +487,11 @@ def test_GraphTransliterator_ignore_errors():
         assert gt.ignore_errors is False
         gt.transliterate("b!")
 
-    # # test ignore_errors keyword value checking on init
-    # with pytest.raises(ValueError):
-    #     GraphTransliterator.from_yaml(yaml_str, ignore_errors="maybe")
-    # test ignore_errors keyword property
-
     # test ignore_errors setter and property
     gt.ignore_errors = True
     assert gt.ignore_errors is True
     gt.ignore_errors = False
     assert gt.ignore_errors is False
-    # test ignore_errors setter exception handling
-    # with pytest.raises(ValueError):
-    #     gt.ignore_errors = "Maybe"
 
 
 def test_GraphParser_check_ambiguity():
