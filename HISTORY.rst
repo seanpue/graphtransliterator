@@ -9,7 +9,7 @@ History
 * Save match location in tokenize
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output
-* Fix Devanagari output in doc PDF
+* Fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
 * Add examples module
 
@@ -24,7 +24,13 @@ History
 * added docs/_static directory
 * fixed emphasis error and duplicate object description in docs/usages.rst
 * fixed docstring in core.py
-* added python versions badge to README.rst (:issue:`openjournals/joss-reviews#1717`). Thanks :user:`vc1492a`.
+* added python versions badge to README.rst (:issue:`openjournals/joss-reviews#1717`).
+  Thanks :user:`vc1492a`.
+* added NOTICE listing licenses of open-source text and code
+* added Dependencies information to docs/install.rst
+  (:issue:`openjournals/joss-reviews#1717`). Thanks :user:`vc1492a`.
+* updated AUTHORS.rst
+* minor updates to README.rst
 
 0.3.3 (2019-09-14)
 ------------------

@@ -5,9 +5,9 @@ Credits
 Development Lead
 ----------------
 
-* A. Sean Pue <pue@msu.edu>
+* A. Sean Pue `@seanpue <https://github.com/seanpue>`_ <pue@msu.edu>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Valentino Constantinou `@vc1492a <https://github.com/vc1492a>`_

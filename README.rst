@@ -12,7 +12,6 @@ Graph Transliterator
         :target: https://graphtransliterator.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-
 .. image:: https://pyup.io/repos/github/seanpue/graphtransliterator/shield.svg
      :target: https://pyup.io/repos/github/seanpue/graphtransliterator/
      :alt: Updates
@@ -62,7 +61,7 @@ Features
 * Permits **pruning of rules** with certain productions
 * **Validates**, as well as **serializes** to and **deserializes** from JSON
   and Python data types, using accessible
-  `marshmallow <https://github.com/marshmallow-code/marshmallow>`_ schemas
+  `marshmallow <https://marshmallow.readthedocs.io/en/stable/>`_ schemas
 * Provides **full support for Unicode**, including Unicode **character names**
   in the "easy reading" YAML format
 * Constructs and uses a **directed tree** and performs a **best-first search**

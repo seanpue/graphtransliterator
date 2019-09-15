@@ -49,3 +49,12 @@ Once you have a copy of the source, you can install it with:
 
 .. _Github repo: https://github.com/seanpue/graphtransliterator
 .. _tarball: https://github.com/seanpue/graphtransliterator/tarball/master
+
+Required libraries
+------------------
+
+Graph Transliterator requires two Python libraries, `marshmallow`_ and `pyyaml`_. These
+libraries will be installed automatically using the methods described above.
+
+.. _marshmallow: https://pypi.org/project/marshmallow/
+.. _pyyaml: https://pypi.org/project/PyYAML/
