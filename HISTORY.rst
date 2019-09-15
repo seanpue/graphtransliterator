@@ -20,6 +20,7 @@ History
 ------------------
 * added sphinx-issues and settings to requirements_dev.txt, docs/conf.py
 * added .readthedocs.yml configuration file to accommodate sphinx-issues
+* removed history from setup.py due to sphinx-issues
 * fixed GraphTransliteratorException import in __init__.py
 * added docs/_static directory
 * fixed emphasis error and duplicate object description in docs/usages.rst
