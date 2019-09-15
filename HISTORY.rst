@@ -16,7 +16,7 @@ History
 [Unreleased-TODO]
 -----------------
 
-#.#.# (####-##-##)
+0.3.4 (2019-09-15)
 ------------------
 * added sphinx-issues and settings to requirements_dev.txt, docs/conf.py
 * added .readthedocs.yml configuration file to accommodate sphinx-issues
