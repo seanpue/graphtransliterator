@@ -11,6 +11,7 @@ History
 * Allow insertion of transliteration error messages into output
 * Fix Devanagari output in doc PDF
 * Add translated messages using Transifex
+* Add examples module
 
 [Unreleased-TODO]
 -----------------
