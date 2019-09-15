@@ -17,12 +17,12 @@ History
 
 #.#.# (####-##-##)
 ------------------
-* added sphinx-issues to requirements_dev.txt
-* added sphinx_issues and settings to docs/conf.py
-* added GraphTransliteratorException import to __init__.py
+* added sphinx-issues and settings to requirements_dev.txt, docs/conf.py
+* fixed GraphTransliteratorException import in __init__.py
 * added docs/_static directory
 * fixed emphasis error and duplicate object description in docs/usages.rst
 * fixed docstring in core.py
+* added python versions badge to README.rst (:issue:`openjournals/joss-reviews#1717`). Thanks :user:`vc1492a`.
 
 0.3.3 (2019-09-14)
 ------------------

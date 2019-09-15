@@ -2,7 +2,6 @@
 Graph Transliterator
 ====================
 
-
 .. image:: https://img.shields.io/pypi/v/graphtransliterator.svg
         :target: https://pypi.python.org/pypi/graphtransliterator
 
@@ -20,6 +19,9 @@ Graph Transliterator
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
+
+.. image:: https://img.shields.io/pypi/pyversions/graphtransliterator
+       :alt: PyPI - Python Version
 
 A graph-based transliteration tool that lets you convert the symbols of one
 language or script to those of another using rules that you define.
