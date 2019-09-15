@@ -12,9 +12,20 @@ History
 * Fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
 * Add examples module
+* add `compact` flag to remove null values from dump and dumps
 
 [Unreleased-TODO]
 -----------------
+
+#.#.# (####-##-##)
+------------------
+* flake8 fix for core.py
+* fixed bug in schemas.py whereby, during load(), DirectedGraphSchema() was modifying
+  input settings
+* added tests for modifications to settings by load()
+* adjusted DirectedGraphSchema to allow for compacted transliteration rule settings
+* adjusted GraphTransliteratorSchema to allow for compacted settings
+* added ValidationError if onmatch_rules_lookup present without onmatch_rules
 
 0.3.4 (2019-09-15)
 ------------------

@@ -15,6 +15,7 @@ from .graphs import DirectedGraph
 from .initialize import _onmatch_rule_of, _transliteration_rule_of, _whitespace_rules_of
 from .process import RULE_RE, ONMATCH_RE
 from .rules import TransliterationRule
+import copy
 
 
 class WhitespaceDictSettingsSchema(Schema):
@@ -216,9 +217,13 @@ class DirectedGraphSchema(Schema):
 
     @post_load
     def make_graph(self, data, **kwargs):
-        # Make TransliterationRule
-        for node in data["node"]:
+        # Convert TransliterationRule if loading.
+        # Modification of node below alters original settings, so use a deepcopy.
+
+        _data = copy.deepcopy(data)
+
+        for node in _data["node"]:
             rule = node.get("rule")
             if rule:
-                node["rule"] = TransliterationRule(**rule)
-        return DirectedGraph(**data)
+                node["rule"] = _transliteration_rule_of(rule)
+        return DirectedGraph(**_data)

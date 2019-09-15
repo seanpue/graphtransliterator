@@ -336,17 +336,49 @@ def test_GraphTransliterator_transliterate(tmpdir):
     # test last_matched_rules
     assert len(gt.last_matched_rules) == 4
 
+
+def test_serialization():
+    """Test serialization of graphtransliterator"""
+    yaml_ = """
+        tokens:
+          a: [vowel]
+          ' ': [wb]
+        rules:
+          a: A
+          ' ': ' '
+        whitespace:
+          default: " "
+          consolidate: false
+          token_class: wb
+        onmatch_rules:
+          - <vowel> + <vowel>: ','  # add a comma between vowels
+        metadata:
+          author: "Author McAuthorson"
+    """
+    gt = GraphTransliterator.from_yaml(yaml_)
     # test dump
     assert gt.dump()["graph"]["edge"]
-    assert type(GraphTransliterator.load(gt.dump())) == GraphTransliterator
-    assert "graph" in gt.dumps()
     assert GraphTransliterator.loads(gt.dumps()).dumps()
     assert re.match(r"\d+\.\d+\.\d+$", gt.dump()["graphtransliterator_version"])
     assert gt.dump()["graphtransliterator_version"] == graphtransliterator.__version__
+    # test dumps
     x = gt.dumps()
+    assert "graph" in gt.dumps()
     assert type(x) == str
+    # test loads
     new_gt = GraphTransliterator.loads(x)
     assert type(new_gt) == GraphTransliterator
+    # test load
+    settings = gt.dump()
+    assert type(GraphTransliterator.load(settings)) == GraphTransliterator
+    # confirm settings not affected by load
+    assert settings == settings
+    # confirm validationerror if onmatch_rules_lookup but not onmatch_rules
+    # (chances of this every being the case are probably next to none...)
+    bad_settings = gt.dump()
+    bad_settings.pop("onmatch_rules")
+    with pytest.raises(ValidationError):
+        assert GraphTransliterator.load(bad_settings)
 
 
 def test_version():

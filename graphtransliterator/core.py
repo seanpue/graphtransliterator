@@ -31,7 +31,7 @@ from .schemas import (
     WhitespaceSettingsSchema,
 )
 from collections import deque
-from marshmallow import fields, post_load, Schema
+from marshmallow import fields, post_load, Schema, validates_schema, ValidationError
 
 logger = logging.getLogger("graphtransliterator")
 
@@ -50,11 +50,14 @@ class GraphTransliteratorSchema(Schema):
     metadata = fields.Dict(
         keys=fields.Str(), required=False  # No restriction on values
     )
-    onmatch_rules_lookup = fields.Dict()
-    tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str))
-    graph = fields.Nested(DirectedGraphSchema)
-    tokenizer_pattern = fields.Str()
-    graphtransliterator_version = fields.Str()
+    ignore_errors = fields.Bool(required=False)
+    onmatch_rules_lookup = fields.Dict(required=False)
+    tokens_by_class = fields.Dict(
+        keys=fields.Str(), values=fields.List(fields.Str), required=False
+    )
+    graph = fields.Nested(DirectedGraphSchema, required=False)
+    tokenizer_pattern = fields.Str(required=False)
+    graphtransliterator_version = fields.Str(required=False)
 
     class Meta:
         fields = (
@@ -63,6 +66,7 @@ class GraphTransliteratorSchema(Schema):
             "whitespace",
             "onmatch_rules",
             "metadata",
+            "ignore_errors",
             "onmatch_rules_lookup",
             "tokens_by_class",
             "graph",
@@ -79,6 +83,14 @@ class GraphTransliteratorSchema(Schema):
         # Do not check ambiguity if deserializing serialized GraphTransliterator
         data["check_ambiguity"] = False
         return GraphTransliterator(**data)
+
+    @validates_schema
+    def validate_onmatch_rules_lookup(self, data, **kwargs):
+        """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
+        if data.get("onmatch_rules_lookup") and not data.get("onmatch_rules"):
+            raise ValidationError(
+                "Contains onmatch_rules_lookup but not onmatch_rules."
+            )
 
 
 class GraphTransliterator:
@@ -1038,26 +1050,27 @@ class GraphTransliterator:
 
         Example
         -------
-        >>> import graphtransliterator
+        >>> from graphtransliterator import GraphTransliterator
         >>> yaml_ = '''
-        ...       tokens:
-        ...         a: [vowel]
-        ...         ' ': [wb]
-        ...       rules:
-        ...         a: A
-        ...         ' ': ' '
-        ...       whitespace:
-        ...         default: " "
-        ...         consolidate: false
-        ...         token_class: wb
-        ...       onmatch_rules:
-        ...         - <vowel> + <vowel>: ','  # add a comma between vowels
-        ...       metadata:
-        ...         author: "Author McAuthorson"
-        ...     '''
-        >>> gt = graphtransliterator.GraphTransliterator.from_yaml(yaml_)
+        ... tokens:
+        ...   a: [vowel]
+        ...   ' ': [wb]
+        ... rules:
+        ...   a: A
+        ...   ' ': ' '
+        ... whitespace:
+        ...   default: " "
+        ...   consolidate: false
+        ...   token_class: wb
+        ... onmatch_rules:
+        ...   - <vowel> + <vowel>: ','  # add a comma between vowels
+        ... metadata:
+        ...   author: "Author McAuthorson"
+        ... '''
+        >>> gt = GraphTransliterator.from_yaml(yaml_)
         >>> gt.dump()
-        OrderedDict([('tokens', {'a': ['vowel'], ' ': ['wb']}), ('rules', [OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)]), OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)])]), ('whitespace', {'consolidate': False, 'default': ' ', 'token_class': 'wb'}), ('onmatch_rules', [OrderedDict([('prev_classes', ['vowel']), ('next_classes', ['vowel']), ('production', ',')])]), ('metadata', {'author': 'Author McAuthorson'}), ('onmatch_rules_lookup', {'a': {'a': [0]}}), ('tokens_by_class', {'vowel': ['a'], 'wb': [' ']}), ('graph', {'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}}, {'type': 'rule', 'rule_key': 0, 'rule': OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}}, {'type': 'rule', 'rule_key': 1, 'rule': OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}], 'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562}, 3: {'token': ' ', 'cost': 0.5849625007211562}}, 1: {2: {'cost': 0.5849625007211562}}, 3: {4: {'cost': 0.5849625007211562}}}, 'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)]}), ('tokenizer_pattern', '(a|\\ )'), ('graphtransliterator_version', '0.3.4')])
+        OrderedDict([('tokens', {'a': ['vowel'], ' ': ['wb']}), ('rules', [OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)]), OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)])]), ('whitespace', {'consolidate': False, 'default': ' ', 'token_class': 'wb'}), ('onmatch_rules', [OrderedDict([('prev_classes', ['vowel']), ('next_classes', ['vowel']), ('production', ',')])]), ('metadata', {'author': 'Author McAuthorson'}), ('ignore_errors', False), ('onmatch_rules_lookup', {'a': {'a': [0]}}), ('tokens_by_class', {'vowel': ['a'], 'wb': [' ']}), ('graph', {'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)], 'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}}, {'type': 'rule', 'rule_key': 0, 'rule': OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}}, {'type': 'rule', 'rule_key': 1, 'rule': OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}], 'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562}, 3: {'token': ' ', 'cost': 0.5849625007211562}}, 1: {2: {'cost': 0.5849625007211562}}, 3: {4: {'cost': 0.5849625007211562}}}}), ('tokenizer_pattern', '(a|\\ )'), ('graphtransliterator_version', '0.3.4')])
+        >>>
 
         See Also
         --------
@@ -1067,7 +1080,149 @@ class GraphTransliterator:
 
     @staticmethod
     def load(settings, **kwargs):
-        """Create GraphTransliterator from settings as Python data types."""
+        """Create GraphTransliterator from settings as Python data types.
+
+        Parameters
+        ----------
+        settings
+            GraphTransliterator configuration as a dictionary with keys:
+
+                ``"tokens"``
+                  Mappings of tokens to their classes
+                  (`dict` of {str: `list` of `str`})
+
+                ``"rules"``
+                  Transliteration rules in direct format
+                  (`list` of `dict` of {`str`: `str`})
+
+                ``"whitespace"``
+                  Whitespace settings
+                  (`dict` of {`str`: `str`})
+
+                ``"onmatch_rules"``
+                  On match rules
+                  (`list` of `OrderedDict`, optional)
+
+                ``"metadata"``
+                  Dictionary of metadata (`dict`, optional)
+
+                ``tokens_by_class``
+                  Tokens keyed by token class, used internally
+                  (`dict` of {`str`: `list` of str}, optional)
+
+                ``graph``
+                  Serialization of `DirectedGraph`
+                  (`dict`, optional)
+
+                ``"tokenizer_pattern"``
+                  Regular expression for tokenizing
+                  (`str`, optional)
+
+                ``"onmatch_rules"``
+                  Onmatch settings
+                  (`list` of `OrderedDict`, optional)
+
+                ``"onmatch_rules_lookup"``
+                  Dictionary keyed by current token to previous token
+                  containing a list of indexes of applicable :class:`OnmatchRule`
+                  to try
+                  (`dict` of {`str`: `dict` of {`str`: `list` of `int`}}, optional)
+
+                ``"graphtransliterator_version"``
+                  Module version of `graphtransliterator` (`str`, optional)
+
+        Example
+        -------
+        >>> from graphtransliterator import GraphTransliterator
+        from collections import OrderedDict # dump() uses OrderedDict
+        settings = \
+        {'tokens': {'a': ['vowel'], ' ': ['wb']},
+         'rules': [OrderedDict([('production', 'A'),
+                       # Can be compacted, removing None values
+                       # ('prev_tokens', None),
+                       ('tokens', ['a']),
+                       ('next_classes', None),
+                       ('next_tokens', None),
+                       ('cost', 0.5849625007211562)]),
+          OrderedDict([('production', ' '),
+                       ('prev_classes', None),
+                       ('prev_tokens', None),
+                       ('tokens', [' ']),
+                       ('next_classes', None),
+                       ('next_tokens', None),
+                       ('cost', 0.5849625007211562)])],
+         'whitespace': {'default': ' ', 'token_class': 'wb', 'consolidate': False},
+         'onmatch_rules': [OrderedDict([('prev_classes', ['vowel']),
+                       ('next_classes', ['vowel']),
+                       ('production', ',')])],
+         'metadata': {'author': 'Author McAuthorson'},
+         'onmatch_rules_lookup': {'a'>>> from collections import OrderedDict # dict is fine, but dump() uses OrderedDict
+        >>> settings = \
+        ... {'tokens': {'a': ['vowel'], ' ': ['wb']},
+        ...  'rules': [OrderedDict([('production', 'A'),
+        ...                # Can be compacted, removing None values
+        ...                # ('prev_tokens', None),
+        ...                ('tokens', ['a']),
+        ...                ('next_classes', None),
+        ...                ('next_tokens', None),
+        ...                ('cost', 0.5849625007211562)]),
+        ...   OrderedDict([('production', ' '),
+        ...                ('prev_classes', None),
+        ...                ('prev_tokens', None),
+        ...                ('tokens', [' ']),
+        ...                ('next_classes', None),
+        ...                ('next_tokens', None),
+        ...                ('cost', 0.5849625007211562)])],
+        ...  'whitespace': {'default': ' ', 'token_class': 'wb', 'consolidate': False},
+        ...  'onmatch_rules': [OrderedDict([('prev_classes', ['vowel']),
+        ...                ('next_classes', ['vowel']),
+        ...                ('production', ',')])],
+        ...  'metadata': {'author': 'Author McAuthorson'},
+        ...  'onmatch_rules_lookup': {'a': {'a': [0]}},
+        ...  'tokens_by_class': {'vowel': ['a'], 'wb': [' ']},
+        ...  'graph': {'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562},
+        ...     3: {'token': ' ', 'cost': 0.5849625007211562}},
+        ...    1: {2: {'cost': 0.5849625007211562}},
+        ...    3: {4: {'cost': 0.5849625007211562}}},
+        ...   'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}},
+        ...    {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}},
+        ...    {'type': 'rule',
+        ...     'rule_key': 0,
+        ...     'rule': OrderedDict([('production', 'A'),
+        ...                  ('prev_classes', None),
+        ...                  ('prev_tokens', None),
+        ...                  ('tokens', ['a']),
+        ...                  ('next_tokens', None),
+        ...                  ('next_classes', None),
+        ...                  ('cost', 0.5849625007211562)]),
+        ...     'accepting': True,
+        ...     'ordered_children': {}},
+        ...    {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}},
+        ...    {'type': 'rule',
+        ...     'rule_key': 1,
+        ...     'rule': OrderedDict([('production', ' '),
+        ...                  # Can be compacted, removing None values
+        ...                  # ('prev_tokens', None),
+        ...                  ('tokens', [' ']),
+        ...                  ('next_tokens', None),
+        ...                  ('next_classes', None),
+        ...                  ('cost', 0.5849625007211562)]),
+        ...     'accepting': True,
+        ...     'ordered_children': {}}],
+        ...   'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)]},
+        ...  'tokenizer_pattern': '(a|\\ )',
+        ...  'graphtransliterator_version': '0.3.3'}
+        >>> gt = GraphTransliterator.load(settings)
+        >>> gt.transliterate('aa')
+        'A,A'
+        >>> # can be compacted
+        ... settings.pop('onmatch_rules_lookup')
+        {'a': {'a': [0]}}
+        >>> GraphTransliterator.load(settings).transliterate('aa')
+        'A,A'
+        >>>
+
+        """  # noqa
         return GraphTransliteratorSchema().load(settings, **kwargs)
 
     @staticmethod
@@ -1176,7 +1331,7 @@ class GraphTransliterator:
 
         grouper = lambda x: (_count_of_tokens(x))  # noqa, could replace by cost
 
-        for group_val, group_iter in itertools.groupby(
+        for _group_val, group_iter in itertools.groupby(
             enumerate(self._rules), key=lambda x: grouper(x[1])
         ):
 
