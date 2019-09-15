@@ -1,5 +1,3 @@
-.. py:module:: graphtransliterator
-
 =====
 Usage
 =====
@@ -255,8 +253,8 @@ left-to-right Indic scripts. Therefore, Graph Transliterator requires the follow
 - whether or not to **consolidate** whitespace
 
 *A whitespace token and token class must be defined for any Graph Transliterator*. A
-*whitespace character is added temporarily to the start and end of the input tokens
-*during the transliteration process.
+whitespace character is added temporarily to the start and end of the input tokens
+during the transliteration process.
 
 The ``consolidate`` option may be useful in particular transliteration tasks. It
 replaces any sequential whitespace tokens in the input string with the default

@@ -34,7 +34,16 @@ import graphtransliterator
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
               'sphinx.ext.napoleon', 'sphinx.ext.imgconverter',
-              'sphinx.ext.autosummary', 'sphinx.ext.intersphinx']
+              'sphinx.ext.autosummary', 'sphinx.ext.intersphinx',
+              'sphinx_issues']
+# Github repo
+issues_github_path = "seanpue/graphtransliterator"
+
+# equivalent to
+issues_uri = "https://github.com/seanpue/graphtransliterator/issues/{issue}"
+issues_pr_uri = "https://github.com/seanpue/graphtransliterator/pull/{pr}"
+issues_commit_uri = "https://github.com/seanpue/graphtransliterator/commit/{commit}"
+
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)} # added
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -21,6 +21,7 @@ from .core import GraphTransliterator, GraphTransliteratorSchema  # noqa
 
 # Exceptions
 from .exceptions import (
+    GraphTransliteratorException,
     AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
@@ -48,7 +49,7 @@ __all__ = [
     "GraphTransliterator",
     # exceptions
     "AmbiguousTransliterationRulesException",
-    "GraphTran_transliteration_rule_ofsliteratorException",
+    "GraphTransliteratorException",
     "NoMatchingTransliterationRuleException",
     "UnrecognizableInputTokenException",
     # graphs

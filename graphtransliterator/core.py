@@ -947,7 +947,7 @@ class GraphTransliterator:
 
         Returns
         -------
-        str
+        `str`
             JSON string
 
         Examples
@@ -977,6 +977,7 @@ class GraphTransliterator:
         --------
         dump : Dump GraphTransliterator configuration to Python types
         """  # noqa
+
         return GraphTransliteratorSchema().dumps(self)
 
     def dump(self):
@@ -1037,26 +1038,26 @@ class GraphTransliterator:
 
         Example
         -------
->>> import graphtransliterator
->>> yaml_ = '''
-...       tokens:
-...         a: [vowel]
-...         ' ': [wb]
-...       rules:
-...         a: A
-...         ' ': ' '
-...       whitespace:
-...         default: " "
-...         consolidate: false
-...         token_class: wb
-...       onmatch_rules:
-...         - <vowel> + <vowel>: ','  # add a comma between vowels
-...       metadata:
-...         author: "Author McAuthorson"
-...     '''
->>> gt = graphtransliterator.GraphTransliterator.from_yaml(yaml_)
->>> gt.dump()
-OrderedDict([('tokens', {'a': ['vowel'], ' ': ['wb']}), ('rules', [OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)]), OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)])]), ('whitespace', {'consolidate': False, 'default': ' ', 'token_class': 'wb'}), ('onmatch_rules', [OrderedDict([('prev_classes', ['vowel']), ('next_classes', ['vowel']), ('production', ',')])]), ('metadata', {'author': 'Author McAuthorson'}), ('onmatch_rules_lookup', {'a': {'a': [0]}}), ('tokens_by_class', {'vowel': ['a'], 'wb': [' ']}), ('graph', {'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}}, {'type': 'rule', 'rule_key': 0, 'rule': OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}}, {'type': 'rule', 'rule_key': 1, 'rule': OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}], 'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562}, 3: {'token': ' ', 'cost': 0.5849625007211562}}, 1: {2: {'cost': 0.5849625007211562}}, 3: {4: {'cost': 0.5849625007211562}}}, 'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)]}), ('tokenizer_pattern', '(a|\\ )'), ('graphtransliterator_version', '0.3.3')])
+        >>> import graphtransliterator
+        >>> yaml_ = '''
+        ...       tokens:
+        ...         a: [vowel]
+        ...         ' ': [wb]
+        ...       rules:
+        ...         a: A
+        ...         ' ': ' '
+        ...       whitespace:
+        ...         default: " "
+        ...         consolidate: false
+        ...         token_class: wb
+        ...       onmatch_rules:
+        ...         - <vowel> + <vowel>: ','  # add a comma between vowels
+        ...       metadata:
+        ...         author: "Author McAuthorson"
+        ...     '''
+        >>> gt = graphtransliterator.GraphTransliterator.from_yaml(yaml_)
+        >>> gt.dump()
+        OrderedDict([('tokens', {'a': ['vowel'], ' ': ['wb']}), ('rules', [OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)]), OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)])]), ('whitespace', {'consolidate': False, 'default': ' ', 'token_class': 'wb'}), ('onmatch_rules', [OrderedDict([('prev_classes', ['vowel']), ('next_classes', ['vowel']), ('production', ',')])]), ('metadata', {'author': 'Author McAuthorson'}), ('onmatch_rules_lookup', {'a': {'a': [0]}}), ('tokens_by_class', {'vowel': ['a'], 'wb': [' ']}), ('graph', {'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}}, {'type': 'rule', 'rule_key': 0, 'rule': OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}}, {'type': 'rule', 'rule_key': 1, 'rule': OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}], 'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562}, 3: {'token': ' ', 'cost': 0.5849625007211562}}, 1: {2: {'cost': 0.5849625007211562}}, 3: {4: {'cost': 0.5849625007211562}}}, 'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)]}), ('tokenizer_pattern', '(a|\\ )'), ('graphtransliterator_version', '0.3.3')])
 
         See Also
         --------
