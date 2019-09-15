@@ -79,7 +79,8 @@ class GraphTransliteratorSchema(Schema):
     def make_GraphTransliterator(self, data, **kwargs):
         # Convert lists to sets
         for key in ("tokens", "tokens_by_class"):
-            data[key] = {k: set(v) for k, v in data[key].items()}
+            if data.get("key"):  # tokens_by_class can be generated
+                data[key] = {k: set(v) for k, v in data[key].items()}
         # Do not check ambiguity if deserializing serialized GraphTransliterator
         data["check_ambiguity"] = False
         return GraphTransliterator(**data)
@@ -1020,30 +1021,26 @@ class GraphTransliterator:
                 ``"metadata"``
                   Dictionary of metadata (`dict`)
 
-                ``ignore_errors``
+                ``"ignore_errors"``
                   Ignore errors in transliteration (`bool`)
-
-                ``tokens_by_class``
-                  Tokens keyed by token class, used internally
-                  (`dict` of {`str`: `list` of str})
-
-                ``graph``
-                  Serialization of `DirectedGraph`
-                  (`dict`)
-
-                ``"tokenizer_pattern"``
-                  Regular expression for tokenizing
-                  (`str`)
-
-                ``"onmatch_rules"``
-                  Onmatch settings
-                  (`list` of `OrderedDict`)
 
                 ``"onmatch_rules_lookup"``
                   Dictionary keyed by current token to previous token
                   containing a list of indexes of applicable :class:`OnmatchRule`
                   to try
                   (`dict` of {`str`: `dict` of {`str`: `list` of `int`}})
+
+                ``"tokens_by_class"``
+                  Tokens keyed by token class, used internally
+                  (`dict` of {`str`: `list` of str})
+
+                ``"graph"``
+                  Serialization of `DirectedGraph`
+                  (`dict`)
+
+                ``"tokenizer_pattern"``
+                  Regular expression for tokenizing
+                  (`str`)
 
                 ``"graphtransliterator_version"``
                   Module version of `graphtransliterator` (`str`)
@@ -1106,6 +1103,15 @@ class GraphTransliterator:
                 ``"metadata"``
                   Dictionary of metadata (`dict`, optional)
 
+                ``"ignore_errors"``
+                  Ignore errors. (`bool`, optional)
+
+                ``"onmatch_rules_lookup"``
+                  Dictionary keyed by current token to previous token
+                  containing a list of indexes of applicable :class:`OnmatchRule`
+                  to try
+                  (`dict` of {`str`: `dict` of {`str`: `list` of `int`}}, optional)
+
                 ``tokens_by_class``
                   Tokens keyed by token class, used internally
                   (`dict` of {`str`: `list` of str}, optional)
@@ -1117,16 +1123,6 @@ class GraphTransliterator:
                 ``"tokenizer_pattern"``
                   Regular expression for tokenizing
                   (`str`, optional)
-
-                ``"onmatch_rules"``
-                  Onmatch settings
-                  (`list` of `OrderedDict`, optional)
-
-                ``"onmatch_rules_lookup"``
-                  Dictionary keyed by current token to previous token
-                  containing a list of indexes of applicable :class:`OnmatchRule`
-                  to try
-                  (`dict` of {`str`: `dict` of {`str`: `list` of `int`}}, optional)
 
                 ``"graphtransliterator_version"``
                   Module version of `graphtransliterator` (`str`, optional)

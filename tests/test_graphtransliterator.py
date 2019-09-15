@@ -17,6 +17,7 @@ from graphtransliterator.exceptions import (
     UnrecognizableInputTokenException,
     AmbiguousTransliterationRulesException,
 )
+from itertools import combinations
 from marshmallow import ValidationError
 
 yaml_for_test = r"""
@@ -339,6 +340,19 @@ def test_GraphTransliterator_transliterate(tmpdir):
 
 def test_serialization():
     """Test serialization of graphtransliterator"""
+    # Field definitions
+    required_fields = ["tokens", "rules", "whitespace"]
+    optional_fields = [
+        "onmatch_rules",
+        "metadata",
+        "ignore_errors",
+        "onmatch_rules_lookup",
+        "tokens_by_class",
+        "graph",
+        "tokenizer_pattern",
+        "graphtransliterator_version",
+    ]
+    ordered_fields = required_fields + optional_fields
     yaml_ = """
         tokens:
           a: [vowel]
@@ -357,28 +371,47 @@ def test_serialization():
     """
     gt = GraphTransliterator.from_yaml(yaml_)
     # test dump
-    assert gt.dump()["graph"]["edge"]
-    assert GraphTransliterator.loads(gt.dumps()).dumps()
+    dump = gt.dump()
+    assert dump["graph"]["edge"]
+    # test ordering of dump fields
+    assert list(dump.keys()) == ordered_fields
+    # test dump version
+    assert dump["graphtransliterator_version"] == graphtransliterator.__version__
     assert re.match(r"\d+\.\d+\.\d+$", gt.dump()["graphtransliterator_version"])
-    assert gt.dump()["graphtransliterator_version"] == graphtransliterator.__version__
     # test dumps
     x = gt.dumps()
     assert "graph" in gt.dumps()
     assert type(x) == str
     # test loads
     new_gt = GraphTransliterator.loads(x)
+    assert GraphTransliterator.loads(gt.dumps()).dumps()
     assert type(new_gt) == GraphTransliterator
     # test load
     settings = gt.dump()
     assert type(GraphTransliterator.load(settings)) == GraphTransliterator
     # confirm settings not affected by load
     assert settings == settings
-    # confirm validationerror if onmatch_rules_lookup but not onmatch_rules
-    # (chances of this every being the case are probably next to none...)
+    # confirm compacting (dropping) optional settings works
+    for length in range(1, len(optional_fields)):
+        for to_drop in combinations(optional_fields, length):
+            settings = gt.dump()
+            for _ in to_drop:
+                settings.pop(_)
+            # Confirm ValidationError if onmatch_rules_lookup but not onmatch_rules
+            # (chances of this every being the case are slim!)
+            if settings.get("onmatch_rules_lookup") and not settings.get(
+                "onmatch_rules"
+            ):
+                with pytest.raises(ValidationError):
+                    assert GraphTransliterator.load(settings)
+            else:
+                assert GraphTransliterator.load(settings)
+
     bad_settings = gt.dump()
     bad_settings.pop("onmatch_rules")
     with pytest.raises(ValidationError):
         assert GraphTransliterator.load(bad_settings)
+    # test
 
 
 def test_version():

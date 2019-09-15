@@ -25,6 +25,7 @@ History
 * added tests for modifications to settings by load()
 * adjusted DirectedGraphSchema to allow for compacted transliteration rule settings
 * adjusted GraphTransliteratorSchema to allow for compacted settings
+* added tests to confirm all optional fields passed to load() are optional
 * added ValidationError if onmatch_rules_lookup present without onmatch_rules
 
 0.3.4 (2019-09-15)
