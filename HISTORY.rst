@@ -27,6 +27,10 @@ History
 * adjusted GraphTransliteratorSchema to allow for compacted settings
 * added tests to confirm all optional fields passed to load() are optional
 * added ValidationError if onmatch_rules_lookup present without onmatch_rules
+* adjusted DirectedGraphSchema edge definition to remove str if loading from JSON
+* added more rigorous schema definitions for edge_list and node in DirectedGraphSchema
+* fixed flake8 warning in graphs.py
+* adjusted docstrings in core.py for dump(), dumps(), load(), and loads()
 
 0.3.4 (2019-09-15)
 ------------------

@@ -40,7 +40,7 @@ class DirectedGraph:
             self.node = []
             self.edge_list = []
 
-    def add_edge(self, head, tail, edge_data={}):
+    def add_edge(self, head, tail, edge_data=None):
         """
         Add an edge to a graph and return its attributes as dict.
 
@@ -75,6 +75,8 @@ class DirectedGraph:
         >>> g.edge
         {0: {1: {'data_key_1': 'some edge data here'}}}
         """
+        if edge_data is None:
+            edge_data = {}
         if type(head) is not int:
             raise ValueError("Edge head is not an integer: %s." % head)
         if type(tail) is not int:
@@ -95,7 +97,7 @@ class DirectedGraph:
 
         return self.edge[head][tail]
 
-    def add_node(self, node_data={}):
+    def add_node(self, node_data=None):
         """Create node and return (`int`, `dict`) of node key and object.
 
         Parameters
@@ -123,6 +125,8 @@ class DirectedGraph:
         >>> g.node
         [{}, {'datakey1': 'data value'}]
         """
+        if node_data is None:
+            node_data = {}
         if type(node_data) is not dict:
             raise ValueError("node_data must be a dict: %s" % node_data)
         node_key = len(self.node)

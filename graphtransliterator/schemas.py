@@ -199,8 +199,14 @@ class SettingsSchema(Schema):
 class DirectedGraphSchema(Schema):
     """ Schema for :class:`DirectedGraph`.
 
-    Does not rigorously validate graph.
+    Validates graph somewhat rigorously.
     """
+
+    edge = fields.Dict(
+        keys=fields.Int(), values=fields.Dict(keys=fields.Int(), values=fields.Dict())
+    )
+    node = fields.List(fields.Dict())
+    edge_list = fields.List(fields.Tuple((fields.Int(), fields.Int())))
 
     class Meta:
         fields = ("node", "edge", "edge_list")
@@ -221,6 +227,7 @@ class DirectedGraphSchema(Schema):
         # Modification of node below alters original settings, so use a deepcopy.
 
         _data = copy.deepcopy(data)
+        # convert edge keys back to int if str and coming from JSON
 
         for node in _data["node"]:
             rule = node.get("rule")

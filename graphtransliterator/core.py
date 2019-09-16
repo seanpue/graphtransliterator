@@ -835,7 +835,8 @@ class GraphTransliterator:
 
         Returns
         -------
-        `GraphTransliterator`
+        GraphTransliterator
+            Graph Transliterator
 
         Note
         ----
@@ -988,7 +989,9 @@ class GraphTransliterator:
 
         See Also
         --------
-        dump : Dump GraphTransliterator configuration to Python types
+        dump : Dump Graph Transliterator configuration to Python data types
+        load : Load Graph Transliteration from configuration in Python data types
+        loads : Load Graph Transliteration from configuration as a JSON string
         """  # noqa
 
         return GraphTransliteratorSchema().dumps(self)
@@ -1004,7 +1007,7 @@ class GraphTransliterator:
 
                 ``"tokens"``
                   Mappings of tokens to their classes
-                  (`dict` of {str: `list` of `str`})
+                  (`OrderedDict` of {str: `list` of `str`})
 
                 ``"rules"``
                   Transliteration rules in direct format
@@ -1071,7 +1074,10 @@ class GraphTransliterator:
 
         See Also
         --------
-        dumps: Dump GraphTransliterator settings to Javascript Object Notation (JSON) str
+        dumps : Dump Graph Transliterator configuration to JSON string
+        load : Load Graph Transliteration from configuration in Python data types
+        loads : Load Graph Transliteration from configuration as a JSON string
+
 """  # noqa
         return GraphTransliteratorSchema().dump(self)
 
@@ -1090,7 +1096,7 @@ class GraphTransliterator:
 
                 ``"rules"``
                   Transliteration rules in direct format
-                  (`list` of `dict` of {`str`: `str`})
+                  (`list` of `OrderedDict` of {`str`: `str`})
 
                 ``"whitespace"``
                   Whitespace settings
@@ -1126,6 +1132,11 @@ class GraphTransliterator:
 
                 ``"graphtransliterator_version"``
                   Module version of `graphtransliterator` (`str`, optional)
+
+        Returns
+        -------
+        GraphTransliterator
+            Graph Transliterator
 
         Example
         -------
@@ -1218,12 +1229,41 @@ class GraphTransliterator:
         'A,A'
         >>>
 
+        See Also
+        --------
+        dump : Dump Graph Transliterator configuration to Python data types
+        dumps : Dump Graph Transliterator configuration to JSON string
+        loads : Load Graph Transliteration from configuration as a JSON string
         """  # noqa
         return GraphTransliteratorSchema().load(settings, **kwargs)
 
     @staticmethod
     def loads(settings, **kwargs):
-        """Create GraphTransliterator from JSON settings."""
+        """Create GraphTransliterator from JavaScript Object Notation (JSON) string.
+
+        Parameters
+        ----------
+        settings
+            JSON settings for GraphTransliterator
+
+        Returns
+        -------
+        GraphTransliterator
+            Graph Transliterator
+
+        Example
+        -------
+        >>> from graphtransliterator import GraphTransliterator
+        >>> JSON_settings = '''{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"consolidate": false, "default": " ", "token_class": "wb"}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a|\\\\ )", "graphtransliterator_version": "0.3.4"}'''
+        >>> GraphTransliterator.loads(JSON_settings)
+        <graphtransliterator.core.GraphTransliterator object at 0x10c100cc0>
+
+        See Also
+        --------
+        dump : Dump Graph Transliterator configuration to Python data types
+        dumps : Dump Graph Transliterator configuration to JSON string
+        load : Load Graph Transliteration from configuration in Python data types
+        """  # noqa
         return GraphTransliteratorSchema().loads(settings, **kwargs)
 
     def check_for_ambiguity(self):
@@ -1271,7 +1311,6 @@ class GraphTransliterator:
         graphtransliterator.exceptions.AmbiguousTransliterationRulesException
         >>>
         """
-
         ambiguity = False
 
         all_tokens = set(self.tokens.keys())
