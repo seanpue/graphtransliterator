@@ -227,31 +227,33 @@ def test_graphtransliterator_models():
 
 
 def test_graphtransliterator_structures():
+    # test graph
     graph = DirectedGraph()
 
     assert len(graph.node) == 0
     assert len(graph.edge) == 0
-
+    # test with node data
     graph.add_node({"type": "test1"})
     graph.add_node({"type": "test2"})
     assert graph.node[0]["type"] == "test1"
     assert graph.node[1]["type"] == "test2"
-
+    # test if no node data
+    graph.add_node()  # 2
+    # test add_edge
     graph.add_edge(0, 1, {"type": "edge_test1"})
     assert graph.edge[0][1]["type"] == "edge_test1"
     assert type(graph.to_dict()) == dict
-
+    # test add_edge with no edge data
+    graph.add_edge(1, 2)
     # edge tail not in graph
     with pytest.raises(ValueError):
         graph.add_edge(0, 7, {})
     # edge head not in graph
     with pytest.raises(ValueError):
         graph.add_edge(7, 0, {})
-
     # invalid edge data
     with pytest.raises(ValueError):
         graph.add_edge(0, 1, "not a dict")
-
     # invalid edge head type
     with pytest.raises(ValueError):
         graph.add_edge("zero", 1)

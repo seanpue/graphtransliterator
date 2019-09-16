@@ -17,7 +17,7 @@ History
 [Unreleased-TODO]
 -----------------
 
-#.#.# (####-##-##)
+0.3.5 (2019-09-15)
 ------------------
 * flake8 fix for core.py
 * fixed bug in schemas.py whereby, during load(), DirectedGraphSchema() was modifying
@@ -25,7 +25,7 @@ History
 * added tests for modifications to settings by load()
 * adjusted DirectedGraphSchema to allow for compacted transliteration rule settings
 * adjusted GraphTransliteratorSchema to allow for compacted settings
-* added tests to confirm all optional fields passed to load() are optional
+* added tests to confirm all optional fields passed to load() are really optional
 * added ValidationError if onmatch_rules_lookup present without onmatch_rules
 * adjusted DirectedGraphSchema edge definition to remove str if loading from JSON
 * added more rigorous schema definitions for edge_list and node in DirectedGraphSchema

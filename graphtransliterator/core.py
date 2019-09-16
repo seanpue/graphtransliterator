@@ -79,7 +79,7 @@ class GraphTransliteratorSchema(Schema):
     def make_GraphTransliterator(self, data, **kwargs):
         # Convert lists to sets
         for key in ("tokens", "tokens_by_class"):
-            if data.get("key"):  # tokens_by_class can be generated
+            if data.get(key):  # tokens_by_class can be generated
                 data[key] = {k: set(v) for k, v in data[key].items()}
         # Do not check ambiguity if deserializing serialized GraphTransliterator
         data["check_ambiguity"] = False
