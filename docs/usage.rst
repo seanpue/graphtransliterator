@@ -41,7 +41,7 @@ Here is a quick sample that parameterizes :class:`GraphTransliterator` using an 
 reading YAML string (with comments):
 
 >>> from graphtransliterator import GraphTransliterator
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     a: [vowel]               # type of token ("a") and its class (vowel)
 ...     bb: [consonant, b_class] # type of token ("bb") and its classes (consonant, b_class)
@@ -56,7 +56,7 @@ reading YAML string (with comments):
 ...     consolidate: false  # whitespace should not be consolidated
 ...     token_class: wb     # whitespace token class
 ... """
->>> gt_one = GraphTransliterator.from_yaml(yaml)
+>>> gt_one = GraphTransliterator.from_yaml(yaml_)
 >>> gt_one.transliterate('a')
 'A'
 >>> gt_one.transliterate('bb')
@@ -83,7 +83,7 @@ tokens.
 
 Tokens can be more than one character, and longer tokens are matched first:
 
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     a: []      # "a" token with no classes
 ...     aa: []     # "aa" token with no classes
@@ -96,7 +96,7 @@ Tokens can be more than one character, and longer tokens are matched first:
 ...     consolidate: false  # whitespace should not be consolidated
 ...     token_class: wb     # whitespace token class
 ... """
->>> gt_two = GraphTransliterator.from_yaml(yaml)
+>>> gt_two = GraphTransliterator.from_yaml(yaml_)
 >>> gt_two.transliterate('a')
 '<SINGLE_A>'
 >>> gt_two.transliterate('aa')
@@ -209,7 +209,7 @@ given context*. It does so by assigning a cost to each transliteration rule that
 decreases depending on the number of tokens required by the rule. More tokens decreases
 the cost of a rule causing it to be matched first:
 
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     a: []
 ...     b: []
@@ -227,7 +227,7 @@ the cost of a rule causing it to be matched first:
 ...     consolidate: false
 ...     token_class: wb
 ... """
->>> gt_three = GraphTransliterator.from_yaml(yaml)
+>>> gt_three = GraphTransliterator.from_yaml(yaml_)
 >>> gt_three.transliterate("ab")  # should match rule "a b"
 '<<AB>>'
 >>> gt_three.transliterate("cab") # should match rules: "c", and "<class_of_c> a b"
@@ -260,7 +260,7 @@ The ``consolidate`` option may be useful in particular transliteration tasks. It
 replaces any sequential whitespace tokens in the input string with the default
 whitespace character. At the start and end of input, it removes any whitespace:
 
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     a: []
 ...     ' ': [wb]
@@ -274,7 +274,7 @@ whitespace character. At the start and end of input, it removes any whitespace:
 ...     consolidate: true   # whitespace should be consolidated
 ...     token_class: wb     # whitespace token class
 ... """
->>> gt = GraphTransliterator.from_yaml(yaml)
+>>> gt = GraphTransliterator.from_yaml(yaml_)
 >>> gt.transliterate('a')   # whitespace present at start of string
 '_A'
 >>> gt.transliterate('aa')  # whitespace present at start and end of string
@@ -305,7 +305,7 @@ The key consists of the token class names in angular brackets ("<classname>"), a
 previous classes to match are separated from the following classes by a "+". The
 production is the value of the dictionary:
 
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     a: [vowel]
 ...     ' ': [wb]
@@ -319,7 +319,7 @@ production is the value of the dictionary:
 ...   onmatch_rules:
 ...     - <vowel> + <vowel>: ',' # add a comma between vowels
 ...  """
->>> gt = GraphTransliterator.from_yaml(yaml)
+>>> gt = GraphTransliterator.from_yaml(yaml_)
 >>> gt.transliterate('aa')
 'A,A'
 
@@ -335,7 +335,7 @@ Metadata
 Graph Transliterator allows for the storage of metadata as another input parameter,
 ``metadata``. It is a dictionary, and fields can be added to it:
 
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     a: []
 ...     ' ': [wb]
@@ -351,7 +351,7 @@ Graph Transliterator allows for the storage of metadata as another input paramet
 ...     version: 0.1.1
 ...     description: A sample Graph Transliterator
 ...   """
->>> gt = GraphTransliterator.from_yaml(yaml)
+>>> gt = GraphTransliterator.from_yaml(yaml_)
 >>> gt.metadata
 {'author': 'Author McAuthorson', 'version': '0.1.1', 'description': 'A sample Graph Transliterator'}
 
@@ -361,7 +361,7 @@ Graph Transliterator allows Unicode characters to be specified by name, includin
 YAML files, using the format "\\N{UNICODE CHARACTER NAME}" or "\\u{####}" (where #### is
 the hexadecimal character code):
 
->>> yaml = """
+>>> yaml_ = """
 ...   tokens:
 ...     b: []
 ...     c: []
@@ -375,7 +375,7 @@ the hexadecimal character code):
 ...     consolidate: false
 ...     token_class: wb
 ...   """
->>> gt = GraphTransliterator.from_yaml(yaml)
+>>> gt = GraphTransliterator.from_yaml(yaml_)
 >>> gt.transliterate('b')
 'B'
 >>> gt.transliterate('c')

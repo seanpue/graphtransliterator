@@ -20,18 +20,22 @@ bibliography: paper.bib
 
 Transliteration—the representation of one language or script in the characters
 or symbols of another—is a ubiquitous and important operation, used across the
-humanities, social sciences, and information sciences.  It allows text to be
-read by those who do not know the original alphabet. It enables the
-standardized organization and search of resources, as in library systems.  It
-also permits the encoding of additional information, which enables
-disambiguation and advanced linguistic analysis, including natural language
-processing tasks, that are often not possible in the original script.
+humanities, social sciences, and information sciences, as well as other fields. It
+enables text to be read by those who do not know the original alphabet, and also makes
+languages or related languages written in multiple scripts legible to readers conversant
+in only one script [@saini2008shahmukhi]. Transliteration enables the standardized
+organization and search of resources, as in library systems [@Barry]. It also permits
+the encoding of essential information often not found in the original script, such as
+morphological boundaries and unwritten elements, permitting disambiguation. In natural
+language processing tasks, transliteration has opened up new possibilities, especially
+in machine translation [@prabhakar2018machine] and named-entity recognition
+[@chen2018report; @merhav-ash-2018-design].
 
-``Graph Transliterator`` is a Python package that makes that process more
+``Graph Transliterator`` is a Python package that makes this process more
 accessible by using a standardized method for encoding rules for
 transliteration. It lets those rules be entered in an "easy reading" YAML
 format [@YAMLAintMarkup] or directly, using standard Python data types. It
-differs from other software [@GeneralTransformsICUa] designed for handling
+differs from other rule-based software [@GeneralTransformsICUa] designed for handling
 transliteration in two primary ways. First, other software works directly on an
 input string, performing operations based on matches of particular characters.
 ``Graph Transliterator`` instead tokenizes the input into user-defined
@@ -96,7 +100,7 @@ previous and/or following tokens or token classes. To optimize the search,
 during initialization an `ordered_children` dictionary is added to each
 non-leaf node. Its values  are a list of node indexes sorted by cost and keyed
 by the token that follows. Any rule immediately following a node is added to
-``ordered_children`` as well as to  each individual entry in it. Because of
+``ordered_children`` as well as to each individual entry in it. Because of
 this preprocessing, ``Graph Transliterator`` does not need to iterate through
 all of the outgoing edges of a node to find the next node to search. Instead,
 it uses a best-first search implemented using a stack, and will backtrack if

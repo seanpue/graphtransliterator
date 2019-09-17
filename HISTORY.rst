@@ -17,6 +17,10 @@ History
 [Unreleased-TODO]
 -----------------
 
+#.#.# (####-##-##)
+* adjusted installation.rst renaming libraries to modules
+* updated to paper and bibliography.
+
 0.3.5 (2019-09-15)
 ------------------
 * flake8 fix for core.py
