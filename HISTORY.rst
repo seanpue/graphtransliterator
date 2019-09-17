@@ -17,10 +17,10 @@ History
 [Unreleased-TODO]
 -----------------
 
-#.#.# (2019-09-17)
+0.3.7 (2019-09-17)
 ------------------
 * Adjusted docs to show readme as first page
-* Added sample graph and image to README.rst
+* Added sample graph and code to README.rst
 * moved images in docs to _static
 
 0.3.6 (2019-09-17)

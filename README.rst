@@ -69,6 +69,7 @@ Features
 
 Sample Code and Graph
 ---------------------
+
 >>> from graphtransliterator import GraphTransliterator
 >>> GraphTransliterator.from_yaml("""
 ...     tokens:
@@ -92,4 +93,11 @@ Sample Code and Graph
 ... """).transliterate("hi")
 '¡ᴉɥ!'
 
-.. image:: https://raw.githubusercontent.com/seanpue/graphtransliterator/master/docs/_static/sample_graph.png
+.. figure:: https://raw.githubusercontent.com/seanpue/graphtransliterator/master/docs/_static/sample_graph.png
+   :alt: sample graph
+
+   Sample directed tree created by Graph Transliterator. The `rule` nodes are in double circles,
+   and `token` nodes  are single circles. The numbers are the cost of the particular
+   edge, and less costly edges are searched first. Previous token class
+   (``prev_classes``) and previous token (``prev_tokens``) constraints
+   are found on edges before leaf rule nodes.
