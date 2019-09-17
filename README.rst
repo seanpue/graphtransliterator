@@ -78,7 +78,7 @@ Sample Code and Graph
 ...     rules:
 ...       h: \N{LATIN SMALL LETTER TURNED I}
 ...       i: \N{LATIN SMALL LETTER TURNED H}
-...       <whitespace> i: \N{LATIN CAPITAL LETTER TURNED h}
+...       <whitespace> i: \N{LATIN CAPITAL LETTER TURNED H}
 ...       (<whitespace> h) i: \N{LATIN SMALL LETTER TURNED H}!
 ...     onmatch_rules:
 ...       - <whitespace> + <consonant>: "¡"
