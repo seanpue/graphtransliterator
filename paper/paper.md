@@ -18,18 +18,18 @@ bibliography: paper.bib
 
 # Summary
 
-Transliteration—the representation of one language or script in the characters
-or symbols of another—is a ubiquitous and important operation, used across the
-humanities, social sciences, and information sciences, as well as other fields. It
-enables text to be read by those who do not know the original alphabet, and also makes
-languages or related languages written in multiple scripts legible to readers conversant
-in only one script [@saini2008shahmukhi]. Transliteration enables the standardized
-organization and search of resources, as in library systems [@Barry]. It also permits
-the encoding of essential information often not found in the original script, such as
-morphological boundaries and unwritten elements, permitting disambiguation. In natural
-language processing tasks, transliteration has opened up new possibilities, especially
-in machine translation [@prabhakar2018machine] and named-entity recognition
-[@chen2018report; @merhav-ash-2018-design].
+Transliteration—the representation of one language or script in the characters or
+symbols of another—is a ubiquitous and important operation, used across the humanities,
+social sciences, and information sciences, as well as other fields. It enables text to
+be read by those who do not know the original alphabet, and also makes languages or
+related languages written in multiple scripts legible to readers conversant in only one
+script [@saini2008shahmukhi; @durrani2010hindi]. Transliteration enables the
+standardized organization and search of resources, as in library systems [@Barry]. It
+also permits the encoding of essential information often not found in the original
+script, such as morphological boundaries and unwritten elements, permitting
+disambiguation. In natural language processing tasks, transliteration has opened up new
+possibilities, especially in machine translation [@prabhakar2018machine] and
+named-entity recognition [@chen2018report; @merhav-ash-2018-design].
 
 ``Graph Transliterator`` is a Python package that makes this process more
 accessible by using a standardized method for encoding rules for
