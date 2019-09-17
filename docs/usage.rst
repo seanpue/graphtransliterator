@@ -718,7 +718,7 @@ rule following it. When transliterating, Graph Transliterator will try lower cos
 first and will backtrack if the constraint conditions are not met.
 
 .. _sample_graph:
-.. figure:: figure1.png
+.. figure:: _static/figure1.png
    :alt: Sample graph
 
    An example graph created for the simple case of a Graph Transliterator that takes as

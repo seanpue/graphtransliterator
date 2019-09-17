@@ -17,10 +17,16 @@ History
 [Unreleased-TODO]
 -----------------
 
+#.#.# (2019-09-17)
+------------------
+* Adjusted docs to show readme as first page
+* Added sample graph and image to README.rst
+* moved images in docs to _static
+
 0.3.6 (2019-09-17)
 ------------------
 * adjusted installation.rst renaming libraries to modules
-* updated to paper and bibliography.
+* updated paper and bibliography.
 
 0.3.5 (2019-09-15)
 ------------------
