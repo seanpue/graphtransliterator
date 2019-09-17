@@ -17,7 +17,8 @@ History
 [Unreleased-TODO]
 -----------------
 
-#.#.# (####-##-##)
+0.3.6 (2019-09-17)
+------------------
 * adjusted installation.rst renaming libraries to modules
 * updated to paper and bibliography.
 
