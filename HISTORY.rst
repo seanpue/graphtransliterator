@@ -17,7 +17,7 @@ History
 [Unreleased-TODO]
 -----------------
 
-#.#.# (2019-09-18)
+0.3.8 (2019-09-18)
 ------------------
 * fixed load() docstring example
 * updated check_ambiguity() to use cost
