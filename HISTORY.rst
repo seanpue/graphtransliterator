@@ -17,6 +17,12 @@ History
 [Unreleased-TODO]
 -----------------
 
+#.#.# (2019-09-18)
+------------------
+* fixed load() docstring example
+* updated check_ambiguity() to use cost
+
+
 0.3.7 (2019-09-17)
 ------------------
 * Adjusted docs to show readme as first page

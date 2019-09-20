@@ -82,7 +82,7 @@ Sample Code and Graph
 ...       <whitespace> i: \N{LATIN CAPITAL LETTER TURNED H}
 ...       (<whitespace> h) i: \N{LATIN SMALL LETTER TURNED H}!
 ...     onmatch_rules:
-...       - <whitespace> + <consonant>: "¡"
+...       - <whitespace> + <consonant>: ¡
 ...     whitespace:
 ...       default: " "
 ...       consolidate: true

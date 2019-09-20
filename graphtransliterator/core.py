@@ -1142,28 +1142,6 @@ class GraphTransliterator:
         -------
         >>> from graphtransliterator import GraphTransliterator
         from collections import OrderedDict # dump() uses OrderedDict
-        settings = \
-        {'tokens': {'a': ['vowel'], ' ': ['wb']},
-         'rules': [OrderedDict([('production', 'A'),
-                       # Can be compacted, removing None values
-                       # ('prev_tokens', None),
-                       ('tokens', ['a']),
-                       ('next_classes', None),
-                       ('next_tokens', None),
-                       ('cost', 0.5849625007211562)]),
-          OrderedDict([('production', ' '),
-                       ('prev_classes', None),
-                       ('prev_tokens', None),
-                       ('tokens', [' ']),
-                       ('next_classes', None),
-                       ('next_tokens', None),
-                       ('cost', 0.5849625007211562)])],
-         'whitespace': {'default': ' ', 'token_class': 'wb', 'consolidate': False},
-         'onmatch_rules': [OrderedDict([('prev_classes', ['vowel']),
-                       ('next_classes', ['vowel']),
-                       ('production', ',')])],
-         'metadata': {'author': 'Author McAuthorson'},
-         'onmatch_rules_lookup': {'a'>>> from collections import OrderedDict # dict is fine, but dump() uses OrderedDict
         >>> settings = \
         ... {'tokens': {'a': ['vowel'], ' ': ['wb']},
         ...  'rules': [OrderedDict([('production', 'A'),
@@ -1360,14 +1338,12 @@ class GraphTransliterator:
                     return False
             return True
 
-        # Iterate through rules based on number of tokens (cost). If there are
+        # Iterate through rules based on cost (number of tokens). If there are
         # ambiguities, then see if a less costly rule would match the rule. If it does
         # not, there is ambiguity.
 
-        grouper = lambda x: (_count_of_tokens(x))  # noqa, could replace by cost
-
         for _group_val, group_iter in itertools.groupby(
-            enumerate(self._rules), key=lambda x: grouper(x[1])
+            enumerate(self._rules), key=lambda x: x[1].cost
         ):
 
             group = list(group_iter)
