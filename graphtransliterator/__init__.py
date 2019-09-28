@@ -47,6 +47,7 @@ from .schemas import (
 __all__ = [
     # core
     "GraphTransliterator",
+    "CoverageTransliterator",
     # exceptions
     "AmbiguousTransliterationRulesException",
     "GraphTransliteratorException",
@@ -54,6 +55,7 @@ __all__ = [
     "UnrecognizableInputTokenException",
     # graphs
     "DirectedGraph",
+    "CoverageDirectedGraph",
     # rules
     "TransliterationRule",
     "OnMatchRule",

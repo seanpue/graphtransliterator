@@ -1,0 +1,70 @@
+# -*- coding: utf-8 -*-
+"""
+Initializes bundled transliterators.
+
+Calls ``add_transliterators``.
+"""
+from .bundled import Bundled  # noqa
+import inspect
+import pkgutil
+
+__all__ = []
+
+# path_of = {}  # {str: str} transliterator paths, set by ``add_transliterators``
+
+
+def _skip_class_name(name):
+    """Determine if the class name should be skipped."""
+    return name == "Bundled" or name.startswith("_")
+
+
+def add_transliterators(path=__path__):
+    """Walk submodules and loads bundled transliterators into namespace.
+
+    Bundled transliterators are stored as ``Bundled`` subclass.
+
+    Parameters
+    ----------
+    path : list
+        List of paths, must be an iterable of strings
+
+    Raises
+    ------
+    ValueError
+        A transliterator of the same name already has been loaded."""
+
+    for loader, module_name, is_pkg in pkgutil.walk_packages(path):
+        # if it is not a submodule, skip it.
+        if not is_pkg:
+            continue
+        _module = loader.find_module(module_name).load_module(module_name)
+
+        for name, _obj in inspect.getmembers(_module, inspect.isclass):
+            # Skip Bundled, as it is already loaded
+            # Skip any classes starting with _
+            if _skip_class_name(name):
+                continue
+            if name in __all__:
+                raise ValueError(
+                    'A transliterator named "{}" already exists'.format(name)
+                )
+            # import module and add class to globals, so that it will show up as
+            # graphtransliterator.transliterators.TRANSLITERATORNAME
+            assert len(_module.__path__) == 1  # There should be only one path
+            globals()[name] = getattr(_module, name)
+            __all__.append(name)
+
+
+add_transliterators()
+
+
+def iter_names():
+    """Iterate through bundled transliterator names."""
+    for _ in __all__:
+        yield _
+
+
+def iter_transliterators(**kwdss):
+    """Iterate through instances of bundled transliterators."""
+    for _ in iter_names():
+        yield (eval(_ + "()"))

@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+from collections import UserDict, UserList
+from .exceptions import IncompleteGraphCoverageException
+import logging
 
 """
 Graph data structure used in Graph Transliterator.
 """
+logger = logging.getLogger("graphtransliterator")
 
 
 class DirectedGraph:
@@ -173,3 +177,120 @@ class DirectedGraph:
         """
 
         return {"edge": self.edge, "node": self.node, "edge_list": self.edge_list}
+
+
+class VisitLoggingList(UserList):
+    """Visit logging list."""
+
+    def __init__(self, initlist=None):
+        super().__init__(initlist)
+        self.visited = set()
+
+    def __getitem__(self, i):
+        self.visited.add(i)
+        return self.data[i]
+
+    def clear_visited(self):
+        self.visited.clear()
+
+
+class VisitLoggingDict(UserDict):
+    """Visit logging dict."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.visited = set()
+
+    def __getitem__(self, i):
+        self.visited.add(i)
+        return self.data[i]
+
+    def clear_visited(self):
+        self.visited.clear()
+
+
+class VisitLoggingDirectedGraph(DirectedGraph):
+    """A DirectedGraph that logs visits to all nodes and edges.
+
+    Used to measure the coverage of tests for bundled transliterators."""
+
+    def _add_visit_logging(self):
+        self.node = VisitLoggingList(self.node)
+        # Edges are stored be {HEAD: {TAIL: {DATA}}
+        # We only care about {TAIL: DATA} for checking coverage.
+        # First, convert all {TAIL: {DATA}} to VisitLoggingDict
+        # (This avoids settings {HEAD: {...}} to visited
+        for head in self.edge.keys():
+            self.edge[head] = VisitLoggingDict(self.edge[head])
+        # Second, convert {HEAD: {...}} to VisitLoggingDict
+        self.edge = VisitLoggingDict(self.edge)
+
+    #
+    # def __init__(self, **kwargs):  # , *args, **kwargs):
+    #     super().__init__(**kwargs)
+    #     self._add_visit_logging()
+
+    def __init__(self, graph):
+        """Initialize from existing graph."""
+        super().__init__(edge=graph.edge, node=graph.node, edge_list=graph.edge_list)
+        self._add_visit_logging()
+
+    def clear_visited(self):
+        """Clear all visited attributes on nodes and edges."""
+        self.node.visited.clear()
+        for head in self.edge.keys():
+            self.edge[head].clear_visited()
+        self.edge.clear_visited()
+
+    def check_coverage(self, raise_exception=True):
+        """Checks that all nodes and edges are visited.
+
+        Parameters
+        ----------
+        raise_exception: `bool`, default
+            Raise IncompleteGraphCoverageException (default, `True`)
+
+        Returns
+        -------
+
+        Raises
+        ------
+        IncompleteGraphCoverageException
+            Not all nodes/edges of a graph have been visited."""
+
+        errors = False
+        # Check node coverage
+        missed_nodes = []
+        for node_id in range(len(self.node)):
+            if node_id not in self.node.visited:
+                errors = True
+                missed_nodes.append(node_id)
+                node_data = self.node.data[node_id]  # access data so not set to visited
+                logger.warning(
+                    "Node {} [{}] has not been visited.".format(node_id, node_data)
+                )
+        # Check edge coverage
+        missed_edges = []
+        for head in self.edge.keys():
+            for tail in self.edge.data[head].keys():  # access data to not mark visited
+                if tail not in self.edge.data[head].visited:
+                    errors = True
+                    missed_edges.append((head, tail))
+
+                    logger.warning(
+                        "Edge ({},{}) [{}] has not been visited.".format(
+                            head, tail, self.edge.data[head].data[tail]
+                        )
+                    )
+
+        # Add a comprehensives error message.
+        if errors and raise_exception:
+            error_msgs = []
+            if missed_nodes:
+                error_msgs.append("Missed nodes: " + str(missed_nodes))
+            if missed_edges:
+                error_msgs.append("Missed edges: " + str(missed_edges))
+            raise IncompleteGraphCoverageException("; ".join(error_msgs))
+
+        okay = not errors
+        return okay

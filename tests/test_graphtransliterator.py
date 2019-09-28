@@ -57,7 +57,9 @@ def test_GraphTransliterator_from_YAML():
         consolidate: true
         token_class: wb
     """
+
     assert GraphTransliterator.from_yaml(good_yaml)
+
     bad_yaml = """
       tokens:
         a: class1

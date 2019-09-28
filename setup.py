@@ -36,6 +36,10 @@ setup(
     keywords="graphtransliterator",
     name="graphtransliterator",
     packages=find_packages(include=["graphtransliterator"]),
+    package_data={
+        # include yaml and json files, e.g. in bundled transliterators
+        "": ["*.yaml", "*.json"]
+    },
     python_requires=">=3.5",
     setup_requires=setup_requirements,
     test_suite="tests",

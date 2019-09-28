@@ -1,0 +1,26 @@
+tokens:
+  a: [vowel]
+  ' ': [whitespace]
+rules:
+  a: A
+  ' ': ' '
+onmatch_rules:
+  - <vowel> + <vowel>: ","
+whitespace:
+  consolidate: False
+  default: " "
+  token_class: whitespace
+metadata:
+  name: example
+  version: 1.0.0
+  description: "An Example Bundled Transliterator"
+  url: https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample
+  author: Author McAuthorson
+  author_email: author_mcauthorson@msu.edu
+  license: MIT License
+  keywords:
+    - example
+  project_urls:
+    # Documentation: https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample -- could link to readthedocs?
+    # Source: https://github.com/seanpue/graphtransliterator/tree/bundled_transliterators/graphtransliterator/transliterators/sample
+    Tracker: https://github.com/seanpue/graphtransliterator/issues
