@@ -6,6 +6,7 @@
 
    installation
    usage
+   bundled
    tutorial
    contributing
    api

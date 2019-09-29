@@ -542,6 +542,7 @@ class GraphTransliterator:
 
         Example
         -------
+
         >>> from graphtransliterator import GraphTransliterator
         >>> GraphTransliterator.from_yaml(
         ... '''
@@ -803,7 +804,6 @@ class GraphTransliterator:
             tokenizer_pattern=settings.get("tokenizer_pattern"),  # will be generated
             ignore_errors=kwargs.get("ignore_errors", False),
             check_ambiguity=kwargs.get("check_ambiguity", True),
-            # **kwargs
         )
 
     @classmethod

@@ -6,12 +6,11 @@ import graphtransliterator
 import pytest
 import re
 import yaml
-from graphtransliterator import GraphTransliterator
+from graphtransliterator.core import GraphTransliterator
 from graphtransliterator.core import _easyreading_rule
 from graphtransliterator import process
 from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
 from graphtransliterator.graphs import DirectedGraph
-
 from graphtransliterator.exceptions import (
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
@@ -619,7 +618,6 @@ def test_GraphTransliterator_types():
         cost=1,
     )
     assert pr.cost == 1
-    #    assert TransliteratorOutput([pr], 'A').output == 'A'
     assert OnMatchRule(prev_classes=["class1"], next_classes=["class2"], production=",")
     assert WhitespaceRules(default=" ", token_class="wb", consolidate=False)
 

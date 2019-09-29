@@ -60,6 +60,35 @@ If you are proposing a feature:
 * Remember that this is a volunteer-driven project, and that contributions
   are welcome :)
 
+Add Transliterators
+~~~~~~~~~~~~~~~~~~~
+
+We welcome new transliterators to be added to the bundled transliterators!
+
+See the documentation about Bundled Transliterators and look at Example as a model.
+
+Raise an issue on Github, https://github.com/seanpue/graphtransliterator/issues
+
+Then create a new branch with the new transliterator. Make sure the transliterator
+passes all of these requirements:
+
+  - is a submodule of graphtransliterator.transliterators
+  - has a unique name, preferably in format source_to_target
+  - has the following files:
+    - __init__.py
+    - {{source_to_target}}.yaml
+    - {{source_to_target}}.json
+    - tests/{{source_to_target}}_tests.yaml
+    - tests/test_{{source_to_target}}.py (optional)
+  - has a classname in camel case, e.g. SourceToTarget
+  - has complete test coverage of all nodes and edges of generated graph and all onmatch
+    rules, if present
+  - has required metadata in the YAML file.
+
+When all the requirements are fulfilled, submit a pull request, and it will be reviewed
+for inclusion in a near-future release.
+
+
 Get Started!
 ------------
 

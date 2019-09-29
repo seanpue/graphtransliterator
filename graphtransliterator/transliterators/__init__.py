@@ -5,6 +5,7 @@ Initializes bundled transliterators.
 Calls ``add_transliterators``.
 """
 from .bundled import Bundled  # noqa
+from .schemas import MetadataSchema  # noqa
 import inspect
 import pkgutil
 
@@ -64,7 +65,7 @@ def iter_names():
         yield _
 
 
-def iter_transliterators(**kwdss):
+def iter_transliterators(**kwds):
     """Iterate through instances of bundled transliterators."""
     for _ in iter_names():
         yield (eval(_ + "()"))

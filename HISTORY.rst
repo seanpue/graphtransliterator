@@ -13,17 +13,22 @@ History
 * Add translated messages using Transifex
 * Add examples module
 * add `compact` flag to remove null values from dump and dumps
+* add precommit to run black, etc.
+* add static typing with mypy
 
 [Unreleased-TODO]
 -----------------
 
 #.#.# (####-##-##)
 ------------------
+* added bundled/schemas.py with MetadataSchema for bundled transliterator metadata
+* added coverage to from_dict()
 * added allow_none in onmatch_rules in GraphTransliteratorSchema
 * adjusted core.py so that all edges are visited during search, even if no constraints
 * removed _count_of_tokens() in favor of cost
 * added IncompleteGraphCoverageException to exceptions.py
 * added VisitLoggingDirectedGraph to graphs.py
+* added tests/test_transliterator.py
 * partially updated transliterators/README.rst
 * removed transliterators/sample/*
 * added yaml and json to package_data in setup.py

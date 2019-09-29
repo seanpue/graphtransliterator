@@ -1,49 +1,133 @@
-==============================
-Bundled Transliterators--DRAFT
-==============================
-This directory contains bundled transliterators. Each transliterator is in a directory
-off of `transliterators.` The root directory contains the transliterators as YAML files.
-The subdirectory `tests` contains tests for each transliterator.
+.. module:: graphtransliterator
+=======================
+Bundled Transliterators
+=======================
+Graph Transliterator includes bundled transliterators in a :class:`Bundled` subclass of
+:class:`GraphTransliterator` that can be used as follows:
 
-If you are creating a transliterator, see the `example` subdirectory. To be included,
-the transliterator's tests must have complete coverage of its graph, as well as its
-onmatch rules, if applicable. Every node and edge of the graph must be visited during
-the course of the tests, as well as every onmatch rule.
+.. jupyter-execute::
 
-Naming Conventions
-------------------
-The class name of each transliterator must be unique and follow camel-case-conventions,
+  import graphtransliterator.transliterators as transliterators
+  example_transliterator = transliterators.Example()
+  example_transliterator.transliterate('a')
+
+To access transliterator classes, use the iterator
+:func:`transliterators.iter_transliterators`:
+
+.. jupyter-execute::
+
+  bundled_iterator = transliterators.iter_transliterators()
+  next(bundled_iterator)
+
+To access the names of transliterator classes, use the iterator
+:func:`transliterators.iter_transliterators`:
+
+.. jupyter-execute::
+
+  bundled_names_iterator = transliterators.iter_names()
+  next(bundled_names_iterator)
+
+The actual bundled transliterators are submodules of
+:class:`graphtransliterator.transliterators`, but they are loaded into the namespace
+of :class:`transliterators`:
+
+.. jupyter-execute::
+
+  from graphtransliterator.transliterators import Example
+
+Each instance of :class:`Bundled` contains a :py:attr:`Bundled.directory` attribute:
+
+.. jupyter-execute::
+
+  transliterator = Example()
+  transliterator.directory
+
+Each will contain an easy-reading YAML file that you can view, as well as a JSON
+dump of the transliterator for quick loading:
+
+.. jupyter-execute::
+  :hide-code:
+
+  import os
+  with open(os.path.join(transliterator.directory, "example.yaml"), "r") as f:
+    print("--Easy-reading YAML (for clarity, development, and debugging)--")
+    print(f.read()+"\n")
+  with open(os.path.join(transliterator.directory, "example.json"), "r") as f:
+    print("--JSON (for speed)--")
+    print(f.read())
+
+Test Coverage of Bundled Transliterators
+----------------------------------------
+
+Each bundled transliterators requires rigorous testing: every node and edge, as
+well as any onmatch rules, if applicable, must be visited. A separate subclass,
+:class:`CoverageTransliterator` (in `core.py`) of :class:`GraphTransliterator` is used
+during testing (see `tests/test_coverage.py`).
+It logs visits to nodes, edges, and onmatch rules. The tests are found in a subdirectory
+of the transliterator called "tests" and consists of a YAML file consisting of a
+dictionary keyed from transliteration input to correct output, e.g.:
+
+.. jupyter-execute::
+  :hide-code:
+
+  with open(os.path.join(transliterator.directory, "tests/example_tests.yaml"), "r") as f:
+    print("-- YAML Tests for Example (with complete graph and onmatch rule coverage) --\n")
+    print(f.read())
+
+Once the checks are completed, the tests check that all components of the graph and all
+of the onmatch rules have been visited.
+
+Class Structure and Naming Conventions
+--------------------------------------
+Each transliterator must include a class definition in a submodule  of
+:class:`transliterators`.
+
+The class name of each transliterator must be unique and follow camel-case conventions,
 e.g. `SourceToTarget`. File and directory names should, if applicable, be lowercased as
 `source_to_target`.
 
-The bundled files should follow this directory structure:
+The bundled files should follow this directory structure, where {{source_to_target}} is
+the name of the transliterator:
 
-transliterators
-    source_to_target
-        __init__.py
-        source_to_target.json
-        source_to_target.yaml
-    tests
-        test_source_to_target.py
-        test_source_to_target.yaml
+
+.. code::
+
+  transliterators
+  ├── {{source_to_target}}
+  |   ├── __init__.py
+  |   ├── {{source_to_target}}.json
+  |   ├── {{source_to_target}}.yaml
+  └── tests
+      ├── test_{{source_to_target}}.py
+      └── {{source_to_target}}_tests.yaml
+
+The bundled transliterator will:
+
+- include both an easy-reading YAML file ``{{source_to_target}}.yaml`` and a
+  JSON file ``{{source_to_target}}.json``
+- have tests in a YAML format consisting of a dictionary keyed from transliteration to
+  correct output, in ``{{source_to_target}}_tests.yaml`` It must include complete test
+  coverage of its graph. Every node and edge of the graph must be visited during the
+  course of the tests, as well as every on-match rule. Each onmatch rule must be
+  utilized during the course of the tests.
+- include metadata about the transliterator in its easy-reading YAML file. (See
+  Metadata Requirements below.)
+- have an optional custom test file ``test_{{source_to_target.py}}``. This is useful
+  during development. The YAML tests will be run by ``tests/tests_transliterators.py``
 
 Metadata Requirements
 ---------------------
-Each transliterator can include the following metadata fields. These fields are a
-subset of `setuptools`. Long descriptions are not currently included.
+Each :class:`Bundled` transliterator can include the following metadata fields. These
+fields are a subset of the metadata of :mod:`setuptools`. Long descriptions are not
+currently included.
 
 name (`str`)
-  Name of the transliterator, e.g. "source_to_target". Associated JSON (faster!) and
-  easy reading YAML files (slower but should be included) should be named accordingly.
-
-  If possible, the `name` should be in lowercase and follow the format:
-  `source_to_target.yaml`, where `source` is the original script/language/etc. and
-  `target` is the destination script/language/etc.
+  Name of the transliterator, e.g. "source_to_target".
 version	(`str`, optional)
   Version of the transliterator. Semantic versioning (https://semver.org) is
-  strongly recommended.
+  recommended.
 url	(`str`, optional)
-  URL for the transliterator, e.g. githubrepository repository.
+  URL for the transliterator, e.g. github repository.
 author (`str`, optional)
   Author of the transliterator
 author_email (`str`, optional)
@@ -56,6 +140,17 @@ license (`str`, optional)
   License of the transliterator. An open-source license is required for inclusion in
   this project.
 keywords (`list` of `str`, optional)
-  List of keywords
+  List of keywords.
 project_urls (`dict` of {`str`: `str`}, optional)
   Dictionary of project URLS, e.g. `Documentation`, `Source`, etc.
+
+Metadata is validated using a :class:`BundledMetadataSchema` found in
+:mod:`transliterators.schemas`.
+
+To browse metadata, you can use :func:`iter_transliterators`:
+
+
+.. jupyter-execute::
+
+  transliterator = next(transliterators.iter_transliterators())
+  print(transliterator.metadata)

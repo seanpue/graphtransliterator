@@ -11,6 +11,7 @@ import pytest
 
 def test_CoverageTransliterator():
     """Test coverage using transliterators.Example"""
+    # YAML:
     # ------
     # tokens:
     #   a: [vowel]

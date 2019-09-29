@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# flake8: noqa
+
 """
 graphtransliterator
 ~~~~~~~~~~~~~~~~~~
@@ -17,7 +19,7 @@ __email__ = "pue@msu.edu"
 __version__ = "0.3.8"
 
 # Core classes
-from .core import GraphTransliterator, GraphTransliteratorSchema  # noqa
+from .core import CoverageTransliterator, GraphTransliterator, GraphTransliteratorSchema
 
 # Exceptions
 from .exceptions import (
@@ -25,13 +27,18 @@ from .exceptions import (
     AmbiguousTransliterationRulesException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
-)  # noqa
+)
 
 # Graphs
-from .graphs import DirectedGraph  # noqa
+from .graphs import (
+    DirectedGraph,
+    VisitLoggingDirectedGraph,
+    VisitLoggingDict,
+    VisitLoggingList,
+)
 
 # Rules
-from .rules import TransliterationRule, OnMatchRule, WhitespaceRules  # noqa
+from .rules import TransliterationRule, OnMatchRule, WhitespaceRules
 
 # Schemas
 from .schemas import (

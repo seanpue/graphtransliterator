@@ -9,6 +9,12 @@ Public members can (and should) be imported from :class:`graphtransliterator`::
 
   from graphtransliterator import GraphTransliterator
 
+Bundled transliterators require that :class:`graphtransliterator.transliterators`:
+be imported:
+
+  import graphtransliterator.transliterators
+  transliterators.iter_names()
+
 .. module:: graphtransliterator
 
 Core Classes
@@ -17,10 +23,16 @@ Core Classes
 .. autoclass:: GraphTransliterator
    :members:
 
+.. autoclass:: CoverageTransliterator
+   :members:
+
 Graph Classes
 -------------
 
 .. autoclass:: DirectedGraph
+   :members:
+
+.. autoclass:: VisitLoggingDirectedGraph
    :members:
 
 Rule Classes
