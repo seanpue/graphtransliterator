@@ -5,13 +5,11 @@ History
 [Unreleased - Maybe]
 --------------------
 * Add CLI
-* Add metadata guidelines
 * Save match location in tokenize
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output
 * Fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
-* Add examples module
 * add `compact` flag to remove null values from dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
