@@ -5,17 +5,46 @@ History
 [Unreleased - Maybe]
 --------------------
 * Add CLI
-* Add metadata guidelines
 * Save match location in tokenize
 * Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output
 * Fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
-* Add examples module
 * add `compact` flag to remove null values from dump and dumps
+* add precommit to run black, etc.
+* add static typing with mypy
 
 [Unreleased-TODO]
 -----------------
+
+#.#.# (####-##-##)
+------------------
+* added bundled/schemas.py with MetadataSchema for bundled transliterator metadata
+* added coverage to from_dict()
+* added allow_none in onmatch_rules in GraphTransliteratorSchema
+* adjusted core.py so that all edges are visited during search, even if no constraints
+* removed _count_of_tokens() in favor of cost
+* added IncompleteGraphCoverageException to exceptions.py
+* added VisitLoggingDirectedGraph to graphs.py
+* added tests/test_transliterator.py
+* partially updated transliterators/README.rst
+* removed transliterators/sample/*
+* added yaml and json to package_data in setup.py
+* Added to core.py class CoverageTransliterator, which tracks visits to
+  edges, nodes, and onmatch rules, and allows clearing of visits and checking of
+  coverage, used to make sure tests are comprehensive
+* created test/test_coverage.py to test CoverageTransliterator
+* created transliterators/bundled.py with class Bundled for bundled transliterators
+* added load_from_YAML() and load_from_JSON() initializers to Bundled to load from
+  bundled YAML (for development) and JSON (for speed)
+* added load_yaml_tests(), run_yaml_tests(), and run_tests() to Bundled
+* created transliterators/__init__.py that finds bundled transliterators in subdirectory
+  and adds them to  graphtransliterators.transliterators namespace
+* added iter_names() and iter_transliterators() to transliterators/__init__.py
+* created test/test_transliterator.py to check bundled transliterator loading and
+  functions
+* created in transliterators/example/ __init__.py, example.json, example.yaml
+* created in transliterators/example/tests test_example.py and example_tests.yaml
 
 0.3.8 (2019-09-18)
 ------------------

@@ -19,6 +19,20 @@ class AmbiguousTransliterationRulesException(GraphTransliteratorException):
     """
 
 
+class IncompleteGraphCoverageException(GraphTransliteratorException):
+    """
+    Raised when checking if all the nodes or edges have not been visited during a
+    check of graph coverage. Used when checking the coverage of bundled transliterators.
+    """
+
+
+class IncompleteOnMatchRulesCoverageException(GraphTransliteratorException):
+    """
+    Raised when checking if all the on match rules have not been activated.
+    Used when checking the coverage of bundled transliterators.
+    """
+
+
 class NoMatchingTransliterationRuleException(GraphTransliteratorException):
     """
     Raised when no transliteration rule can be matched at a particular

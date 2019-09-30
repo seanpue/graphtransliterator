@@ -5,6 +5,7 @@ GraphTransliterator core classes.
 """
 
 import itertools
+import json
 import logging
 import pkg_resources
 import re
@@ -12,6 +13,7 @@ import unicodedata
 import yaml
 from .exceptions import (
     AmbiguousTransliterationRulesException,
+    IncompleteOnMatchRulesCoverageException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
@@ -31,6 +33,7 @@ from .schemas import (
     WhitespaceSettingsSchema,
 )
 from collections import deque
+from .graphs import VisitLoggingDirectedGraph, VisitLoggingList
 from marshmallow import fields, post_load, Schema, validates_schema, ValidationError
 
 logger = logging.getLogger("graphtransliterator")
@@ -45,34 +48,26 @@ class GraphTransliteratorSchema(Schema):
     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
 
     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
-    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
+    onmatch_rules = fields.Nested(
+        OnMatchRuleSchema, many=True, required=False, allow_none=True
+    )
 
     metadata = fields.Dict(
         keys=fields.Str(), required=False  # No restriction on values
     )
     ignore_errors = fields.Bool(required=False)
-    onmatch_rules_lookup = fields.Dict(required=False)
+    onmatch_rules_lookup = fields.Dict(required=False, allow_none=True)
     tokens_by_class = fields.Dict(
         keys=fields.Str(), values=fields.List(fields.Str), required=False
     )
     graph = fields.Nested(DirectedGraphSchema, required=False)
     tokenizer_pattern = fields.Str(required=False)
     graphtransliterator_version = fields.Str(required=False)
+    check_ambiguity = fields.Bool(required=False)
+    # field for coverage
+    coverage = fields.Bool(required=False)
 
     class Meta:
-        fields = (
-            "tokens",
-            "rules",
-            "whitespace",
-            "onmatch_rules",
-            "metadata",
-            "ignore_errors",
-            "onmatch_rules_lookup",
-            "tokens_by_class",
-            "graph",
-            "tokenizer_pattern",
-            "graphtransliterator_version",
-        )
         ordered = True
 
     @post_load
@@ -83,6 +78,8 @@ class GraphTransliteratorSchema(Schema):
                 data[key] = {k: set(v) for k, v in data[key].items()}
         # Do not check ambiguity if deserializing serialized GraphTransliterator
         data["check_ambiguity"] = False
+        if data.get("coverage"):
+            return CoverageTransliterator(**data)
         return GraphTransliterator(**data)
 
     @validates_schema
@@ -156,6 +153,9 @@ class GraphTransliterator:
     graphtransliterator_version: `str`, optional
         Version of graphtransliterator, added by `dump()` and `dumps()`.
 
+    coverage: `bool`, optional
+        Create CoverageTransliterator, which tracks node, edge, and onmatch rule access
+
     Example
     -------
     >>> from graphtransliterator import *
@@ -186,15 +186,14 @@ class GraphTransliterator:
         graph=None,
         tokenizer_pattern=None,
         graphtransliterator_version=None,
+        coverage=False,
     ):
         self._tokens = tokens
         self._rules = rules
         self._tokens_by_class = tokens_by_class or _tokens_by_class_of(tokens)
-
         self._check_ambiguity = check_ambiguity
         if check_ambiguity:
-            self.check_for_ambiguity()
-
+            check_for_ambiguity(self)
         self._whitespace = whitespace
 
         if onmatch_rules:
@@ -230,7 +229,7 @@ class GraphTransliterator:
             ].version
         self._graphtransliterator_version = graphtransliterator_version
 
-    def _match_constraints(self, source, target, token_i, tokens):
+    def _match_constraints(self, target_edge, curr_node, token_i, tokens):
         """
         Match edge constraints.
 
@@ -238,13 +237,12 @@ class GraphTransliterator:
         after tokens consumed.
 
         """
-        target_edge = self._graph.edge[source][target]
         constraints = target_edge.get("constraints")
         if not constraints:
             return True
         for c_type, c_value in constraints.items():
             if c_type == "prev_tokens":
-                num_tokens = len(self._graph.node[target]["rule"].tokens)
+                num_tokens = len(curr_node["rule"].tokens)
                 # presume for rule (a) a, with input "aa"
                 # ' ', a, a, ' '  start (token_i=3)
                 #             ^
@@ -280,7 +278,7 @@ class GraphTransliterator:
                     return False
 
             elif c_type == "prev_classes":
-                num_tokens = len(self._graph.node[target]["rule"].tokens)
+                num_tokens = len(curr_node["rule"].tokens)
                 # presume for rule (a <class_a>) a, with input "aaa"
                 # ' ', a, a, a, ' '
                 #                ^     start (token_i=4)
@@ -384,18 +382,21 @@ class GraphTransliterator:
         """  # noqa
 
         graph = self._graph
+        graph_node = graph.node
+        graph_edge = graph.edge
         if match_all:
             matches = []
         stack = deque()
 
         def _append_children(node_key, token_i):
             children = None
-            ordered_children = graph.node[node_key].get("ordered_children")
+            ordered_children = graph_node[node_key].get("ordered_children")
             if ordered_children:
                 children = ordered_children.get(tokens[token_i])
                 if children:
                     # reordered high to low for stack:
                     for child_key in reversed(children):
+
                         stack.appendleft((child_key, node_key, token_i))
                 else:
                     rules_keys = ordered_children.get("__rules__")  # leafs
@@ -411,10 +412,14 @@ class GraphTransliterator:
         while stack:  # LIFO
             node_key, parent_key, token_i = stack.popleft()
             assert token_i < len(tokens), "way past boundary"
-            curr_node = graph.node[node_key]
-            # Check constraints on preceding edge
+
+            curr_node = graph_node[node_key]
+            # Constraints are only on preceding edge if it is accepting
+            # But edge is accessed regardless to test coverage
+            incident_edge = graph_edge[parent_key][node_key]
+            # Pass edge, curr_node, token index, and tokens to check constraints
             if curr_node.get("accepting") and self._match_constraints(
-                parent_key, node_key, token_i, tokens
+                incident_edge, curr_node, token_i, tokens
             ):
                 if match_all:
                     matches.append(curr_node["rule_key"])
@@ -537,6 +542,7 @@ class GraphTransliterator:
 
         Example
         -------
+
         >>> from graphtransliterator import GraphTransliterator
         >>> GraphTransliterator.from_yaml(
         ... '''
@@ -787,7 +793,7 @@ class GraphTransliterator:
             Graph transliterator
         """
         settings = SettingsSchema().load(dict_settings)
-        return GraphTransliterator(
+        return cls(
             settings["tokens"],
             settings["rules"],
             settings["whitespace"],
@@ -798,7 +804,6 @@ class GraphTransliterator:
             tokenizer_pattern=settings.get("tokenizer_pattern"),  # will be generated
             ignore_errors=kwargs.get("ignore_errors", False),
             check_ambiguity=kwargs.get("check_ambiguity", True),
-            # **kwargs
         )
 
     @classmethod
@@ -878,7 +883,7 @@ class GraphTransliterator:
         # Convert those to regular settings
         _ = _process_easyreading_settings(_)
         # Validation of regular settings is done in from_dict
-        return GraphTransliterator.from_dict(_, **kwargs)
+        return cls.from_dict(_, **kwargs)
 
     @classmethod
     def from_yaml(cls, yaml_str, charnames_escaped=True, **kwargs):
@@ -1213,7 +1218,8 @@ class GraphTransliterator:
         dumps : Dump Graph Transliterator configuration to JSON string
         loads : Load Graph Transliteration from configuration as a JSON string
         """  # noqa
-        return GraphTransliteratorSchema().load(settings, **kwargs)
+        # combine kwargs with settings
+        return GraphTransliteratorSchema().load(dict(settings, **kwargs))
 
     @staticmethod
     def loads(settings, **kwargs):
@@ -1242,147 +1248,150 @@ class GraphTransliterator:
         dumps : Dump Graph Transliterator configuration to JSON string
         load : Load Graph Transliteration from configuration in Python data types
         """  # noqa
-        return GraphTransliteratorSchema().loads(settings, **kwargs)
+        # combine kwargs with settings
+        _settings = dict(json.loads(settings), **kwargs)
+        return GraphTransliteratorSchema().load(_settings)
 
-    def check_for_ambiguity(self):
-        """
-        Check if multiple transliteration rules could match the same tokens.
 
-        This function first groups the transliteration rules by number of
-        tokens. It then checks to see if any pair of the same cost would match
-        the same sequence of tokens. If so, it finally checks if a less costly
-        rule would match those particular sequences. If not, there is
-        ambiguity.
+def check_for_ambiguity(transliterator):
+    """
+    Check if multiple transliteration rules could match the same tokens.
 
-        Details of all ambiguity are sent in a :func:`logging.warning`.
+    This function first groups the transliteration rules by number of
+    tokens. It then checks to see if any pair of the same cost would match
+    the same sequence of tokens. If so, it finally checks if a less costly
+    rule would match those particular sequences. If not, there is
+    ambiguity.
 
-        Note
-        ----
-        Called during initialization if ``check_ambiguity`` is set.
+    Details of all ambiguity are sent in a :func:`logging.warning`.
 
-        Raises
-        ------
-        AmbiguousTransliterationRulesException
-            Multiple transliteration rules could match the same tokens.
+    Note
+    ----
+    Called during initialization if ``check_ambiguity`` is set.
 
-        Example
-        -------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> yaml_filename = '''
-        ... tokens:
-        ...   a: [class1, class2]
-        ...   ' ': [wb]
-        ... rules:
-        ...   <class1> a: AW
-        ...   <class2> a: AA # ambiguous rule
-        ... whitespace:
-        ...   default: ' '
-        ...   consolidate: True
-        ...   token_class: wb
-        ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
-        >>> gt.check_for_ambiguity()
-        WARNING:root:The pattern [{'a'}, {'a'}] can be matched by both:
-          <class1> a
-          <class2> a
-        ...
-        graphtransliterator.exceptions.AmbiguousTransliterationRulesException
-        >>>
-        """
-        ambiguity = False
+    Raises
+    ------
+    AmbiguousTransliterationRulesException
+        Multiple transliteration rules could match the same tokens.
 
-        all_tokens = set(self.tokens.keys())
+    Example
+    -------
+    >>> from graphtransliterator import GraphTransliterator
+    >>> yaml_filename = '''
+    ... tokens:
+    ...   a: [class1, class2]
+    ...   ' ': [wb]
+    ... rules:
+    ...   <class1> a: AW
+    ...   <class2> a: AA # ambiguous rule
+    ... whitespace:
+    ...   default: ' '
+    ...   consolidate: True
+    ...   token_class: wb
+    ... '''
+    >>> gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
+    >>> gt.check_for_ambiguity()
+    WARNING:root:The pattern [{'a'}, {'a'}] can be matched by both:
+      <class1> a
+      <class2> a
+    ...
+    graphtransliterator.exceptions.AmbiguousTransliterationRulesException
+    >>>
+    """
+    ambiguity = False
 
-        rules = self._rules
+    all_tokens = set(transliterator._tokens.keys())
 
-        if not rules:
-            return True
+    rules = transliterator._rules
 
-        max_prev = [_count_of_prev(rule) for rule in rules]
-        global_max_prev = max(max_prev)
-        max_curr_next = [_count_of_curr_and_next(rule) for rule in rules]
-        global_max_curr_next = max(max_curr_next)
+    if not rules:
+        return True
 
-        # Generate a matrix of rules, where width is the max of
-        # any previous tokens/classes + max of current/next tokens/classes.
-        # Each rule's specifications starting from the max of the previous
-        # tokens/classes. Other positions are filled by the set of all possible
-        # tokens.
+    max_prev = [_count_of_prev(rule) for rule in rules]
+    global_max_prev = max(max_prev)
+    max_curr_next = [_count_of_curr_and_next(rule) for rule in rules]
+    global_max_curr_next = max(max_curr_next)
 
-        matrix = []
+    # Generate a matrix of rules, where width is the max of
+    # any previous tokens/classes + max of current/next tokens/classes.
+    # Each rule's specifications starting from the max of the previous
+    # tokens/classes. Other positions are filled by the set of all possible
+    # tokens.
 
-        width = global_max_prev + global_max_curr_next
+    matrix = []
 
-        for i, rule in enumerate(rules):
-            row = [all_tokens] * (global_max_prev - max_prev[i])
-            row += _tokens_possible(rule, self._tokens_by_class)
-            row += [all_tokens] * (width - len(row))
-            matrix += [row]
+    width = global_max_prev + global_max_curr_next
 
-        def full_intersection(i, j):
-            """ Intersection of  matrix[i] and matrix[j], else None."""
+    for i, rule in enumerate(rules):
+        row = [all_tokens] * (global_max_prev - max_prev[i])
+        row += _tokens_possible(rule, transliterator._tokens_by_class)
+        row += [all_tokens] * (width - len(row))
+        matrix += [row]
 
-            intersections = []
-            for k in range(width):
-                intersection = matrix[i][k].intersection(matrix[j][k])
+    def full_intersection(i, j):
+        """ Intersection of  matrix[i] and matrix[j], else None."""
+
+        intersections = []
+        for k in range(width):
+            intersection = matrix[i][k].intersection(matrix[j][k])
+            if not intersection:
+                return None
+            intersections += [intersection]
+        return intersections
+
+    def covered_by(intersection, row):
+        """Check if intersection is covered by row."""
+        for i in range(len(intersection)):
+            diff = intersection[i].difference(row[i])
+            if diff:
+                return False
+        return True
+
+    # Iterate through rules based on cost (number of tokens). If there are
+    # ambiguities, then see if a less costly rule would match the rule. If it does
+    # not, there is ambiguity.
+
+    for _group_val, group_iter in itertools.groupby(
+        enumerate(transliterator._rules), key=lambda x: x[1].cost
+    ):
+
+        group = list(group_iter)
+        if len(group) == 1:
+            continue
+        for i in range(len(group) - 1):
+            for j in range(i + 1, len(group)):
+                i_index = group[i][0]
+                j_index = group[j][0]
+                intersection = full_intersection(i_index, j_index)
                 if not intersection:
-                    return None
-                intersections += [intersection]
-            return intersections
+                    break
 
-        def covered_by(intersection, row):
-            """Check if intersection is covered by row."""
-            for i in range(len(intersection)):
-                diff = intersection[i].difference(row[i])
-                if diff:
+                # Check if a less costly rule matches intersection
+
+                def covered_by_less_costly():
+                    for r_i, rule in enumerate(rules):
+                        if r_i in (i_index, j_index):
+                            continue
+                        if rule.cost > rules[i_index].cost:
+                            continue
+                        rule_tokens = matrix[r_i]
+                        if covered_by(intersection, rule_tokens):
+                            return True
                     return False
-            return True
 
-        # Iterate through rules based on cost (number of tokens). If there are
-        # ambiguities, then see if a less costly rule would match the rule. If it does
-        # not, there is ambiguity.
-
-        for _group_val, group_iter in itertools.groupby(
-            enumerate(self._rules), key=lambda x: x[1].cost
-        ):
-
-            group = list(group_iter)
-            if len(group) == 1:
-                continue
-            for i in range(len(group) - 1):
-                for j in range(i + 1, len(group)):
-                    i_index = group[i][0]
-                    j_index = group[j][0]
-                    intersection = full_intersection(i_index, j_index)
-                    if not intersection:
-                        break
-
-                    # Check if a less costly rule matches intersection
-
-                    def covered_by_less_costly():
-                        for r_i, rule in enumerate(rules):
-                            if r_i in (i_index, j_index):
-                                continue
-                            if rule.cost > rules[i_index].cost:
-                                continue
-                            rule_tokens = matrix[r_i]
-                            if covered_by(intersection, rule_tokens):
-                                return True
-                        return False
-
-                    if not covered_by_less_costly():
-                        logging.warning(
-                            "The pattern {} can be matched by both:\n"
-                            "  {}\n"
-                            "  {}\n".format(
-                                intersection,
-                                _easyreading_rule(rules[i_index]),
-                                _easyreading_rule(rules[j_index]),
-                            )
+                if not covered_by_less_costly():
+                    logging.warning(
+                        "The pattern {} can be matched by both:\n"
+                        "  {}\n"
+                        "  {}\n".format(
+                            intersection,
+                            _easyreading_rule(rules[i_index]),
+                            _easyreading_rule(rules[j_index]),
                         )
-                        ambiguity = True
-        if ambiguity:
-            raise AmbiguousTransliterationRulesException
+                    )
+                    ambiguity = True
+    if ambiguity:
+        raise AmbiguousTransliterationRulesException
 
 
 def _easyreading_rule(rule):
@@ -1429,14 +1438,14 @@ def _count_of_curr_and_next(rule):
     return len(rule.tokens) + len(rule.next_tokens or []) + len(rule.next_classes or [])
 
 
-def _count_of_tokens(rule):
-    return (
-        len(rule.prev_classes or [])
-        + len(rule.prev_tokens or [])
-        + len(rule.tokens)
-        + len(rule.next_tokens or [])
-        + len(rule.next_classes or [])
-    )
+# def _count_of_tokens(rule):
+#     return (
+#         len(rule.prev_classes or [])
+#         + len(rule.prev_tokens or [])
+#         + len(rule.tokens)
+#         + len(rule.next_tokens or [])
+#         + len(rule.next_classes or [])
+#     )
 
 
 def _prev_tokens_possible(rule, tokens_by_class):
@@ -1498,3 +1507,68 @@ def _unescape_charnames(input_str):
         return char
 
     return re.sub(r"\\N{[A-Z ]+}", get_unicode_char, input_str)
+
+
+class CoverageTransliterator(GraphTransliterator):
+    """Subclass of GraphTransliterator that logs visits to graph and on_match rules.
+
+    Used to confirm that tests cover the entire graph and onmatch_rules."""
+
+    # @classmethod
+    def __init__(self, *args, **kwargs):
+        # Initialize from GraphTransliterator
+        GraphTransliterator.__init__(self, *args, **kwargs)
+        # Convert  _graph and _onmatch_rules to visit tracking objects
+        self._graph = VisitLoggingDirectedGraph(self._graph)
+        self._onmatch_rules = VisitLoggingList(self._onmatch_rules)
+
+    # def __init__(self, gt, **kwargs):
+    #     """Initialize from existing Graph Transliterator."""
+    #     super(CoverageTransliterator, self).__init__(
+    #         gt.tokens,
+    #         gt.rules,
+    #         gt.whitespace,
+    #         onmatch_rules=gt.onmatch_rules,
+    #         metadata=gt.metadata,
+    #         ignore_errors=gt.ignore_errors,
+    #         check_ambiguity=kwargs.get("check_ambiguity", True),
+    #         onmatch_rules_lookup=gt.onmatch_rules_lookup,
+    #         tokens_by_class=gt.tokens_by_class,
+    #         graph=gt.graph,
+    #         tokenizer_pattern=gt.tokenizer_pattern,
+    #         graphtransliterator_version=gt.graphtransliterator_version,
+    #     )
+    #     self._graph = VisitLoggingDirectedGraph(self._graph)
+    #     self._onmatch_rules = _VisitLoggingList(self._onmatch_rules)
+
+    def clear_visited(self):
+        """Clear visited flags from graph and onmatch_rules."""
+        self._graph.clear_visited()
+        if self._onmatch_rules:
+            self._onmatch_rules.clear_visited()
+
+    def check_onmatchrules_coverage(self, raise_exception=True):
+        """Check coverage of onmatch rules."""
+        errors = []
+        onmatch_rules = self._onmatch_rules
+        for i, onmatch_rule in enumerate(onmatch_rules.data):  # data to avoid visited
+            if i not in onmatch_rules.visited:
+                logger.warning(
+                    "On Match Rule {} [{}] has not been visited.".format(
+                        i, onmatch_rule
+                    )
+                )
+                errors.append(i)
+        if errors and raise_exception:
+            error_msg = "Missed OnMatchRules: " + ",".join([str(i) for i in errors])
+            raise IncompleteOnMatchRulesCoverageException(error_msg)
+        return not errors
+
+    def check_coverage(self, raise_exception=True):
+        """Check coverage of graph and onmatch rules.
+
+        First checks graph coverage, then checks onmatch rules."""
+
+        return self._graph.check_coverage(
+            raise_exception=raise_exception
+        ) and self.check_onmatchrules_coverage(raise_exception=raise_exception)
