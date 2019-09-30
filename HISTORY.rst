@@ -19,6 +19,7 @@ History
 
 #.#.# (####-##-##)
 ------------------
+* adjust path in docs/conf.py to fix docs error
 * added bundled/schemas.py with MetadataSchema for bundled transliterator metadata
 * added coverage to from_dict()
 * added allow_none in onmatch_rules in GraphTransliteratorSchema

@@ -18,6 +18,9 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
+impoprt sys
+sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../'))
 import graphtransliterator
 import os
 import sys
