@@ -3,11 +3,12 @@
 """
 GraphTransliterator core classes.
 """
-
+from .. import __version__ as __version__
 import itertools
 import json
 import logging
-import pkg_resources
+
+# import pkg_resources
 import re
 import unicodedata
 import yaml
@@ -224,9 +225,9 @@ class GraphTransliterator:
 
         # When, or if, necessary, add version checking here
         if not graphtransliterator_version:
-            graphtransliterator_version = pkg_resources.require("graphtransliterator")[
-                0
-            ].version
+            graphtransliterator_version = __version__
+        # problems with readthedocs + jupyter-sphinx due to pythonpath import
+        # pkg_resources.require("graphtransliterator")[0].version
         self._graphtransliterator_version = graphtransliterator_version
 
     def _match_constraints(self, target_edge, curr_node, token_i, tokens):
