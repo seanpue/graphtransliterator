@@ -22,8 +22,9 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
-package_path = os.path.abspath("../..")
-os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
+sys.path.insert(0, os.path.abspath("../.."))  # /../docs/
+# package_path = os.path.abspath("../..")
+# os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
 import graphtransliterator  # noqa
 
 # -- General configuration ---------------------------------------------
