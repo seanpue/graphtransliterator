@@ -25,8 +25,8 @@ sys.path.insert(
     0, os.path.abspath("..")
 )  # necessary to import graphtransilterator here
 
-# package_path = os.path.abspath("../..")
-# os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
+package_path = os.path.abspath("..")  # this may work for jupyter-sphinx?
+os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
 import graphtransliterator  # noqa
 
 # -- General configuration ---------------------------------------------
