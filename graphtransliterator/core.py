@@ -3,7 +3,7 @@
 """
 GraphTransliterator core classes.
 """
-from .. import __version__ as __version__
+from graphtransliterator import __version__ as __version__
 import itertools
 import json
 import logging
