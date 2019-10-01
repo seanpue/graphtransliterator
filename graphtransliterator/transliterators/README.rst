@@ -1,7 +1,9 @@
 .. module:: graphtransliterator
+
 =======================
 Bundled Transliterators
 =======================
+
 Graph Transliterator includes bundled transliterators in a :class:`Bundled` subclass of
 :class:`GraphTransliterator` that can be used as follows:
 
@@ -79,7 +81,7 @@ of the onmatch rules have been visited.
 
 Class Structure and Naming Conventions
 --------------------------------------
-Each transliterator must include a class definition in a submodule  of
+Each transliterator must include a class definition in a submodule of
 :class:`transliterators`.
 
 The class name of each transliterator must be unique and follow camel-case conventions,
