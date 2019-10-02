@@ -73,7 +73,6 @@ Sample Code and Graph
 ---------------------
 
 .. code-block:: python
-  :linenos:
 
   from graphtransliterator import GraphTransliterator
   GraphTransliterator.from_yaml("""
