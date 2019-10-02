@@ -66,32 +66,40 @@ Features
   in the "easy reading" YAML format
 * Constructs and uses a **directed tree** and performs a **best-first search**
   to find the most specific transliteration rule in a given context
+* Includes **bundled transliterators** that can be add to and that check for full
+  test coverage of the nodes and edges of the internal graph and any "on match" rules
 
 Sample Code and Graph
 ---------------------
 
->>> from graphtransliterator import GraphTransliterator
->>> GraphTransliterator.from_yaml("""
-...     tokens:
-...       h: [consonant]
-...       i: [vowel]
-...       " ": [whitespace]
-...     rules:
-...       h: \N{LATIN SMALL LETTER TURNED I}
-...       i: \N{LATIN SMALL LETTER TURNED H}
-...       <whitespace> i: \N{LATIN CAPITAL LETTER TURNED H}
-...       (<whitespace> h) i: \N{LATIN SMALL LETTER TURNED H}!
-...     onmatch_rules:
-...       - <whitespace> + <consonant>: ¡
-...     whitespace:
-...       default: " "
-...       consolidate: true
-...       token_class: whitespace
-...     metadata:
-...       title: "Upside Down Greeting Transliterator"
-...       version: "1.0"
-... """).transliterate("hi")
-'¡ᴉɥ!'
+.. code-block:: python
+  :linenos:
+
+  from graphtransliterator import GraphTransliterator
+  GraphTransliterator.from_yaml("""
+      tokens:
+        h: [consonant]
+        i: [vowel]
+        " ": [whitespace]
+      rules:
+        h: \N{LATIN SMALL LETTER TURNED I}
+        i: \N{LATIN SMALL LETTER TURNED H}
+        <whitespace> i: \N{LATIN CAPITAL LETTER TURNED H}
+        (<whitespace> h) i: \N{LATIN SMALL LETTER TURNED H}!
+      onmatch_rules:
+        - <whitespace> + <consonant>: ¡
+      whitespace:
+        default: " "
+        consolidate: true
+        token_class: whitespace
+      metadata:
+        title: "Upside Down Greeting Transliterator"
+        version: "1.0.0"
+  """).transliterate("hi")
+
+.. code-block:: none
+
+  '¡ᴉɥ!'
 
 .. figure:: https://raw.githubusercontent.com/seanpue/graphtransliterator/master/docs/_static/sample_graph.png
    :alt: sample graph

@@ -19,6 +19,8 @@ History
 
 #.#.# (####-##-##)
 ------------------
+* removed pkg_resources as source for version due to problem with loading from
+  pythonpath for jupyter-sphinx in readthedocs, instead used __version__
 * adjust path in docs/conf.py to fix docs error
 * added bundled/schemas.py with MetadataSchema for bundled transliterator metadata
 * added coverage to from_dict()

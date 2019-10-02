@@ -62,7 +62,7 @@ __all__ = [
     "UnrecognizableInputTokenException",
     # graphs
     "DirectedGraph",
-    "CoverageDirectedGraph",
+    "VisitLoggingDirectedGraph",
     # rules
     "TransliterationRule",
     "OnMatchRule",

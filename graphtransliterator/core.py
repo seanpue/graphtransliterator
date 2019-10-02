@@ -159,11 +159,14 @@ class GraphTransliterator:
 
     Example
     -------
-    >>> from graphtransliterator import *
-    >>> settings = {'tokens': {'a': {'vowel'}, ' ': {'wb'}}, 'onmatch_rules': [OnMatchRule(prev_classes=['vowel'], next_classes=['vowel'], production=',')], 'rules': [TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562), TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562)], 'metadata': {'author': 'Author McAuthorson'}, 'whitespace': WhitespaceRules(default=' ', token_class='wb', consolidate=False)}
-    >>> gt = GraphTransliterator(**settings)
-    >>> gt.transliterate('a')
-    'A'
+    .. jupyter-execute::
+
+
+      from graphtransliterator import GraphTransliterator, OnMatchRule, TransliterationRule, WhitespaceRules
+      settings = {'tokens': {'a': {'vowel'}, ' ': {'wb'}}, 'onmatch_rules': [OnMatchRule(prev_classes=['vowel'], next_classes=['vowel'], production=',')], 'rules': [TransliterationRule(production='A', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562), TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562)], 'metadata': {'author': 'Author McAuthorson'}, 'whitespace': WhitespaceRules(default=' ', token_class='wb', consolidate=False)}
+      gt = GraphTransliterator(**settings)
+      gt.transliterate('a')
+
 
     See Also
     --------
@@ -353,33 +356,40 @@ class GraphTransliterator:
         Examples
         --------
 
-        >>> from graphtransliterator import GraphTransliterator
-        >>> gt = GraphTransliterator.from_yaml('''
-        ...         tokens:
-        ...             a: []
-        ...             a a: []
-        ...             ' ': [wb]
-        ...         rules:
-        ...             a: <A>
-        ...             a a: <AA>
-        ...         whitespace:
-        ...             default: ' '
-        ...             consolidate: True
-        ...             token_class: wb
-        ... ''')
-        >>> tokens = gt.tokenize("aa")
-        >>> tokens # whitespace added to ends
-        [' ', 'a', 'a', ' ']
-        >>> gt.match_at(1, tokens) # returns index to rule
-        0
-        >>> gt.rules[gt.match_at(1, tokens)] # actual rule
-        TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376)
-        >>> gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
-        [0, 1]
-        >>>
-        >>> [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)]
-        [TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
-        >>>
+        .. jupyter-execute::
+
+          gt = GraphTransliterator.from_yaml('''
+                  tokens:
+                      a: []
+                      a a: []
+                      ' ': [wb]
+                  rules:
+                      a: <A>
+                      a a: <AA>
+                  whitespace:
+                      default: ' '
+                      consolidate: True
+                      token_class: wb
+          ''')
+          tokens = gt.tokenize("aa")
+          tokens # whitespace added to ends
+
+        .. jupyter-execute::
+
+          gt.match_at(1, tokens) # returns index to rule
+
+        .. jupyter-execute::
+
+          gt.rules[gt.match_at(1, tokens)] # actual rule
+
+        .. jupyter-execute::
+
+          gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
+
+        .. jupyter-execute::
+
+          [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)]
+
         """  # noqa
 
         graph = self._graph
@@ -544,21 +554,22 @@ class GraphTransliterator:
         Example
         -------
 
-        >>> from graphtransliterator import GraphTransliterator
-        >>> GraphTransliterator.from_yaml(
-        ... '''
-        ... tokens:
-        ...   a: []
-        ...   ' ': [wb]
-        ... rules:
-        ...   a: A
-        ...   ' ': '_'
-        ... whitespace:
-        ...   default: ' '
-        ...   consolidate: True
-        ...   token_class: wb
-        ... ''').transliterate("a a")
-        'A_A'
+        .. jupyter-execute::
+
+          GraphTransliterator.from_yaml(
+          '''
+          tokens:
+            a: []
+            ' ': [wb]
+          rules:
+            a: A
+            ' ': '_'
+          whitespace:
+            default: ' '
+            consolidate: True
+            token_class: wb
+          ''').transliterate("a a")
+
         """
         tokens = self.tokenize(input)  # Adds initial+final whitespace
         self._input_tokens = tokens  # Tokens are saved here
@@ -641,14 +652,15 @@ class GraphTransliterator:
 
         Examples
         --------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> t = {'ab': ['class_ab'], ' ': ['wb']}
-        >>> w = {'default': ' ', 'token_class': 'wb', 'consolidate': True}
-        >>> r = {'ab': 'AB', ' ': '_'}
-        >>> settings = {'tokens': t, 'rules': r, 'whitespace': w}
-        >>> gt = GraphTransliterator.from_easyreading_dict(settings)
-        >>> gt.tokenize('ab ')
-        >>> [' ', 'ab', ' ']
+        .. jupyter-execute::
+
+          tokens = {'ab': ['class_ab'], ' ': ['wb']}
+          whitespace = {'default': ' ', 'token_class': 'wb', 'consolidate': True}
+          rules = {'ab': 'AB', ' ': '_'}
+          settings = {'tokens': tokens, 'rules': rules, 'whitespace': whitespace}
+          gt = GraphTransliterator.from_easyreading_dict(settings)
+          gt.tokenize('ab ')
+
         """
 
         def is_whitespace(token):
@@ -717,25 +729,31 @@ class GraphTransliterator:
 
         Examples
         --------
-        >>> gt = GraphTransliterator.from_yaml('''
-        ...         tokens:
-        ...             a: []
-        ...             a a: []
-        ...             ' ': [wb]
-        ...         rules:
-        ...             a: <A>
-        ...             a a: <AA>
-        ...         whitespace:
-        ...             default: ' '
-        ...             consolidate: True
-        ...             token_class: wb
-        ... ''')
-        >>> gt.rules
-        [TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
-        >>> gt.pruned_of('<AA>').rules
-        [TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
-        >>> gt.pruned_of(['<A>', '<AA>']).rules
-        []
+        .. jupyter-execute::
+
+          gt = GraphTransliterator.from_yaml('''
+                  tokens:
+                      a: []
+                      a a: []
+                      ' ': [wb]
+                  rules:
+                      a: <A>
+                      a a: <AA>
+                  whitespace:
+                      default: ' '
+                      consolidate: True
+                      token_class: wb
+          ''')
+          gt.rules
+
+        .. jupyter-execute::
+
+          gt.pruned_of('<AA>').rules
+
+        .. jupyter-execute::
+
+          gt.pruned_of(['<A>', '<AA>']).rules
+
         """  # noqa
         pruned_rules = [_ for _ in self._rules if _.production not in productions]
         return GraphTransliterator(
@@ -850,29 +868,29 @@ class GraphTransliterator:
 
         Example
         -------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> tokens = {
-        ...     'ab': ['class_ab'],
-        ...     ' ': ['wb']
-        ... }
-        >>> whitespace = {
-        ...     'default': ' ',
-        ...     'token_class': 'wb',
-        ...     'consolidate': True
-        ... }
-        >>> onmatch_rules = [
-        ...     {'<class_ab> + <class_ab>': ','}
-        ... ]
-        >>> rules = {'ab': 'AB',
-        ...          ' ': '_'}
-        >>> settings = {'tokens': tokens,
-        ...             'rules': rules,
-        ...             'whitespace': whitespace,
-        ...             'onmatch_rules': onmatch_rules}
-        >>> gt = GraphTransliterator.from_easyreading_dict(settings)
-        >>> gt.transliterate("ab abab")
-        'AB_AB,AB'
-        >>>
+        .. jupyter-execute::
+
+          tokens = {
+              'ab': ['class_ab'],
+              ' ': ['wb']
+          }
+          whitespace = {
+              'default': ' ',
+              'token_class': 'wb',
+              'consolidate': True
+          }
+          onmatch_rules = [
+              {'<class_ab> + <class_ab>': ','}
+          ]
+          rules = {'ab': 'AB',
+                   ' ': '_'}
+          settings = {'tokens': tokens,
+                      'rules': rules,
+                      'whitespace': whitespace,
+                      'onmatch_rules': onmatch_rules}
+          gt = GraphTransliterator.from_easyreading_dict(settings)
+          gt.transliterate("ab abab")
+
 
         See Also
         --------
@@ -904,24 +922,25 @@ class GraphTransliterator:
 
         Example
         -------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> yaml_ = '''
-        ... tokens:
-        ...   a: [class1]
-        ...   ' ': [wb]
-        ... rules:
-        ...   a: A
-        ...   ' ': ' '
-        ... whitespace:
-        ...   default: ' '
-        ...   consolidate: True
-        ...   token_class: wb
-        ... onmatch_rules:
-        ...   - <class1> + <class1>: "+"
-        ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml_)
-        >>> gt.transliterate("a aa")
-        'A A+A'
+        .. jupyter-execute::
+
+          yaml_ = '''
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            a: A
+            ' ': ' '
+          whitespace:
+            default: ' '
+            consolidate: True
+            token_class: wb
+          onmatch_rules:
+            - <class1> + <class1>: "+"
+          '''
+          gt = GraphTransliterator.from_yaml(yaml_)
+          gt.transliterate("a aa")
+
 
         See Also
         --------
@@ -972,26 +991,27 @@ class GraphTransliterator:
 
         Examples
         --------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> yaml_ = '''
-        ...   tokens:
-        ...     a: [vowel]
-        ...     ' ': [wb]
-        ...   rules:
-        ...     a: A
-        ...     ' ': ' '
-        ...   whitespace:
-        ...     default: " "
-        ...     consolidate: false
-        ...     token_class: wb
-        ...   onmatch_rules:
-        ...     - <vowel> + <vowel>: ','  # add a comma between vowels
-        ...   metadata:
-        ...     author: "Author McAuthorson"
-        ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml_)
-        >>> gt.dumps()
-        '{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"consolidate": false, "default": " ", "token_class": "wb"}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a|\\\\ )", "graphtransliterator_version": "0.3.8"}'
+        .. jupyter-execute::
+
+          yaml_ = '''
+            tokens:
+              a: [vowel]
+              ' ': [wb]
+            rules:
+              a: A
+              ' ': ' '
+            whitespace:
+              default: " "
+              consolidate: false
+              token_class: wb
+            onmatch_rules:
+              - <vowel> + <vowel>: ','  # add a comma between vowels
+            metadata:
+              author: "Author McAuthorson"
+          '''
+          gt = GraphTransliterator.from_yaml(yaml_)
+          gt.dumps()
+
 
         See Also
         --------
@@ -1056,27 +1076,27 @@ class GraphTransliterator:
 
         Example
         -------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> yaml_ = '''
-        ... tokens:
-        ...   a: [vowel]
-        ...   ' ': [wb]
-        ... rules:
-        ...   a: A
-        ...   ' ': ' '
-        ... whitespace:
-        ...   default: " "
-        ...   consolidate: false
-        ...   token_class: wb
-        ... onmatch_rules:
-        ...   - <vowel> + <vowel>: ','  # add a comma between vowels
-        ... metadata:
-        ...   author: "Author McAuthorson"
-        ... '''
-        >>> gt = GraphTransliterator.from_yaml(yaml_)
-        >>> gt.dump()
-        OrderedDict([('tokens', {'a': ['vowel'], ' ': ['wb']}), ('rules', [OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)]), OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_classes', None), ('next_tokens', None), ('cost', 0.5849625007211562)])]), ('whitespace', {'consolidate': False, 'default': ' ', 'token_class': 'wb'}), ('onmatch_rules', [OrderedDict([('prev_classes', ['vowel']), ('next_classes', ['vowel']), ('production', ',')])]), ('metadata', {'author': 'Author McAuthorson'}), ('ignore_errors', False), ('onmatch_rules_lookup', {'a': {'a': [0]}}), ('tokens_by_class', {'vowel': ['a'], 'wb': [' ']}), ('graph', {'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)], 'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}}, {'type': 'rule', 'rule_key': 0, 'rule': OrderedDict([('production', 'A'), ('prev_classes', None), ('prev_tokens', None), ('tokens', ['a']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}}, {'type': 'rule', 'rule_key': 1, 'rule': OrderedDict([('production', ' '), ('prev_classes', None), ('prev_tokens', None), ('tokens', [' ']), ('next_tokens', None), ('next_classes', None), ('cost', 0.5849625007211562)]), 'accepting': True, 'ordered_children': {}}], 'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562}, 3: {'token': ' ', 'cost': 0.5849625007211562}}, 1: {2: {'cost': 0.5849625007211562}}, 3: {4: {'cost': 0.5849625007211562}}}}), ('tokenizer_pattern', '(a|\\ )'), ('graphtransliterator_version', '0.3.8')])
-        >>>
+        .. jupyter-execute::
+
+          yaml_ = '''
+          tokens:
+            a: [vowel]
+            ' ': [wb]
+          rules:
+            a: A
+            ' ': ' '
+          whitespace:
+            default: " "
+            consolidate: false
+            token_class: wb
+          onmatch_rules:
+            - <vowel> + <vowel>: ','  # add a comma between vowels
+          metadata:
+            author: "Author McAuthorson"
+          '''
+          gt = GraphTransliterator.from_yaml(yaml_)
+          gt.dump()
+
 
         See Also
         --------
@@ -1146,72 +1166,73 @@ class GraphTransliterator:
 
         Example
         -------
-        >>> from graphtransliterator import GraphTransliterator
-        from collections import OrderedDict # dump() uses OrderedDict
-        >>> settings = \
-        ... {'tokens': {'a': ['vowel'], ' ': ['wb']},
-        ...  'rules': [OrderedDict([('production', 'A'),
-        ...                # Can be compacted, removing None values
-        ...                # ('prev_tokens', None),
-        ...                ('tokens', ['a']),
-        ...                ('next_classes', None),
-        ...                ('next_tokens', None),
-        ...                ('cost', 0.5849625007211562)]),
-        ...   OrderedDict([('production', ' '),
-        ...                ('prev_classes', None),
-        ...                ('prev_tokens', None),
-        ...                ('tokens', [' ']),
-        ...                ('next_classes', None),
-        ...                ('next_tokens', None),
-        ...                ('cost', 0.5849625007211562)])],
-        ...  'whitespace': {'default': ' ', 'token_class': 'wb', 'consolidate': False},
-        ...  'onmatch_rules': [OrderedDict([('prev_classes', ['vowel']),
-        ...                ('next_classes', ['vowel']),
-        ...                ('production', ',')])],
-        ...  'metadata': {'author': 'Author McAuthorson'},
-        ...  'onmatch_rules_lookup': {'a': {'a': [0]}},
-        ...  'tokens_by_class': {'vowel': ['a'], 'wb': [' ']},
-        ...  'graph': {'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562},
-        ...     3: {'token': ' ', 'cost': 0.5849625007211562}},
-        ...    1: {2: {'cost': 0.5849625007211562}},
-        ...    3: {4: {'cost': 0.5849625007211562}}},
-        ...   'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}},
-        ...    {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}},
-        ...    {'type': 'rule',
-        ...     'rule_key': 0,
-        ...     'rule': OrderedDict([('production', 'A'),
-        ...                  ('prev_classes', None),
-        ...                  ('prev_tokens', None),
-        ...                  ('tokens', ['a']),
-        ...                  ('next_tokens', None),
-        ...                  ('next_classes', None),
-        ...                  ('cost', 0.5849625007211562)]),
-        ...     'accepting': True,
-        ...     'ordered_children': {}},
-        ...    {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}},
-        ...    {'type': 'rule',
-        ...     'rule_key': 1,
-        ...     'rule': OrderedDict([('production', ' '),
-        ...                  # Can be compacted, removing None values
-        ...                  # ('prev_tokens', None),
-        ...                  ('tokens', [' ']),
-        ...                  ('next_tokens', None),
-        ...                  ('next_classes', None),
-        ...                  ('cost', 0.5849625007211562)]),
-        ...     'accepting': True,
-        ...     'ordered_children': {}}],
-        ...   'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)]},
-        ...  'tokenizer_pattern': '(a|\\ )',
-        ...  'graphtransliterator_version': '0.3.3'}
-        >>> gt = GraphTransliterator.load(settings)
-        >>> gt.transliterate('aa')
-        'A,A'
-        >>> # can be compacted
-        ... settings.pop('onmatch_rules_lookup')
-        {'a': {'a': [0]}}
-        >>> GraphTransliterator.load(settings).transliterate('aa')
-        'A,A'
-        >>>
+        .. jupyter-execute::
+
+          from collections import OrderedDict
+          settings = \
+          {'tokens': {'a': ['vowel'], ' ': ['wb']},
+           'rules': [OrderedDict([('production', 'A'),
+                         # Can be compacted, removing None values
+                         # ('prev_tokens', None),
+                         ('tokens', ['a']),
+                         ('next_classes', None),
+                         ('next_tokens', None),
+                         ('cost', 0.5849625007211562)]),
+            OrderedDict([('production', ' '),
+                         ('prev_classes', None),
+                         ('prev_tokens', None),
+                         ('tokens', [' ']),
+                         ('next_classes', None),
+                         ('next_tokens', None),
+                         ('cost', 0.5849625007211562)])],
+           'whitespace': {'default': ' ', 'token_class': 'wb', 'consolidate': False},
+           'onmatch_rules': [OrderedDict([('prev_classes', ['vowel']),
+                         ('next_classes', ['vowel']),
+                         ('production', ',')])],
+           'metadata': {'author': 'Author McAuthorson'},
+           'onmatch_rules_lookup': {'a': {'a': [0]}},
+           'tokens_by_class': {'vowel': ['a'], 'wb': [' ']},
+           'graph': {'edge': {0: {1: {'token': 'a', 'cost': 0.5849625007211562},
+              3: {'token': ' ', 'cost': 0.5849625007211562}},
+             1: {2: {'cost': 0.5849625007211562}},
+             3: {4: {'cost': 0.5849625007211562}}},
+            'node': [{'type': 'Start', 'ordered_children': {'a': [1], ' ': [3]}},
+             {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2]}},
+             {'type': 'rule',
+              'rule_key': 0,
+              'rule': OrderedDict([('production', 'A'),
+                           ('prev_classes', None),
+                           ('prev_tokens', None),
+                           ('tokens', ['a']),
+                           ('next_tokens', None),
+                           ('next_classes', None),
+                           ('cost', 0.5849625007211562)]),
+              'accepting': True,
+              'ordered_children': {}},
+             {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [4]}},
+             {'type': 'rule',
+              'rule_key': 1,
+              'rule': OrderedDict([('production', ' '),
+                           # Can be compacted, removing None values
+                           # ('prev_tokens', None),
+                           ('tokens', [' ']),
+                           ('next_tokens', None),
+                           ('next_classes', None),
+                           ('cost', 0.5849625007211562)]),
+              'accepting': True,
+              'ordered_children': {}}],
+            'edge_list': [(0, 1), (1, 2), (0, 3), (3, 4)]},
+           'tokenizer_pattern': '(a|\\ )',
+           'graphtransliterator_version': '0.3.3'}
+          gt = GraphTransliterator.load(settings)
+          gt.transliterate('aa')
+
+        .. jupyter-execute::
+
+          # can be compacted
+          settings.pop('onmatch_rules_lookup')
+          GraphTransliterator.load(settings).transliterate('aa')
+
 
         See Also
         --------
@@ -1238,10 +1259,12 @@ class GraphTransliterator:
 
         Example
         -------
-        >>> from graphtransliterator import GraphTransliterator
-        >>> JSON_settings = '''{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"consolidate": false, "default": " ", "token_class": "wb"}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a|\\\\ )", "graphtransliterator_version": "0.3.8"}'''
-        >>> GraphTransliterator.loads(JSON_settings)
-        <graphtransliterator.core.GraphTransliterator object at 0x10c100cc0>
+        .. jupyter-execute::
+
+          JSON_settings = '''{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"default": " ", "token_class": "wb", "consolidate": false}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "ignore_errors": false, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a| )", "graphtransliterator_version": "0.3.8"}'''
+
+          gt = GraphTransliterator.loads(JSON_settings)
+          gt.transliterate('a')
 
         See Also
         --------
@@ -1277,27 +1300,23 @@ def check_for_ambiguity(transliterator):
 
     Example
     -------
-    >>> from graphtransliterator import GraphTransliterator
-    >>> yaml_filename = '''
-    ... tokens:
-    ...   a: [class1, class2]
-    ...   ' ': [wb]
-    ... rules:
-    ...   <class1> a: AW
-    ...   <class2> a: AA # ambiguous rule
-    ... whitespace:
-    ...   default: ' '
-    ...   consolidate: True
-    ...   token_class: wb
-    ... '''
-    >>> gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
-    >>> gt.check_for_ambiguity()
-    WARNING:root:The pattern [{'a'}, {'a'}] can be matched by both:
-      <class1> a
-      <class2> a
-    ...
-    graphtransliterator.exceptions.AmbiguousTransliterationRulesException
-    >>>
+    .. jupyter-execute::
+
+      yaml_filename = '''
+      tokens:
+        a: [class1, class2]
+        ' ': [wb]
+      rules:
+        <class1> a: AW
+        <class2> a: AA # ambiguous rule
+      whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+      '''
+      gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
+      gt.check_for_ambiguity()
+
     """
     ambiguity = False
 
@@ -1439,16 +1458,6 @@ def _count_of_curr_and_next(rule):
     return len(rule.tokens) + len(rule.next_tokens or []) + len(rule.next_classes or [])
 
 
-# def _count_of_tokens(rule):
-#     return (
-#         len(rule.prev_classes or [])
-#         + len(rule.prev_tokens or [])
-#         + len(rule.tokens)
-#         + len(rule.next_tokens or [])
-#         + len(rule.next_classes or [])
-#     )
-
-
 def _prev_tokens_possible(rule, tokens_by_class):
     """`list` of set of possible preceding tokens for a rule."""
 
@@ -1495,9 +1504,10 @@ def _unescape_charnames(input_str):
     Examples
     --------
 
-    >>> from graphtransliterator import GraphTransliterator
-    >>> GraphTransliterator._unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
-    'Hi'
+    .. jupyter-execute::
+
+      GraphTransliterator._unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
+
     """
 
     def get_unicode_char(matchobj):

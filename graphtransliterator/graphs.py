@@ -27,9 +27,11 @@ class DirectedGraph:
 
     Examples
     -------
-    >>> from graphtransliterator import DirectedGraph
-    >>> DirectedGraph()
-    <graphtransliterator.graphs.DirectedGraph object at 0x106d1c908>
+    .. jupyter-execute::
+
+      from graphtransliterator import DirectedGraph
+      DirectedGraph()
+
     """
 
     __slots__ = "edge", "node", "edge_list"
@@ -69,15 +71,23 @@ class DirectedGraph:
 
         Examples
         --------
-        >>> g = DirectedGraph()
-        >>> g.add_node()
-        (0, {})
-        >>> g.add_node()
-        (1, {})
-        >>> g.add_edge(0,1, {'data_key_1': 'some edge data here'})
-        {'data_key_1': 'some edge data here'}
-        >>> g.edge
-        {0: {1: {'data_key_1': 'some edge data here'}}}
+        .. jupyter-execute::
+
+          g = DirectedGraph()
+          g.add_node()
+
+        .. jupyter-execute::
+
+          g.add_node()
+
+        .. jupyter-execute::
+
+          g.add_edge(0,1, {'data_key_1': 'some edge data here'})
+
+        .. jupyter-execute::
+
+          g.edge
+
         """
         if edge_data is None:
             edge_data = {}
@@ -121,13 +131,19 @@ class DirectedGraph:
 
         Examples
         --------
-        >>> g = DirectedGraph()
-        >>> g.add_node()
-        (0, {})
-        >>> g.add_node({'datakey1': 'data value'})
-        (1, {'datakey1': 'data value'})
-        >>> g.node
-        [{}, {'datakey1': 'data value'}]
+        .. jupyter-execute::
+
+          g = DirectedGraph()
+          g.add_node()
+
+        .. jupyter-execute::
+
+          g.add_node({'datakey1': 'data value'})
+
+        .. jupyter-execute::
+
+          g.node
+
         """
         if node_data is None:
             node_data = {}
@@ -159,20 +175,30 @@ class DirectedGraph:
 
         Examples
         --------
-        >>> g = DirectedGraph()
-        >>> g.add_node()
-        (0, {})
-        >>> g.add_node({'datakey1': 'data value'})
-        (1, {'datakey1': 'data value'})
-        >>> g.node
-        [{}, {'datakey1': 'data value'}]
-        >>> g.add_edge(0, 1)
-        {}
-        >>> g.add_edge(1, 0)
-        {}
-        >>> g.to_dict()
-        {'edge': {0: {1: {}}, 1: {0: {}}}, 'node': [{}, {'datakey1': 'data
-        value'}], 'edge_list': [(0, 1), (1, 0)]}
+        .. jupyter-execute::
+
+          g = DirectedGraph()
+          g.add_node()
+
+        .. jupyter-execute::
+
+          g.add_node({'datakey1': 'data value'})
+
+        .. jupyter-execute::
+
+          g.node
+
+        .. jupyter-execute::
+
+          g.add_edge(0, 1)
+
+        .. jupyter-execute::
+
+          g.add_edge(1, 0)
+
+        .. jupyter-execute::
+
+          g.to_dict()
 
         """
 
@@ -216,7 +242,7 @@ class VisitLoggingDirectedGraph(DirectedGraph):
 
     def _add_visit_logging(self):
         self.node = VisitLoggingList(self.node)
-        # Edges are stored be {HEAD: {TAIL: {DATA}}
+        # Edges are stored  {HEAD: {TAIL: {DATA}}
         # We only care about {TAIL: DATA} for checking coverage.
         # First, convert all {TAIL: {DATA}} to VisitLoggingDict
         # (This avoids settings {HEAD: {...}} to visited
@@ -224,11 +250,6 @@ class VisitLoggingDirectedGraph(DirectedGraph):
             self.edge[head] = VisitLoggingDict(self.edge[head])
         # Second, convert {HEAD: {...}} to VisitLoggingDict
         self.edge = VisitLoggingDict(self.edge)
-
-    #
-    # def __init__(self, **kwargs):  # , *args, **kwargs):
-    #     super().__init__(**kwargs)
-    #     self._add_visit_logging()
 
     def __init__(self, graph):
         """Initialize from existing graph."""
@@ -272,7 +293,7 @@ class VisitLoggingDirectedGraph(DirectedGraph):
         # Check edge coverage
         missed_edges = []
         for head in self.edge.keys():
-            for tail in self.edge.data[head].keys():  # access data to not mark visited
+            for tail in self.edge.data[head].keys():  # Access data to not mark visited
                 if tail not in self.edge.data[head].visited:
                     errors = True
                     missed_edges.append((head, tail))

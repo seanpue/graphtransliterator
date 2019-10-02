@@ -40,29 +40,35 @@ initialize from the loaded contents of YAML
 Here is a quick sample that parameterizes :class:`GraphTransliterator` using an easy
 reading YAML string (with comments):
 
->>> from graphtransliterator import GraphTransliterator
->>> yaml_ = """
-...   tokens:
-...     a: [vowel]               # type of token ("a") and its class (vowel)
-...     bb: [consonant, b_class] # type of token ("bb") and its classes (consonant, b_class)
-...     ' ': [wb]                # type of token (" ") and its class ("wb", for wordbreak)
-...   rules:
-...     a: A       # transliterate "a" to "A"
-...     bb: B      # transliterate "bb" to "B"
-...     a a: <2AS> # transliterate ("a", "a") to "<2AS>"
-...     ' ': ' '   # transliterate ' ' to ' '
-...   whitespace:
-...     default: " "        # default whitespace token
-...     consolidate: false  # whitespace should not be consolidated
-...     token_class: wb     # whitespace token class
-... """
->>> gt_one = GraphTransliterator.from_yaml(yaml_)
->>> gt_one.transliterate('a')
-'A'
->>> gt_one.transliterate('bb')
-'B'
->>> gt_one.transliterate('aabb')
-'<TWO_As>B'
+.. jupyter-execute::
+
+  from graphtransliterator import GraphTransliterator
+  yaml_ = """
+    tokens:
+      a: [vowel]               # type of token ("a") and its class (vowel)
+      bb: [consonant, b_class] # type of token ("bb") and its classes (consonant, b_class)
+      ' ': [wb]                # type of token (" ") and its class ("wb", for wordbreak)
+    rules:
+      a: A       # transliterate "a" to "A"
+      bb: B      # transliterate "bb" to "B"
+      a a: <2AS> # transliterate ("a", "a") to "<2AS>"
+      ' ': ' '   # transliterate ' ' to ' '
+    whitespace:
+      default: " "        # default whitespace token
+      consolidate: false  # whitespace should not be consolidated
+      token_class: wb     # whitespace token class
+  """
+  gt_one = GraphTransliterator.from_yaml(yaml_)
+  gt_one.transliterate('a')
+
+.. jupyter-execute::
+
+  gt_one.transliterate('bb')
+
+.. jupyter-execute::
+
+  gt_one.transliterate('aabb')
+
 
 The example above shows a very simple transliterator that replaces the input token "a"
 with "A", "bb" with "B", " " with " ", and two "a" in a row with "<2AS>". It does not
@@ -75,34 +81,42 @@ During transliteration, Graph Transliterator first attempts to convert the input
 into a list of tokens. This is done internally using
 :meth:`GraphTransliterator.tokenize`:
 
-  >>> gt_one.tokenize('abba')
-  [' ', 'a', 'bb', 'a', ' ']
+  .. jupyter-execute::
+
+    gt_one.tokenize('abba')
+
 
 Note that the default whitespace  token is added to the start and end of the input
 tokens.
 
 Tokens can be more than one character, and longer tokens are matched first:
 
->>> yaml_ = """
-...   tokens:
-...     a: []      # "a" token with no classes
-...     aa: []     # "aa" token with no classes
-...     ' ': [wb]  # " " token and its class ("wb", for wordbreak)
-...   rules:
-...     aa: <DOUBLE_A>  # transliterate "aa" to "<DOUBLE_A>"
-...     a: <SINGLE_A>   # transliterate "a" to "<SINGLE_A>"
-...   whitespace:
-...     default: " "        # default whitespace token
-...     consolidate: false  # whitespace should not be consolidated
-...     token_class: wb     # whitespace token class
-... """
->>> gt_two = GraphTransliterator.from_yaml(yaml_)
->>> gt_two.transliterate('a')
-'<SINGLE_A>'
->>> gt_two.transliterate('aa')
-'<DOUBLE_A>'
->>> gt_two.transliterate('aaa')
-'<DOUBLE_A><SINGLE_A>'
+.. jupyter-execute::
+
+  yaml_ = """
+    tokens:
+      a: []      # "a" token with no classes
+      aa: []     # "aa" token with no classes
+      ' ': [wb]  # " " token and its class ("wb", for wordbreak)
+    rules:
+      aa: <DOUBLE_A>  # transliterate "aa" to "<DOUBLE_A>"
+      a: <SINGLE_A>   # transliterate "a" to "<SINGLE_A>"
+    whitespace:
+      default: " "        # default whitespace token
+      consolidate: false  # whitespace should not be consolidated
+      token_class: wb     # whitespace token class
+  """
+  gt_two = GraphTransliterator.from_yaml(yaml_)
+  gt_two.transliterate('a')
+
+.. jupyter-execute::
+
+  gt_two.transliterate('aa')
+
+.. jupyter-execute::
+
+  gt_two.transliterate('aaa')
+
 
 Here the input "aaa" is transliterated as "<DOUBLE_A><SINGLE_A>", as the longer token
 "aa" is matched before "a".
@@ -113,8 +127,10 @@ dictionary, but internally the rules are stored as a dictionary of token strings
 to a set of token classes. They can be accessed using
 :attr:`GraphTransliterator.tokens`:
 
->>> gt_two.tokens
-{'a': set(), 'aa': set(), ' ': {'wb'}}
+.. jupyter-execute::
+
+  gt_two.tokens
+
 
 Transliteration Rules
 ---------------------
@@ -209,36 +225,42 @@ given context*. It does so by assigning a cost to each transliteration rule that
 decreases depending on the number of tokens required by the rule. More tokens decreases
 the cost of a rule causing it to be matched first:
 
->>> yaml_ = """
-...   tokens:
-...     a: []
-...     b: []
-...     c: [class_of_c]
-...     ' ': [wb]
-...   rules:
-...     a: <<A>>
-...     a b: <<AB>>
-...     b: <<B>>
-...     c: <<C>>
-...     ' ': _
-...     <class_of_c> a b: <<AB_after_C>>
-...   whitespace:
-...     default: " "
-...     consolidate: false
-...     token_class: wb
-... """
->>> gt_three = GraphTransliterator.from_yaml(yaml_)
->>> gt_three.transliterate("ab")  # should match rule "a b"
-'<<AB>>'
->>> gt_three.transliterate("cab") # should match rules: "c", and "<class_of_c> a b"
-'<<C>><<AB_after_C>>'
+.. jupyter-execute::
+
+  yaml_ = """
+    tokens:
+      a: []
+      b: []
+      c: [class_of_c]
+      ' ': [wb]
+    rules:
+      a: <<A>>
+      a b: <<AB>>
+      b: <<B>>
+      c: <<C>>
+      ' ': _
+      <class_of_c> a b: <<AB_after_C>>
+    whitespace:
+      default: " "
+      consolidate: false
+      token_class: wb
+  """
+  gt_three = GraphTransliterator.from_yaml(yaml_)
+  gt_three.transliterate("ab")  # should match rule "a b"
+
+.. jupyter-execute::
+
+  gt_three.transliterate("cab") # should match rules: "c", and "<class_of_c> a b"
+
 
 Internally, Graph Transliterator uses a special :class:`TransliterationRule` class.
 These can be accessed using :attr:`GraphTransliterator.rules`. Rules are sorted by cost,
 lowest to highest:
 
->>> gt_three.rules
-[TransliterationRule(production='<<AB_after_C>>', prev_classes=['class_of_c'], prev_tokens=None, tokens=['a', 'b'], next_tokens=None, next_classes=None, cost=0.22314355131420976), TransliterationRule(production='<<AB>>', prev_classes=None, prev_tokens=None, tokens=['a', 'b'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<<A>>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562), TransliterationRule(production='<<B>>', prev_classes=None, prev_tokens=None, tokens=['b'], next_tokens=None, next_classes=None, cost=0.5849625007211562), TransliterationRule(production='<<C>>', prev_classes=None, prev_tokens=None, tokens=['c'], next_tokens=None, next_classes=None, cost=0.5849625007211562), TransliterationRule(production='_', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+.. jupyter-execute::
+
+  gt_three.rules
+
 
 
 Whitespace Settings
@@ -260,35 +282,46 @@ The ``consolidate`` option may be useful in particular transliteration tasks. It
 replaces any sequential whitespace tokens in the input string with the default
 whitespace character. At the start and end of input, it removes any whitespace:
 
->>> yaml_ = """
-...   tokens:
-...     a: []
-...     ' ': [wb]
-...   rules:
-...     <wb> a: _A
-...     a <wb>: A_
-...     a: a
-...     ' ': ' '
-...   whitespace:
-...     default: " "        # default whitespace token
-...     consolidate: true   # whitespace should be consolidated
-...     token_class: wb     # whitespace token class
-... """
->>> gt = GraphTransliterator.from_yaml(yaml_)
->>> gt.transliterate('a')   # whitespace present at start of string
-'_A'
->>> gt.transliterate('aa')  # whitespace present at start and end of string
-'_AA_'
->>> gt.transliterate(' a')  # consolidate removes whitespace at start of string
-'_A'
->>> gt.transliterate('a ')  # consolidate removes whitespace at end of string
-'_A'
+.. jupyter-execute::
+
+  yaml_ = """
+    tokens:
+      a: []
+      ' ': [wb]
+    rules:
+      <wb> a: _A
+      a <wb>: A_
+      <wb> a <wb>: _A_
+      a: a
+      ' ': ' '
+    whitespace:
+      default: " "        # default whitespace token
+      consolidate: true   # whitespace should be consolidated
+      token_class: wb     # whitespace token class
+  """
+  gt = GraphTransliterator.from_yaml(yaml_)
+  gt.transliterate('a')   # whitespace present at start of string
+
+.. jupyter-execute::
+
+  gt.transliterate('aa')  # whitespace present at start and end of string
+
+.. jupyter-execute::
+
+  gt.transliterate(' a')  # consolidate removes whitespace at start of string
+
+.. jupyter-execute::
+
+  gt.transliterate('a ')  # consolidate removes whitespace at end of string
+
 
 Whitespace settings are stored internally as :class:`WhitespaceRules` and can be
 accessed using :attr:`GraphTransliterator.whitespace`:
 
->>> gt.whitespace
-WhitespaceRules(default=' ', token_class='wb', consolidate=False)
+.. jupyter-execute::
+
+  gt.whitespace
+
 
 On Match Rules
 --------------
@@ -305,29 +338,33 @@ The key consists of the token class names in angular brackets ("<classname>"), a
 previous classes to match are separated from the following classes by a "+". The
 production is the value of the dictionary:
 
->>> yaml_ = """
-...   tokens:
-...     a: [vowel]
-...     ' ': [wb]
-...   rules:
-...     a: A
-...     ' ': ' '
-...   whitespace:
-...     default: " "
-...     consolidate: false
-...     token_class: wb
-...   onmatch_rules:
-...     - <vowel> + <vowel>: ',' # add a comma between vowels
-...  """
->>> gt = GraphTransliterator.from_yaml(yaml_)
->>> gt.transliterate('aa')
-'A,A'
+.. jupyter-execute::
+
+  yaml_ = """
+    tokens:
+      a: [vowel]
+      ' ': [wb]
+    rules:
+      a: A
+      ' ': ' '
+    whitespace:
+      default: " "
+      consolidate: false
+      token_class: wb
+    onmatch_rules:
+      - <vowel> + <vowel>: ',' # add a comma between vowels
+   """
+  gt = GraphTransliterator.from_yaml(yaml_)
+  gt.transliterate('aa')
+
 
 On Match rules are stored internally as a :class:`OnMatchRule` and can be accessed using
 :attr:`GraphTransliterator.onmatch_rules`:
 
->>> gt.onmatch_rules
-[OnMatchRule(prev_classes=['vowel'], next_classes=['vowel'], production=',')]
+.. jupyter-execute::
+
+  gt.onmatch_rules
+
 
 
 Metadata
@@ -335,25 +372,27 @@ Metadata
 Graph Transliterator allows for the storage of metadata as another input parameter,
 ``metadata``. It is a dictionary, and fields can be added to it:
 
->>> yaml_ = """
-...   tokens:
-...     a: []
-...     ' ': [wb]
-...   rules:
-...     a: A
-...     ' ': ' '
-...   whitespace:
-...     default: " "
-...     consolidate: false
-...     token_class: wb
-...   metadata:
-...     author: Author McAuthorson
-...     version: 0.1.1
-...     description: A sample Graph Transliterator
-...   """
->>> gt = GraphTransliterator.from_yaml(yaml_)
->>> gt.metadata
-{'author': 'Author McAuthorson', 'version': '0.1.1', 'description': 'A sample Graph Transliterator'}
+.. jupyter-execute::
+
+  yaml_ = """
+    tokens:
+      a: []
+      ' ': [wb]
+    rules:
+      a: A
+      ' ': ' '
+    whitespace:
+      default: " "
+      consolidate: false
+      token_class: wb
+    metadata:
+      author: Author McAuthorson
+      version: 0.1.1
+      description: A sample Graph Transliterator
+    """
+  gt = GraphTransliterator.from_yaml(yaml_)
+  gt.metadata
+
 
 Unicode Support
 ---------------
@@ -361,25 +400,29 @@ Graph Transliterator allows Unicode characters to be specified by name, includin
 YAML files, using the format "\\N{UNICODE CHARACTER NAME}" or "\\u{####}" (where #### is
 the hexadecimal character code):
 
->>> yaml_ = """
-...   tokens:
-...     b: []
-...     c: []
-...     ' ': [wb]
-...   rules:
-...     b: \N{LATIN CAPITAL LETTER B}
-...     c: \u0043    # hexadecimal Unicode character code for 'C'
-...     ' ': ' '
-...   whitespace:
-...     default: " "
-...     consolidate: false
-...     token_class: wb
-...   """
->>> gt = GraphTransliterator.from_yaml(yaml_)
->>> gt.transliterate('b')
-'B'
->>> gt.transliterate('c')
-'C'
+.. jupyter-execute::
+
+  yaml_ = """
+    tokens:
+      b: []
+      c: []
+      ' ': [wb]
+    rules:
+      b: \N{LATIN CAPITAL LETTER B}
+      c: \u0043    # hexadecimal Unicode character code for 'C'
+      ' ': ' '
+    whitespace:
+      default: " "
+      consolidate: false
+      token_class: wb
+    """
+  gt = GraphTransliterator.from_yaml(yaml_)
+  gt.transliterate('b')
+
+.. jupyter-execute::
+
+  gt.transliterate('c')
+
 
 Configuring Directly
 --------------------
@@ -388,26 +431,28 @@ In addition to using :meth:`GraphTansliterator.from_yaml` and
 and initialized directly using basic Python types passed as dictionary to
 :meth:`GraphTransliterator.from_dict`
 
->>> settings = {
-...   'tokens': {'a': ['vowel'],
-...              ' ': ['wb']},
-...   'rules': [
-...       {'production': 'A', 'tokens': ['a']},
-...       {'production': ' ', 'tokens': [' ']}],
-...   'onmatch_rules': [
-...       {'prev_classes': ['vowel'],
-...        'next_classes': ['vowel'],
-...        'production': ','}],
-...   'whitespace': {
-...       'default': ' ',
-...       'consolidate': False,
-...       'token_class': 'wb'},
-...   'metadata': {
-...       'author': 'Author McAuthorson'}
-... }
->>> gt = GraphTransliterator.from_dict(settings)
->>> gt.transliterate('a')
-'A'
+.. jupyter-execute::
+
+  settings = {
+    'tokens': {'a': ['vowel'],
+               ' ': ['wb']},
+    'rules': [
+        {'production': 'A', 'tokens': ['a']},
+        {'production': ' ', 'tokens': [' ']}],
+    'onmatch_rules': [
+        {'prev_classes': ['vowel'],
+         'next_classes': ['vowel'],
+         'production': ','}],
+    'whitespace': {
+        'default': ' ',
+        'consolidate': False,
+        'token_class': 'wb'},
+    'metadata': {
+        'author': 'Author McAuthorson'}
+  }
+  gt = GraphTransliterator.from_dict(settings)
+  gt.transliterate('a')
+
 
 This feature can be useful if generating a Graph Transliterator using code as opposed to
 a configuration file.
@@ -419,31 +464,26 @@ If two rules of the same cost would match the same string(s) and those strings w
 be matched by a less costly rule, an :exc:`AmbiguousTransliterationRulesException`
 occurs. Details of all exceptions will be reported as a :meth:`logging.warning`:
 
->>> yaml_ = """
-... tokens:
-...   a: [class1, class2]
-...   b: []
-...   ' ': [wb]
-... rules:
-...   <class1> a: A
-...   <class2> a: AA # ambiguous rule
-...   <class1> b: BB
-...   b <class2>: BB # also ambiguous
-... whitespace:
-...   default: ' '
-...   consolidate: True
-...   token_class: wb
-... """
->>> gt = GraphTransliterator.from_yaml(yaml_)
-WARNING:root:The pattern [{'a'}, {'a'}, {'b', 'a', ' '}] can be matched by both:
-  <class1> a
-  <class2> a
-WARNING:root:The pattern [{'a'}, {'b'}, {'a'}] can be matched by both:
-  <class1> b
-  b <class2>
-...
-graphtransliterator.exceptions.AmbiguousTransliterationRulesException
->>>
+.. jupyter-execute::
+  :raises: AmbiguousTransliterationRulesException
+  :stderr:
+
+  yaml_ = """
+  tokens:
+    a: [class1, class2]
+    b: []
+    ' ': [wb]
+  rules:
+    <class1> a: A
+    <class2> a: AA # ambiguous rule
+    <class1> b: BB
+    b <class2>: BB # also ambiguous
+  whitespace:
+    default: ' '
+    consolidate: True
+    token_class: wb
+  """
+  gt = GraphTransliterator.from_yaml(yaml_)
 
 The warning shows the set of possible previous tokens, matched tokens, and next tokens
 as three sets.
@@ -468,20 +508,23 @@ Transliteration and Its Exceptions
 The main method of Graph Transliterator is
 :meth:`GraphTransliterator.transliterate`. It will return a string:
 
->>> GraphTransliterator.from_yaml(
-... '''
-... tokens:
-...   a: []
-...   ' ': [wb]
-... rules:
-...   a: A
-...   ' ': '_'
-... whitespace:
-...   default: ' '
-...   consolidate: True
-...   token_class: wb
-... ''').transliterate("a a")
-'A_A'
+.. jupyter-execute::
+  :raises: AmbiguousTransliterationRulesException
+
+  GraphTransliterator.from_yaml(
+  '''
+  tokens:
+    a: []
+    ' ': [wb]
+  rules:
+    a: A
+    ' ': '_'
+  whitespace:
+    default: ' '
+    consolidate: True
+    token_class: wb
+  ''').transliterate("a a")
+
 
 Details of transliteration error exceptions will be logged using
 :meth:`logging.warning`.
@@ -495,26 +538,29 @@ raise :exc:`UnrecognizableInputTokenException` when character(s) in the input st
 not correspond to any defined types of input tokens. In both cases, there will be a
 :meth:`logging.warning`:
 
->>> from graphtransliterator import GraphTransliterator
->>> yaml_ = """
-...   tokens:
-...    a: []
-...    ' ': [wb]
-...   rules:
-...     a: A
-...     ' ': ' '
-...   whitespace:
-...     default: " "
-...     consolidate: true
-...     token_class: wb
-... """
->>> GraphTransliterator.from_yaml(yaml_).transliterate("a!a") # ignore_errors=False
-Unrecognizable token ! at pos 1 of a!a
-  ...
-graphtransliterator.exceptions.UnrecognizableInputTokenException
->>> GraphTransliterator.from_yaml(yaml_, ignore_errors=True).transliterate("a!a") # ignore_errors=True
-Unrecognizable token ! at pos 1 of a!a
-'AA'
+.. jupyter-execute::
+  :raises: UnrecognizableInputTokenException
+  :stderr:
+
+  from graphtransliterator import GraphTransliterator
+  yaml_ = """
+    tokens:
+     a: []
+     ' ': [wb]
+    rules:
+      a: A
+      ' ': ' '
+    whitespace:
+      default: " "
+      consolidate: true
+      token_class: wb
+  """
+  GraphTransliterator.from_yaml(yaml_).transliterate("a!a") # ignore_errors=False
+
+
+.. jupyter-execute::
+
+  GraphTransliterator.from_yaml(yaml_, ignore_errors=True).transliterate("a!a") # ignore_errors=True
 
 No Matching Transliteration Rule
 --------------------------------
@@ -525,28 +571,30 @@ particular index in the index string. In that case, there will be a
 the token index will be advanced. Otherwise, there will be a
 :exc:`NoMatchingTransliterationRuleException`:
 
->>> yaml_='''
-...   tokens:
-...     a: []
-...     b: []
-...     ' ': [wb]
-...   rules:
-...     a: A
-...     b (a): B
-...   whitespace:
-...     default: ' '
-...     token_class: wb
-...     consolidate: False
-... '''
->>> gt = GraphTransliterator.from_yaml(yaml_)
->>> gt.transliterate("ab")
-No matching transliteration rule at token pos 2 of [' ', 'a', 'b', ' ']
-  ...
-graphtransliterator.exceptions.NoMatchingTransliterationRuleException
->>> gt.ignore_errors = True
->>> gt.transliterate("ab")
-No matching transliteration rule at token pos 2 of [' ', 'a', 'b', ' ']
-'A'
+.. jupyter-execute::
+  :raises: NoMatchingTransliterationRuleException
+  :stderr:
+
+  yaml_='''
+    tokens:
+      a: []
+      b: []
+      ' ': [wb]
+    rules:
+      a: A
+      b (a): B
+    whitespace:
+      default: ' '
+      token_class: wb
+      consolidate: False
+  '''
+  gt = GraphTransliterator.from_yaml(yaml_)
+  gt.transliterate("ab")
+
+.. jupyter-execute::
+
+  gt.ignore_errors = True
+  gt.transliterate("ab")
 
 Additional Methods
 ==================
@@ -578,31 +626,40 @@ a particular index, which is the rule that contains the largest number of requir
 tokens. The method also has the option :obj:`match_all` which, if set, returns all
 possible transliteration matches at a particular location:
 
->>> gt = GraphTransliterator.from_yaml('''
-...         tokens:
-...             a: []
-...             a a: []
-...             ' ': [wb]
-...         rules:
-...             a: <A>
-...             a a: <AA>
-...         whitespace:
-...             default: ' '
-...             consolidate: True
-...             token_class: wb
-... ''')
->>> tokens = gt.tokenize("aa")
->>> tokens # whitespace added to ends
-[' ', 'a', 'a', ' ']
->>> gt.match_at(1, tokens) # returns index to rule
-0
->>> gt.rules[gt.match_at(1, tokens)] # actual rule
-TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376)
->>> gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
-[0, 1]
->>>
->>> [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)] # actual rules, with match_all
-[TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+.. jupyter-execute::
+
+  gt = GraphTransliterator.from_yaml('''
+          tokens:
+              a: []
+              a a: []
+              ' ': [wb]
+          rules:
+              a: <A>
+              a a: <AA>
+          whitespace:
+              default: ' '
+              consolidate: True
+              token_class: wb
+  ''')
+  tokens = gt.tokenize("aa")
+  tokens # whitespace added to ends
+
+.. jupyter-execute::
+
+  gt.match_at(1, tokens) # returns index to rule
+
+.. jupyter-execute::
+
+  gt.rules[gt.match_at(1, tokens)] # actual rule
+
+.. jupyter-execute::
+
+  gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
+
+.. jupyter-execute::
+
+  [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)] # actual rules, with match_all
+
 
 Details of Matches
 ------------------
@@ -610,16 +667,22 @@ Details of Matches
 Each Graph Transliterator has a property :attr:`last_matched_rules` which returns a list
 of :obj:`TransliterationRule` of the previously matched transliteration rules:
 
->>> gt.transliterate("aaa")
-'<AA><A>'
->>> gt.last_matched_rules
-[TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+.. jupyter-execute::
+
+  gt.transliterate("aaa")
+
+.. jupyter-execute::
+
+  gt.last_matched_rules
+
 
 The particular tokens matched by those rules can be accessed using
 :attr:`last_matched_rule_tokens`:
 
->>> gt.last_matched_rule_tokens
-[['a', 'a'], ['a']]
+.. jupyter-execute::
+
+  gt.last_matched_rule_tokens
+
 
 Pruning of Rules
 ----------------
@@ -628,11 +691,17 @@ In particular cases, it may be useful to remove certain transliteration rules fr
 more robustly defined Graph Transliterator based on the string output produced by the
 rules. That can be done using :meth:`pruned_of`:
 
->>> gt.rules
-[TransliterationRule(production='<AA>', prev_classes=None, prev_tokens=None, tokens=['a', 'a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
->>> gt.pruned_of('<AA>').rules
-[TransliterationRule(production='<A>', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
->>> gt.pruned_of(['<A>', '<AA>']).rules
+.. jupyter-execute::
+
+  gt.rules
+
+.. jupyter-execute::
+
+  gt.pruned_of('<AA>').rules
+
+.. jupyter-execute::
+
+  gt.pruned_of(['<A>', '<AA>']).rules
 
 
 Internal Graph
@@ -649,22 +718,24 @@ The tree is an instance of :class:`DirectedGraph` that can be accessed using
 dictionary of attributes; a dictionary of edges keyed between the head and tail of an
 edge that contains a dictionary of edge attributes; and finally an edge list.
 
->>> gt = GraphTransliterator.from_yaml(
-...     """
-...     tokens:
-...       a: []
-...       ' ': [wb]
-...     rules:
-...       a: b
-...       <wb> a: B
-...       ' ': ' '
-...     whitespace:
-...       token_class: wb
-...       default: ' '
-...       consolidate: false
-...     """)
->>> gt.graph
-<graphtransliterator.graphs.DirectedGraph object at 0x101d0be48>
+.. jupyter-execute::
+
+  gt = GraphTransliterator.from_yaml(
+      """
+      tokens:
+        a: []
+        ' ': [wb]
+      rules:
+        a: b
+        <wb> a: B
+        ' ': ' '
+      whitespace:
+        token_class: wb
+        default: ' '
+        consolidate: false
+      """)
+  gt.graph
+
 
 Nodes
 -----
@@ -674,33 +745,43 @@ the root, is connected to all other nodes. A `token` node corresponds to a token
 been matched. Finally, `rule` nodes are leaf nodes (with no outgoing edges) that
 correspond to matched transliteration rules:
 
->>> gt.graph.node
-[{'type': 'Start', 'ordered_children': {'a': [1], ' ': [4]}}, {'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2, 3]}}, {'type': 'rule', 'rule_key': 0, 'rule': TransliterationRule(production='B', prev_classes=['wb'], prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.41503749927884376), 'accepting': True, 'ordered_children': {}}, {'type': 'rule', 'rule_key': 1, 'rule': TransliterationRule(production='b', prev_classes=None, prev_tokens=None, tokens=['a'], next_tokens=None, next_classes=None, cost=0.5849625007211562), 'accepting': True, 'ordered_children': {}}, {'type': 'token', 'token': ' ', 'ordered_children': {'__rules__': [5]}}, {'type': 'rule', 'rule_key': 2, 'rule': TransliterationRule(production=' ', prev_classes=None, prev_tokens=None, tokens=[' '], next_tokens=None, next_classes=None, cost=0.5849625007211562), 'accepting': True, 'ordered_children': {}}]
+.. jupyter-execute::
+
+  gt.graph.node
+
 
 Edges
 -----
 
 Edges between these nodes may have different constraints in their attributes:
 
->>> gt.graph.edge
-{0: {1: {'token': 'a', 'cost': 0.41503749927884376}, 4: {'token': ' ', 'cost': 0.5849625007211562}}, 1: {2: {'cost': 0.41503749927884376, 'constraints': {'prev_classes': ['wb']}}, 3: {'cost': 0.5849625007211562}}, 4: {5: {'cost': 0.5849625007211562}}}
+.. jupyter-execute::
+
+  gt.graph.edge
+
 
 Before the `token` nodes, there is a `token` constraint on the edge that must be matched
 before the transliterator can visit the token node:
 
->>> gt.graph.edge[0][1]
-{'token': 'a', 'cost': 0.41503749927884376}
+.. jupyter-execute::
+
+  gt.graph.edge[0][1]
+
 
 On the edges before rules there may be other `constraints`, such as certain tokens
 preceding or following tokens of the corresponding transliteration rule:
 
->>> gt.graph.edge[1][2]
-{'cost': 0.41503749927884376, 'constraints': {'prev_classes': ['wb']}}
+.. jupyter-execute::
+
+  gt.graph.edge[1][2]
+
 
 An edge list is also maintained that consists of a tuple of (head, tail):
 
->>> gt.graph.edge_list
-[(0, 1), (1, 2), (1, 3), (0, 4), (4, 5)]
+.. jupyter-execute::
+
+  gt.graph.edge_list
+
 
 Search and Preprocessing
 ------------------------
@@ -733,14 +814,18 @@ To optimize the search, during initialization an :obj:`ordered_children` diction
 added to each non-leaf node. Its values are a list of node indexes sorted by cost
 and keyed by the following `token`:
 
->>> gt.graph.node[0]
-{'type': 'Start', 'ordered_children': {'a': [1], ' ': [4]}}
+.. jupyter-execute::
+
+  gt.graph.node[0]
+
 
 Any `rule` connected to a node is added to each `ordered_children`. Any rule nodes
 immediately following the current node are keyed to :obj:`__rules__`:
 
->>> gt.graph.node[1]
-{'type': 'token', 'token': 'a', 'ordered_children': {'__rules__': [2, 3]}}
+.. jupyter-execute::
+
+  gt.graph.node[1]
+
 
 Because of this preprocessing, Graph Transliterator does not need to iterate through all
 of the outgoing edges of a node to find the next node to search.
