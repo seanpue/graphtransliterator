@@ -97,6 +97,7 @@ Sample Code and Graph
         version: "1.0.0"
   """).transliterate("hi")
 
+
 .. code-block:: none
 
   '¡ᴉɥ!'
