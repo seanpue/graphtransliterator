@@ -63,12 +63,12 @@ reading YAML string (with comments):
   gt_one.transliterate('a')
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_one.transliterate('bb')
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_one.transliterate('aabb')
 
@@ -84,10 +84,10 @@ During transliteration, Graph Transliterator first attempts to convert the input
 into a list of tokens. This is done internally using
 :meth:`GraphTransliterator.tokenize`:
 
-  .. jupyter-execute::
-    :continue_linenos:
+.. jupyter-execute::
+  :continue-linenos:
 
-    gt_one.tokenize('abba')
+  gt_one.tokenize('abba')
 
 
 Note that the default whitespace  token is added to the start and end of the input
@@ -115,12 +115,12 @@ Tokens can be more than one character, and longer tokens are matched first:
   gt_two.transliterate('a')
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_two.transliterate('aa')
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_two.transliterate('aaa')
 
@@ -135,7 +135,7 @@ to a set of token classes. They can be accessed using
 :attr:`GraphTransliterator.tokens`:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_two.tokens
 
@@ -258,7 +258,7 @@ the cost of a rule causing it to be matched first:
   gt_three.transliterate("ab")  # should match rule "a b"
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_three.transliterate("cab") # should match rules: "c", and "<class_of_c> a b"
 
@@ -268,7 +268,7 @@ These can be accessed using :attr:`GraphTransliterator.rules`. Rules are sorted 
 lowest to highest:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt_three.rules
 
@@ -315,17 +315,17 @@ whitespace character. At the start and end of input, it removes any whitespace:
   gt.transliterate('a')   # whitespace present at start of string
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.transliterate('aa')  # whitespace present at start and end of string
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.transliterate(' a')  # consolidate removes whitespace at start of string
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.transliterate('a ')  # consolidate removes whitespace at end of string
 
@@ -334,7 +334,7 @@ Whitespace settings are stored internally as :class:`WhitespaceRules` and can be
 accessed using :attr:`GraphTransliterator.whitespace`:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.whitespace
 
@@ -379,7 +379,7 @@ On Match rules are stored internally as a :class:`OnMatchRule` and can be access
 :attr:`GraphTransliterator.onmatch_rules`:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.onmatch_rules
 
@@ -440,7 +440,7 @@ the hexadecimal character code):
   gt.transliterate('b')
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.transliterate('c')
 
@@ -621,7 +621,7 @@ the token index will be advanced. Otherwise, there will be a
   gt.transliterate("ab")
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
   :stderr:
 
   gt.ignore_errors = True
@@ -677,22 +677,22 @@ possible transliteration matches at a particular location:
   tokens # whitespace added to ends
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.match_at(1, tokens) # returns index to rule
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.rules[gt.match_at(1, tokens)] # actual rule
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)] # actual rules, with match_all
 
@@ -709,7 +709,7 @@ of :obj:`TransliterationRule` of the previously matched transliteration rules:
   gt.transliterate("aaa")
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.last_matched_rules
 
@@ -718,7 +718,7 @@ The particular tokens matched by those rules can be accessed using
 :attr:`last_matched_rule_tokens`:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.last_matched_rule_tokens
 
@@ -736,12 +736,12 @@ rules. That can be done using :meth:`pruned_of`:
   gt.rules
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.pruned_of('<AA>').rules
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.pruned_of(['<A>', '<AA>']).rules
 
@@ -789,7 +789,7 @@ been matched. Finally, `rule` nodes are leaf nodes (with no outgoing edges) that
 correspond to matched transliteration rules:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.node
 
@@ -800,7 +800,7 @@ Edges
 Edges between these nodes may have different constraints in their attributes:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.edge
 
@@ -809,7 +809,7 @@ Before the `token` nodes, there is a `token` constraint on the edge that must be
 before the transliterator can visit the token node:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.edge[0][1]
 
@@ -818,7 +818,7 @@ On the edges before rules there may be other `constraints`, such as certain toke
 preceding or following tokens of the corresponding transliteration rule:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.edge[1][2]
 
@@ -826,7 +826,7 @@ preceding or following tokens of the corresponding transliteration rule:
 An edge list is also maintained that consists of a tuple of (head, tail):
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.edge_list
 
@@ -863,7 +863,7 @@ added to each non-leaf node. Its values are a list of node indexes sorted by cos
 and keyed by the following `token`:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.node[0]
 
@@ -872,7 +872,7 @@ Any `rule` connected to a node is added to each `ordered_children`. Any rule nod
 immediately following the current node are keyed to :obj:`__rules__`:
 
 .. jupyter-execute::
-  :continue_linenos:
+  :continue-linenos:
 
   gt.graph.node[1]
 
