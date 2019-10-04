@@ -191,3 +191,6 @@ texinfo_documents = [
 
 # testing autosummary
 # autosummary_generate = True
+
+def setup(app):
+   app.add_stylesheet('custom.css')

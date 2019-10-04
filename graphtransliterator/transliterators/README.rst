@@ -1,5 +1,3 @@
-.. module:: graphtransliterator
-
 =======================
 Bundled Transliterators
 =======================
@@ -8,6 +6,7 @@ Graph Transliterator includes bundled transliterators in a :class:`Bundled` subc
 :class:`GraphTransliterator` that can be used as follows:
 
 .. jupyter-execute::
+  :linenos:
 
   import graphtransliterator.transliterators as transliterators
   example_transliterator = transliterators.Example()
@@ -17,6 +16,7 @@ To access transliterator classes, use the iterator
 :func:`transliterators.iter_transliterators`:
 
 .. jupyter-execute::
+  :continue_linenos:
 
   bundled_iterator = transliterators.iter_transliterators()
   next(bundled_iterator)
@@ -25,6 +25,7 @@ To access the names of transliterator classes, use the iterator
 :func:`transliterators.iter_transliterators`:
 
 .. jupyter-execute::
+  :continue_linenos:
 
   bundled_names_iterator = transliterators.iter_names()
   next(bundled_names_iterator)
@@ -34,12 +35,14 @@ The actual bundled transliterators are submodules of
 of :class:`transliterators`:
 
 .. jupyter-execute::
+  :continue_linenos:
 
   from graphtransliterator.transliterators import Example
 
 Each instance of :class:`Bundled` contains a :py:attr:`Bundled.directory` attribute:
 
 .. jupyter-execute::
+  :continue_linenos:
 
   transliterator = Example()
   transliterator.directory
@@ -153,6 +156,7 @@ To browse metadata, you can use :func:`iter_transliterators`:
 
 
 .. jupyter-execute::
+  :continue_linenos:
 
   transliterator = next(transliterators.iter_transliterators())
   print(transliterator.metadata)

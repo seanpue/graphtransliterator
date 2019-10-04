@@ -19,6 +19,7 @@ History
 
 #.#.# (####-##-##)
 ------------------
+* added jupyter-sphinx documentation with line numbering
 * removed pkg_resources as source for version due to problem with loading from
   pythonpath for jupyter-sphinx in readthedocs, instead used __version__
 * adjust path in docs/conf.py to fix docs error
