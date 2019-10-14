@@ -25,9 +25,38 @@ Graph Transliterator
 A graph-based transliteration tool that lets you convert the symbols of one
 language or script to those of another using rules that you define.
 
-
 * Free software: MIT license
-* Documentation: https://graphtransliterator.readthedocs.io.
+* Documentation: https://graphtransliterator.readthedocs.io
+* Repository: https://github.com/seanpue/graphtransliterator
+
+Transliteration? What? Why?
+---------------------------
+
+Moving text or data from one script or encoding to another is a common problem:
+
+- Many languages are written in multiple scripts, and many people can only read one of
+  them. Moving between them can be a complex but necessary task in order to make
+  texts accessible.
+
+- The identification of names and locations, as well as machine translation,
+  benefit from transliteration.
+
+- Library systems often require metadata be in particular forms of romanization in
+  addition to the original script.
+
+- Linguists need to move between different methods of phonetic transcription.
+
+- Documents in legacy fonts must now be converted contemporary Unicode ones.
+
+- Complex-script languages are frequently approached in natural language processing and
+  in digital humanities research through transliteration, as it provides disambiguating
+  information about pronunciation, morphological boundaries, and unwritten elements not
+  present in the original script.
+
+Graph Transliterator abstracts transliteration, offering an "easy-reading" method for
+developing transliterators that does not require writing a complex program. It also
+contains bundled transliterators that are rigorously tested. These can be expanded to
+handle many transliteration tasks.
 
 
 Features
@@ -66,7 +95,7 @@ Features
   in the "easy reading" YAML format
 * Constructs and uses a **directed tree** and performs a **best-first search**
   to find the most specific transliteration rule in a given context
-* Includes **bundled transliterators** that can be add to and that check for full
+* Includes **bundled transliterators** that can be added to and that check for full
   test coverage of the nodes and edges of the internal graph and any "on match" rules
 
 Sample Code and Graph
@@ -104,8 +133,8 @@ Sample Code and Graph
 .. figure:: https://raw.githubusercontent.com/seanpue/graphtransliterator/master/docs/_static/sample_graph.png
    :alt: sample graph
 
-   Sample directed tree created by Graph Transliterator. The `rule` nodes are in double circles,
-   and `token` nodes  are single circles. The numbers are the cost of the particular
-   edge, and less costly edges are searched first. Previous token class
-   (``prev_classes``) and previous token (``prev_tokens``) constraints
-   are found on edges before leaf rule nodes.
+   Sample directed tree created by Graph Transliterator. The `rule` nodes are in double
+   circles, and `token` nodes  are single circles. The numbers are the cost of the
+   particular edge, and less costly edges are searched first. Previous token classes
+   and previous tokens that must be present are found as constraints on the arcs
+   incident to the terminal leaf `rule` nodes.

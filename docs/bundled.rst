@@ -26,7 +26,6 @@ To access transliterator classes, use the iterator
 :func:`transliterators.iter_transliterators`:
 
 .. jupyter-execute::
-  :continue-linenos:
 
   bundled_iterator = transliterators.iter_transliterators()
   next(bundled_iterator)
@@ -35,7 +34,6 @@ To access the names of transliterator classes, use the iterator
 :func:`transliterators.iter_transliterators`:
 
 .. jupyter-execute::
-  :continue-linenos:
 
   bundled_names_iterator = transliterators.iter_names()
   next(bundled_names_iterator)
@@ -45,7 +43,6 @@ The actual bundled transliterators are submodules of
 of :class:`transliterators`:
 
 .. jupyter-execute::
-  :continue-linenos:
 
   from graphtransliterator.transliterators import Example
 
@@ -53,7 +50,6 @@ of :class:`transliterators`:
 Each instance of :class:`Bundled` contains a :py:attr:`Bundled.directory` attribute:
 
 .. jupyter-execute::
-  :continue-linenos:
 
   transliterator = Example()
   transliterator.directory
@@ -82,6 +78,10 @@ during testing (see `tests/test_coverage.py`).
 It logs visits to nodes, edges, and onmatch rules. The tests are found in a subdirectory
 of the transliterator called "tests" and consists of a YAML file consisting of a
 dictionary keyed from transliteration input to correct output, e.g.:
+
+.. literalinclude:: ../graphtransliterator/transliterators/example/tests/example_tests.yaml
+  :language: yaml
+  :linenos:
 
 .. jupyter-execute::
   :hide-code:
@@ -167,7 +167,6 @@ To browse metadata, you can use :func:`iter_transliterators`:
 
 
 .. jupyter-execute::
-  :continue-linenos:
 
   transliterator = next(transliterators.iter_transliterators())
   print(transliterator.metadata)
