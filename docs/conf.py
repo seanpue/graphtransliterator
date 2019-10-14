@@ -193,7 +193,5 @@ texinfo_documents = [
 
 jupyter_sphinx_linenos = True
 jupyter_sphinx_continue_linenos = True
-#jupyter_sphinx_truncate_traceback = True
-# jupyter_sphinx_stderr_classes = ["admonition", "warning"]
 def setup(app):
    app.add_stylesheet('custom.css')
