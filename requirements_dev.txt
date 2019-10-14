@@ -1,4 +1,4 @@
-pip==19.2.3
+pip==19.3
 bumpversion==0.5.3
 coverage==4.5.4
 flake8==3.7.8
