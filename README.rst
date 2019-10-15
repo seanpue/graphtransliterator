@@ -125,10 +125,9 @@ Sample Code and Graph
         version: "1.0.0"
   """).transliterate("hi")
 
-
 .. code-block:: none
 
-  '¡ᴉɥ!'
+    '¡ᴉɥ!'
 
 .. figure:: https://raw.githubusercontent.com/seanpue/graphtransliterator/master/docs/_static/sample_graph.png
    :alt: sample graph
