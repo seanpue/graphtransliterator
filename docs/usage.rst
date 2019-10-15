@@ -12,9 +12,11 @@
 Usage
 =====
 
-To use Graph Transliterator in a project::
+To use Graph Transliterator in a project:
 
-    from graphtransliterator import GraphTransliterator
+.. jupyter-execute::
+
+  from graphtransliterator import GraphTransliterator
 
 Overview
 ========
