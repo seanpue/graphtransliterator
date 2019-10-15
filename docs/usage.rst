@@ -53,7 +53,6 @@ Here is a quick sample that parameterizes :class:`GraphTransliterator` using an 
 reading YAML string (with comments):
 
 .. jupyter-execute::
-  :linenos:
 
   from graphtransliterator import GraphTransliterator
   yaml_ = """
