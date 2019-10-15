@@ -54,19 +54,27 @@ Each instance of :class:`Bundled` contains a :py:attr:`Bundled.directory` attrib
   transliterator = Example()
   transliterator.directory
 
-Each will contain an easy-reading YAML file that you can view, as well as a JSON
-dump of the transliterator for quick loading:
+Each will contain an easy-reading YAML file that you can view:
 
-.. jupyter-execute::
-  :hide-code:
+.. literalinclude:: ../graphtransliterator/transliterators/example/example.yaml
+  :language: yaml
 
-  import os
-  with open(os.path.join(transliterator.directory, "example.yaml"), "r") as f:
-    print("--Easy-reading YAML (for clarity, development, and debugging)--")
-    print(f.read()+"\n")
-  with open(os.path.join(transliterator.directory, "example.json"), "r") as f:
-    print("--JSON (for speed)--")
-    print(f.read())
+There is also a JSON dump of the transliterator for quick loading:
+
+.. literalinclude:: ../graphtransliterator/transliterators/example/example.json
+  :language: json
+
+..
+.. .. jupyter-execute::
+..   :hide-code:
+..
+..   import os
+..   with open(os.path.join(transliterator.directory, "example.yaml"), "r") as f:
+..     print("--Easy-reading YAML (for clarity, development, and debugging)--")
+..     print(f.read()+"\n")
+..   with open(os.path.join(transliterator.directory, "example.json"), "r") as f:
+..     print("--JSON (for speed)--")
+..     print(f.read())
 
 Test Coverage of Bundled Transliterators
 ----------------------------------------
@@ -82,13 +90,6 @@ dictionary keyed from transliteration input to correct output, e.g.:
 .. literalinclude:: ../graphtransliterator/transliterators/example/tests/example_tests.yaml
   :language: yaml
   :linenos:
-
-.. jupyter-execute::
-  :hide-code:
-
-  with open(os.path.join(transliterator.directory, "tests/example_tests.yaml"), "r") as f:
-    print("-- YAML Tests for Example (with complete graph and onmatch rule coverage) --\n")
-    print(f.read())
 
 Once the checks are completed, the tests check that all components of the graph and all
 of the onmatch rules have been visited.
