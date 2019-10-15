@@ -483,6 +483,8 @@ be matched by a less costly rule, an :exc:`AmbiguousTransliterationRulesExceptio
 occurs. Details of all exceptions will be reported as a :meth:`logging.warning`:
 
 .. jupyter-execute::
+  :hide-code:
+  :hide-output:
 
   %xmode Minimal
 
