@@ -47,7 +47,7 @@ of :class:`transliterators`:
   from graphtransliterator.transliterators import Example
 
 
-Each instance of :class:`Bundled` contains a :py:attr:`Bundled.directory` attribute:
+Each instance of :class:`Bundled` contains a :py:attr:`directory` attribute:
 
 .. jupyter-execute::
 
@@ -81,18 +81,18 @@ Test Coverage of Bundled Transliterators
 
 Each bundled transliterators requires rigorous testing: every node and edge, as
 well as any onmatch rules, if applicable, must be visited. A separate subclass,
-:class:`CoverageTransliterator` (in `core.py`) of :class:`GraphTransliterator` is used
-during testing (see `tests/test_coverage.py`).
+:class:`CoverageTransliterator` (in ```core.py``) of :class:`GraphTransliterator` is used
+during testing (see ``tests/test_coverage.py``).
 It logs visits to nodes, edges, and onmatch rules. The tests are found in a subdirectory
-of the transliterator called "tests" and consists of a YAML file consisting of a
+of the transliterator named "tests". They are in a YAML file consisting of a
 dictionary keyed from transliteration input to correct output, e.g.:
 
 .. literalinclude:: ../graphtransliterator/transliterators/example/tests/example_tests.yaml
   :language: yaml
   :linenos:
 
-Once the checks are completed, the tests check that all components of the graph and all
-of the onmatch rules have been visited.
+Once the checks are completed, Graph Transliterator check that all components of the
+graph and all of the onmatch rules have been visited.
 
 Class Structure and Naming Conventions
 --------------------------------------
