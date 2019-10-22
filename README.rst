@@ -80,6 +80,7 @@ Features
 
   * an **"easy reading"** `YAML <https://yaml.org>`_ format that lets you
     quickly craft settings for the transliteration tool
+  * a JSON dump of a transliterator (quicker!)
   * **"direct"** settings, perhaps passed programmatically, using a dictionary
 
 * **Automatically orders rules** by the number of tokens in a
@@ -95,7 +96,7 @@ Features
   in the "easy reading" YAML format
 * Constructs and uses a **directed tree** and performs a **best-first search**
   to find the most specific transliteration rule in a given context
-* Includes **bundled transliterators** that can be added to and that check for full
+* Includes **bundled transliterators** that can be appended that check for full
   test coverage of the nodes and edges of the internal graph and any "on match" rules
 * Includes a command-line interface to perform transliteration and other tasks
 

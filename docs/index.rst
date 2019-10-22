@@ -8,12 +8,12 @@
 ..     - Repository: https://github.com/seanpue/graphtransliterator/
 .. -------------------------------------------------------------------------------------
 
-.. include:: ../README.rst
+
 
 .. toctree::
    :maxdepth: 2
 
-
+   about
    installation
    usage
    bundled
@@ -23,6 +23,7 @@
    contributing
    api
    authors
+   kudos
    history
 
 Indices and tables

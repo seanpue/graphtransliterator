@@ -36,6 +36,11 @@ Core Classes
 .. autoclass:: CoverageTransliterator
    :members:
 
+Bundled Transliterators
+-----------------------
+.. automodule:: graphtransliterator.transliterators
+  :members:
+
 Graph Classes
 -------------
 

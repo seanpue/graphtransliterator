@@ -18,6 +18,7 @@ History
 #.#.# (####-##-##)
 ------------------
 
+* added kudos.rst to docs to acknowledge inspirational projects
 * added advanced tutorial on bundling a transliterator.
 * added cli.rst to docs
 * fixed regex in get_unicode_char to allow hyphen

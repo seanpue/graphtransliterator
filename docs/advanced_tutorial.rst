@@ -19,7 +19,7 @@ Contributions to Graph Transliterator are strongly encouraged!
 
 You will make a very simple transliterator while going through the steps of bundling it
 into Graph Transliterator.
-
+  
 Git Basics: Fork, Branch, Sync, Commit
 ======================================
 

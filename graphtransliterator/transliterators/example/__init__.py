@@ -3,7 +3,7 @@ from graphtransliterator.transliterators import Bundled
 
 class Example(Bundled):
     """
-    Example Bundled Graph Transliterator
+    Example Bundled Graph Transliterator.
     """
 
     def __init__(self, **kwargs):

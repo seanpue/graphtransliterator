@@ -12,6 +12,8 @@
 Usage
 =====
 
+Download code on this page: :jupyter-download:script:`usage`
+
 To use Graph Transliterator in a project:
 
 .. jupyter-execute::
@@ -54,7 +56,6 @@ reading YAML string (with comments):
 
 .. jupyter-execute::
 
-  from graphtransliterator import GraphTransliterator
   yaml_ = """
     tokens:
       a: [vowel]               # type of token ("a") and its class (vowel)
