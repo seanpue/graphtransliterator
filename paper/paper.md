@@ -31,20 +31,20 @@ disambiguation. In natural language processing tasks, transliteration has opened
 possibilities, especially in machine translation [@prabhakar2018machine] and
 named-entity recognition [@chen2018report; @merhav-ash-2018-design].
 
-``Graph Transliterator`` is a Python package that makes this process more
-accessible by using a standardized method for encoding rules for
-transliteration. It lets those rules be entered in an "easy reading" YAML
-format [@YAMLAintMarkup] or directly, using standard Python data types. It
-differs from other rule-based software [@GeneralTransformsICUa] designed for handling
-transliteration in two primary ways. First, other software works directly on an
-input string, performing operations based on matches of particular characters.
-``Graph Transliterator`` instead tokenizes the input into user-defined
-transliteration token types. Then it applies transliteration rules defined for
-those token types, rather than matching and manipulating the original
-characters of the input string. Second, other software requires a defined
-sequence of transliteration operations. ``Graph Transliterator`` instead
-automatically orders its transliteration rules so that the rule involving the
-largest number of tokens is applied first.
+``Graph Transliterator`` is a Python package and command-line program that makes this
+process more accessible by using a standardized method for encoding rules for
+transliteration. It lets those rules be entered in an "easy reading" YAML format
+[@YAMLAintMarkup] or directly, using standard Python data types. It also includes
+bundled transliterators that are rigorously tested and to which users can contribute.
+It differs from other rule-based software [@GeneralTransformsICUa] designed for handling
+transliteration in two primary ways. First, other software works directly on an input
+string, performing operations based on matches of particular characters. ``Graph
+Transliterator`` instead tokenizes the input into user-defined transliteration token
+types. Then it applies transliteration rules defined for those token types, rather than
+matching and manipulating the original characters of the input string. Second, other
+software requires a defined sequence of transliteration operations. ``Graph
+Transliterator`` instead automatically orders its transliteration rules so that the rule
+involving the largest number of tokens is applied first.
 
 Each instance of ``Graph Transliterator`` is parameterized by the acceptable
 token types of the input string as well as by transliteration rules. The
