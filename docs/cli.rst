@@ -6,11 +6,9 @@ Graph Transliterator has a simple command line interface with four commands:
 ``dump``, ``generate-tests``, ``test``, and ``transliterate``.
 
 
-.. jupyter-kernel:: bash
-    :id: cli_kernel
-
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator --help
 
 
@@ -21,6 +19,7 @@ The ``dump`` command will output the specified transliterator as JSON:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator dump --help
 
 It require a ``--from`` or ``-f`` option with two arguments. The first argument
@@ -32,6 +31,7 @@ To load a bundled transliterator, give its name, which will be in camel case:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator dump --from bundled Example
 
 To load from a yaml file, give the name of the file:
@@ -39,6 +39,7 @@ To load from a yaml file, give the name of the file:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator dump --from yaml_file ../graphtransliterator/transliterators/example/example.yaml
 
 If you want to check for ambiguity in the transliterator before the dump, use the
@@ -47,6 +48,7 @@ If you want to check for ambiguity in the transliterator before the dump, use th
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator dump --from bundled Example --check-ambiguity
 
 
@@ -60,6 +62,7 @@ transliterators:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator generate-tests --help
 
 
@@ -71,6 +74,7 @@ actual JSON, or the name of a YAML file). Ambiguity checking can be turned on us
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator generate-tests --from bundled Example
 
 
@@ -81,6 +85,12 @@ The `test` command tests a bundled transliterator:
 
 .. jupyter-execute::
 
+  from jupyter_client import kernelspec
+  kernelspec.find_kernel_specs()
+
+.. jupyter-execute::
+
+  %%bash
   graphtransliterator test --help
 
 It can only be used with bundled transliterators, and so it  only needs the name of the
@@ -89,6 +99,7 @@ You can write the tests first and then begin developing the transliterator:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator test Example
 
 
@@ -99,6 +110,7 @@ The `transliterate` command will transliterate any following arguments:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate --help
 
 
@@ -113,20 +125,24 @@ only one input string, it will return a string:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate --from bundled Example a
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate -f json_file ../graphtransliterator/transliterators/example/example.json a
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate -f yaml_file ../graphtransliterator/transliterators/example/example.yaml a
 
 Otherwise, it will return a list:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate -f bundled Example a a
 
 The `transliterate` command also an optional ``--to`` or ``-t`` command that specifies
@@ -134,16 +150,20 @@ the output format, a `python` string (default) or a `json` string:
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate --from bundled Example --to python a
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate --from bundled Example --to json a
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate --from bundled Example --to python a a
 
 .. jupyter-execute::
 
+  %%bash
   graphtransliterator transliterate --from bundled Example --to json a a
