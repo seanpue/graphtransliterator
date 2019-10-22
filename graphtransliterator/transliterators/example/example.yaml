@@ -1,9 +1,12 @@
 tokens:
   a: [vowel]
   ' ': [whitespace]
+  b: [consonant]
 rules:
   a: A
+  b: B
   ' ': ' '
+  (<consonant> a) b (a <consonant>):  "!B!"
 onmatch_rules:
   - <vowel> + <vowel>: ","
 whitespace:
@@ -21,6 +24,6 @@ metadata:
   keywords:
     - example
   project_urls:
-    # Documentation: https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample -- could link to readthedocs?
-    # Source: https://github.com/seanpue/graphtransliterator/tree/bundled_transliterators/graphtransliterator/transliterators/sample
+    Documentation: https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example
+    Source: https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example
     Tracker: https://github.com/seanpue/graphtransliterator/issues

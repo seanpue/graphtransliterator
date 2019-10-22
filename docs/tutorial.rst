@@ -8,13 +8,13 @@
 ..     - Repository: https://github.com/seanpue/graphtransliterator/
 .. -------------------------------------------------------------------------------------
 
-Tutorial
-========
+Tutorial: Using GraphTransliterator
+===================================
 
 Graph Transliterator is designed to allow you to quickly develop rules for
 transliterating between languages and scripts. In this tutorial you will use a
 portion of Graph Transliterators features, including its token matching,
-class-based matching, and on match rules.
+class-based matching, and on match rules, using the :class:`GraphTransliterator` class.
 
 Tutorial Overview
 -----------------
@@ -166,8 +166,7 @@ of whitespace tokens:
 
 Metadata Definitions
 ~~~~~~~~~~~~~~~~~~~~
-Graph Transliterator also allows metadata to be added to its settings. There
-are no restrictions on these values, so you can put whatever is useful:
+Graph Transliterator also allows metadata to be added to its settings:
 
 .. code-block:: yaml
 
@@ -474,8 +473,3 @@ You can access the directed tree used by GraphTransliterator using
 .. jupyter-execute::
 
     gt.graph
-
-Bundling the Transliterator
----------------------------
-Graph Transliterator welcomes contributions. To see a sample of how to bundle this
-particular transliterator, see ...

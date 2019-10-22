@@ -1513,11 +1513,11 @@ def _unescape_charnames(input_str):
     def get_unicode_char(matchobj):
         """Get Unicode character value from escaped character sequences."""
         charname = matchobj.group(0)
-        match = re.match(r"\\N{([A-Z ]+)}", charname)
+        match = re.match(r"\\N{([-A-Z ]+)}", charname)
         char = unicodedata.lookup(match.group(1))  # KeyError if invalid
         return char
 
-    return re.sub(r"\\N{[A-Z ]+}", get_unicode_char, input_str)
+    return re.sub(r"\\N{[-A-Z ]+}", get_unicode_char, input_str)
 
 
 class CoverageTransliterator(GraphTransliterator):
@@ -1525,32 +1525,12 @@ class CoverageTransliterator(GraphTransliterator):
 
     Used to confirm that tests cover the entire graph and onmatch_rules."""
 
-    # @classmethod
     def __init__(self, *args, **kwargs):
         # Initialize from GraphTransliterator
         GraphTransliterator.__init__(self, *args, **kwargs)
-        # Convert  _graph and _onmatch_rules to visit tracking objects
+        # Convert  _graph and _onmatch_rules to visit-tracking objects
         self._graph = VisitLoggingDirectedGraph(self._graph)
         self._onmatch_rules = VisitLoggingList(self._onmatch_rules)
-
-    # def __init__(self, gt, **kwargs):
-    #     """Initialize from existing Graph Transliterator."""
-    #     super(CoverageTransliterator, self).__init__(
-    #         gt.tokens,
-    #         gt.rules,
-    #         gt.whitespace,
-    #         onmatch_rules=gt.onmatch_rules,
-    #         metadata=gt.metadata,
-    #         ignore_errors=gt.ignore_errors,
-    #         check_ambiguity=kwargs.get("check_ambiguity", True),
-    #         onmatch_rules_lookup=gt.onmatch_rules_lookup,
-    #         tokens_by_class=gt.tokens_by_class,
-    #         graph=gt.graph,
-    #         tokenizer_pattern=gt.tokenizer_pattern,
-    #         graphtransliterator_version=gt.graphtransliterator_version,
-    #     )
-    #     self._graph = VisitLoggingDirectedGraph(self._graph)
-    #     self._onmatch_rules = _VisitLoggingList(self._onmatch_rules)
 
     def clear_visited(self):
         """Clear visited flags from graph and onmatch_rules."""

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 with open("README.rst") as readme_file:
     readme = readme_file.read()
 
-requirements = ["marshmallow", "pyyaml"]
+requirements = ["Click", "marshmallow", "pyyaml"]
 
 setup_requirements = ["pytest-runner"]
 
@@ -39,6 +39,11 @@ setup(
     package_data={
         # include yaml and json files, e.g. in bundled transliterators
         "": ["*.yaml", "*.json"]
+    },
+    entry_points={
+        'console_scripts': [
+            'graphtransliterator=graphtransliterator.cli:main',
+        ],
     },
     python_requires=">=3.5",
     setup_requires=setup_requirements,

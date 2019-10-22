@@ -17,7 +17,9 @@
    installation
    usage
    bundled
+   cli
    tutorial
+   advanced_tutorial
    contributing
    api
    authors

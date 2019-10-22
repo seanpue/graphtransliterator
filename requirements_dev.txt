@@ -1,9 +1,10 @@
-pip==19.2.3
+bash_kernel
 bumpversion==0.5.3
 coverage==4.5.4
 flake8==3.7.8
 git+https://github.com/seanpue/jupyter-sphinx.git@dev
 marshmallow==3.0.5
+pip==19.2.3
 pytest-runner==5.1
 pytest==5.1.2
 sphinx-issues==1.2.0

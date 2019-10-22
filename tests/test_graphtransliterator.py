@@ -2,22 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `graphtransliterator` package."""
-import graphtransliterator
-import pytest
-import re
-import yaml
+# from click.testing import CliRunner
+from graphtransliterator import process
 from graphtransliterator.core import GraphTransliterator
 from graphtransliterator.core import _easyreading_rule
-from graphtransliterator import process
-from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
-from graphtransliterator.graphs import DirectedGraph
 from graphtransliterator.exceptions import (
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
     AmbiguousTransliterationRulesException,
 )
+from graphtransliterator.graphs import DirectedGraph
+from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
 from itertools import combinations
 from marshmallow import ValidationError
+import graphtransliterator
+import pytest
+import re
+import yaml
 
 yaml_for_test = r"""
 tokens:

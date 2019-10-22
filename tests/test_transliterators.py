@@ -51,12 +51,12 @@ def test_duplicate_transliterator_error():
 
 
 def test_iter_names():
-    """Test transliterators.iter_names()"""
+    """Test transliterators.iter_names()."""
     assert "Example" in [_ for _ in transliterators.iter_names()]
 
 
 def test_iter_transliterators():
-    """Test transliterators.iter_transliterators()"""
+    """Test transliterators.iter_transliterators()."""
     example = [
         _
         for _ in transliterators.iter_transliterators()
@@ -72,10 +72,17 @@ def test_transliterators_metadata():
 
 
 def test_bundled():
-    # check that Bundled exists
+    """Check that Bundled exists."""
     assert transliterators.Bundled
 
 
+def test_bundled_new():
+    """Test new() function of Bundled."""
+    assert transliterators.Example.new(method="json")
+    assert transliterators.Example.new(method="yaml")
+
+
 def test_no_coverage():
+    """Test no coverage option."""
     x = transliterators.Example()
     x.from_JSON(coverage=False)

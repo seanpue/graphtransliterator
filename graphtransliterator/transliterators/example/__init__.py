@@ -15,6 +15,5 @@ class Example(Bundled):
             **kwargs
         )  # defaults to check_ambiguity=True, check_coverage=True
 
-        # When ready, cut the previous line and initialize more quickly from JSON:
-
-        # self.init_from_JSON(**kwargs) # check_ambiguity=False, check_coverage=False
+        # When ready, remove the previous lines and initialize more quickly from JSON:
+        # self.from_JSON(**kwargs) # check_ambiguity=False, check_coverage=False

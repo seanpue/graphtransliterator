@@ -46,7 +46,7 @@ Moving text or data from one script or encoding to another is a common problem:
 
 - Linguists need to move between different methods of phonetic transcription.
 
-- Documents in legacy fonts must now be converted contemporary Unicode ones.
+- Documents in legacy fonts must now be converted to contemporary Unicode ones.
 
 - Complex-script languages are frequently approached in natural language processing and
   in digital humanities research through transliteration, as it provides disambiguating
@@ -97,6 +97,7 @@ Features
   to find the most specific transliteration rule in a given context
 * Includes **bundled transliterators** that can be added to and that check for full
   test coverage of the nodes and edges of the internal graph and any "on match" rules
+* Includes a command-line interface to perform transliteration and other tasks
 
 Sample Code and Graph
 ---------------------
@@ -135,5 +136,5 @@ Sample Code and Graph
    Sample directed tree created by Graph Transliterator. The `rule` nodes are in double
    circles, and `token` nodes  are single circles. The numbers are the cost of the
    particular edge, and less costly edges are searched first. Previous token classes
-   and previous tokens that must be present are found as constraints on the arcs
+   and previous tokens that must be present are found as constraints on the edges
    incident to the terminal leaf `rule` nodes.

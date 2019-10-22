@@ -63,8 +63,10 @@ Once you have a copy of the source, you can install it with:
 Required modules
 ----------------
 
-Graph Transliterator requires two Python modules, `marshmallow`_ and `pyyaml`_. These
-modules will be installed automatically using the methods described above.
+Graph Transliterator requires three Python modules, `click`_, `marshmallow`_ and
+`pyyaml`_. These modules will be installed automatically using the methods described
+above.
 
+.. _click: https://pypi.org/project/click/
 .. _marshmallow: https://pypi.org/project/marshmallow/
 .. _pyyaml: https://pypi.org/project/PyYAML/

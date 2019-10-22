@@ -4,9 +4,7 @@ History
 
 [Unreleased - Maybe]
 --------------------
-* Add CLI
 * Save match location in tokenize
-* Add tests directly to YAML files
 * Allow insertion of transliteration error messages into output
 * Fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
@@ -20,6 +18,13 @@ History
 #.#.# (####-##-##)
 ------------------
 
+* added advanced tutorial on bundling a transliterator.
+* added cli.rst to docs
+* fixed regex in get_unicode_char to allow hyphen
+* added cli.py and adjusted setup.py
+* updated tutorial
+* added statement of need to README. Thanks :user:`rlskoeser`.
+* Removed continue-linenos jupyter-sphinx directive in favor of configuration settings
 * added preface to documentation source files with links to production version, etc.
   Thanks :user:`rlskoeser`.
 * added custom css for jupyter-sphinx cells

@@ -31,7 +31,7 @@ To access transliterator classes, use the iterator
   next(bundled_iterator)
 
 To access the names of transliterator classes, use the iterator
-:func:`transliterators.iter_transliterators`:
+:func:`transliterators.iter_names`:
 
 .. jupyter-execute::
 
@@ -45,7 +45,6 @@ of :class:`transliterators`:
 .. jupyter-execute::
 
   from graphtransliterator.transliterators import Example
-
 
 Each instance of :class:`Bundled` contains a :py:attr:`directory` attribute:
 
@@ -80,18 +79,18 @@ Test Coverage of Bundled Transliterators
 ----------------------------------------
 
 Each bundled transliterators requires rigorous testing: every node and edge, as
-well as any onmatch rules, if applicable, must be visited. A separate subclass,
-:class:`CoverageTransliterator` (in ```core.py``) of :class:`GraphTransliterator` is used
-during testing (see ``tests/test_coverage.py``).
+well as any onmatch rules, if applicable, must be visited. A separate subclass
+:class:`CoverageTransliterator`  of :class:`GraphTransliterator` is used
+during testing.
+
 It logs visits to nodes, edges, and onmatch rules. The tests are found in a subdirectory
 of the transliterator named "tests". They are in a YAML file consisting of a
 dictionary keyed from transliteration input to correct output, e.g.:
 
 .. literalinclude:: ../graphtransliterator/transliterators/example/tests/example_tests.yaml
   :language: yaml
-  :linenos:
 
-Once the checks are completed, Graph Transliterator check that all components of the
+Once the tests are completed, Graph Transliterator checks that all components of the
 graph and all of the onmatch rules have been visited.
 
 Class Structure and Naming Conventions
@@ -121,22 +120,20 @@ the name of the transliterator:
 The bundled transliterator will:
 
 - include both an easy-reading YAML file ``{{source_to_target}}.yaml`` and a
-  JSON file ``{{source_to_target}}.json``
+  JSON file ``{{source_to_target}}.json``.
 - have tests in a YAML format consisting of a dictionary keyed from transliteration to
-  correct output, in ``{{source_to_target}}_tests.yaml`` It must include complete test
+  correct output in ``{{source_to_target}}_tests.yaml``. It must include complete test
   coverage of its graph. Every node and edge of the graph must be visited during the
-  course of the tests, as well as every on-match rule. Each onmatch rule must be
+  course of the tests, as well as every on-match rule. Each on-match rule must be
   utilized during the course of the tests.
-- include metadata about the transliterator in its easy-reading YAML file. (See
-  Metadata Requirements below.)
+- include metadata about the transliterator in its easy-reading YAML file.
 - have an optional custom test file ``test_{{source_to_target.py}}``. This is useful
-  during development. The YAML tests will be run by ``tests/tests_transliterators.py``
+  during development.
 
 Metadata Requirements
 ---------------------
 Each :class:`Bundled` transliterator can include the following metadata fields. These
-fields are a subset of the metadata of :mod:`setuptools`. Long descriptions are not
-currently included.
+fields are a subset of the metadata of :mod:`setuptools`.
 
 name (`str`)
   Name of the transliterator, e.g. "source_to_target".
@@ -169,5 +166,6 @@ To browse metadata, you can use :func:`iter_transliterators`:
 
 .. jupyter-execute::
 
+  import pprint
   transliterator = next(transliterators.iter_transliterators())
-  print(transliterator.metadata)
+  pprint.pprint(transliterator.metadata)

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from graphtransliterator.core import GraphTransliterator, CoverageTransliterator
 import os
 import sys
@@ -29,13 +30,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
 
     def init_from(self, method=None, **kwargs):
         """Initialize from easy-reading YAML or from JSON."""
-        # Save initialization data in case it becomes a CoverageTransliterator
-        # self.yaml_test_file = os.path.join(
-        #     os.path.dirname(sys.modules[self.__module__].__file__),
-        #     "tests",
-        #     self.__module__ + "_tests.yaml",
-        # )
-        # self.orig_module = self.__module__
+
         filename = os.path.join(
             self.directory, self.name + "." + method  # error if None
         )
@@ -50,10 +45,6 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             _super = CoverageTransliterator
         else:
             _super = GraphTransliterator
-        #
-        # # Initialize class using super class's __init__
-        # # using created GraphTransliterator's values
-        #
         _super.__init__(
             self,
             gt._tokens,
@@ -82,12 +73,24 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         self.init_from(
             method="yaml", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs
         )
+        return self
 
     def from_JSON(self, check_ambiguity=False, coverage=False, **kwargs):
         """Initialize from bundled JSON file (best for speed)."""
         self.init_from(
             method="json", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs
         )
+
+    @classmethod
+    def new(cls, method="json", **kwargs):
+        """Return a new class instance from method (json/yaml)."""
+        assert method in ("json", "yaml"), "Unknown method."
+        new_ = cls.__new__(cls)
+        if method == "json":
+            new_.from_JSON(**kwargs)
+        elif method == "yaml":
+            new_.from_YAML(**kwargs)
+        return new_
 
     def load_yaml_tests(self):
         """Iterator for YAML tests.
@@ -110,7 +113,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             Dictionary of test from source -> correct target.
         """
         for source, target in transliteration_tests.items():
-            source = str(source)  # covert to str
+            source = str(source)
             target = str(target)
             result = self.transliterate(source)
             assert (
@@ -125,3 +128,49 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         transliteration_tests = self.load_yaml_tests()
         self.run_tests(transliteration_tests)
         return True
+
+    def generate_yaml_tests(self, file=None):
+        """Generates YAML tests with complete coverage.
+
+        Uses the first token in a class as a sample. Assumes for onmatch rules that
+        the first sample token in a class has a unique production, which may not be the
+        case. These should be checked and edited."""
+
+        tests = OrderedDict()
+
+        def sample_token(token_class):
+            """Return first token in token class."""
+
+            tokens_in_class = self.tokens_by_class[token_class]
+            return list(tokens_in_class)[0]
+
+        for rule in self.rules:
+            input_ = ""
+            if rule.prev_classes:
+                for _ in rule.prev_classes:
+                    input_ += sample_token(_)
+            if rule.prev_tokens:
+                for _ in rule.prev_tokens:
+                    input_ += _
+            for _ in rule.tokens:
+                input_ += _
+            if rule.next_tokens:
+                for _ in rule.next_tokens:
+                    input_ += _
+            if rule.next_classes:
+                for _ in rule.next_classes:
+                    input_ += sample_token(_)
+            tests[input_] = self.transliterate(input_)
+
+        if self.onmatch_rules:
+            for rule in self.onmatch_rules:
+                input_ = ""
+                for _ in rule.prev_classes:
+                    token = sample_token(_)
+                    input_ += token
+                for _ in rule.prev_classes:
+                    token = sample_token(_)
+                    input_ += token
+                tests[input_] = self.transliterate(input_)
+
+        return yaml.dump(dict(tests), allow_unicode=True)

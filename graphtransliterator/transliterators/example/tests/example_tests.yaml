@@ -1,6 +1,8 @@
 # YAML declaration of tests for bundled Graph Transliterator
 # These are in the form of a dictionary.
 # The key is the source text, and the value is the correct transliteration.
-a: A
 ' ': ' '
-aa: 'A,A'
+a: A
+aa: A,A
+babab: BA!B!AB
+b: B
