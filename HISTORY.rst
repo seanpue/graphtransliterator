@@ -13,6 +13,10 @@ History
 * add static typing with mypy
 
 
+0.4.3 (2019-10-24)
+------------------
+* fixed requirements_dev.txt
+
 0.4.2 (2019-10-24)
 ------------------
 * fixed README.rst for PyPI
