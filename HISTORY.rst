@@ -12,6 +12,11 @@ History
 * add precommit to run black, etc.
 * add static typing with mypy
 
+
+0.4.2 (2019-10-24)
+------------------
+* fixed README.rst for PyPI
+
 0.4.1 (2019-10-24)
 ------------------
 * fixed links to code in docs
