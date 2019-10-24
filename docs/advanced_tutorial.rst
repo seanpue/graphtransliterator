@@ -257,7 +257,7 @@ Tests can be generated using the command line interface:
 .. code-block:: bash
 
     mkdir tests
-    graphtransliterator tests --from bundled  > tests/[name_of_your_transliterator]
+    graphtransliterator generate-tests --from bundled [name_of_your_transliterator] > tests/[name_of_your_transliterator]
 
 Testing the Transliterator
 ==========================

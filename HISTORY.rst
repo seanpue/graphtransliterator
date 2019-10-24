@@ -13,6 +13,11 @@ History
 * add static typing with mypy
 
 
+0.4.4 (2019-10-24)
+------------------
+* moved README.rst to include in index.rst
+* fixed error in advanced_tutorial.rst
+
 0.4.3 (2019-10-24)
 ------------------
 * fixed requirements_dev.txt
