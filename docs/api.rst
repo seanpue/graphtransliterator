@@ -38,53 +38,54 @@ Core Classes
 
 Bundled Transliterators
 -----------------------
+
 .. automodule:: graphtransliterator.transliterators
   :members:
 
 Graph Classes
 -------------
 
-.. autoclass:: DirectedGraph
+.. autoclass:: graphtransliterator.DirectedGraph
    :members:
 
-.. autoclass:: VisitLoggingDirectedGraph
+.. autoclass:: graphtransliterator.VisitLoggingDirectedGraph
    :members:
 
 Rule Classes
 ------------
 
-.. autoclass:: TransliterationRule
+.. autoclass:: graphtransliterator.TransliterationRule
 
-.. autoclass:: OnMatchRule
+.. autoclass:: graphtransliterator.OnMatchRule
 
-.. autoclass:: WhitespaceRules
+.. autoclass:: graphtransliterator.WhitespaceRules
 
 Exceptions
 ----------
 
-.. autoexception:: GraphTransliteratorException
+.. autoexception:: graphtransliterator.GraphTransliteratorException
 
-.. autoexception:: AmbiguousTransliterationRulesException
+.. autoexception:: graphtransliterator.AmbiguousTransliterationRulesException
 
-.. autoexception:: NoMatchingTransliterationRuleException
+.. autoexception:: graphtransliterator.NoMatchingTransliterationRuleException
 
-.. autoexception:: UnrecognizableInputTokenException
+.. autoexception:: graphtransliterator.UnrecognizableInputTokenException
 
 Schemas
 -------
 
-.. autoclass:: DirectedGraphSchema
+.. autoclass:: graphtransliterator.DirectedGraphSchema
 
-.. autoclass:: EasyReadingSettingsSchema
+.. autoclass:: graphtransliterator.EasyReadingSettingsSchema
 
-.. autoclass:: GraphTransliteratorSchema
+.. autoclass:: graphtransliterator.GraphTransliteratorSchema
 
-.. autoclass:: OnMatchRuleSchema
+.. autoclass:: graphtransliterator.OnMatchRuleSchema
 
-.. autoclass:: SettingsSchema
+.. autoclass:: graphtransliterator.SettingsSchema
 
-.. autoclass:: TransliterationRuleSchema
+.. autoclass:: graphtransliterator.TransliterationRuleSchema
 
-.. autoclass:: WhitespaceDictSettingsSchema
+.. autoclass:: graphtransliterator.WhitespaceDictSettingsSchema
 
-.. autoclass:: WhitespaceSettingsSchema
+.. autoclass:: graphtransliterator.WhitespaceSettingsSchema

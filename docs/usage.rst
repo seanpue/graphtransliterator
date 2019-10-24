@@ -12,7 +12,7 @@
 Usage
 =====
 
-Download code on this page: :jupyter-download:script:`usage`
+<<Download code on this page here: :jupyter-download:script:`usage`>>
 
 To use Graph Transliterator in a project:
 

@@ -11,3 +11,4 @@ Contributors
 ------------
 
 * Valentino Constantinou `@vc1492a <https://github.com/vc1492a>`_
+* Rebecca Sutton Koeser `@rlskoeser <https://github.com/rlskoeser>`_

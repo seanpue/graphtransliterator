@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Initializes bundled transliterators.
 
-Calls ``add_transliterators``.
+graphtransliterator.transliterators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Bundled transliterators are loaded by explicitly importing
+:mod:`graphtransliterator.transliterators`. Each is an instance of
+:mod:`graphtransliterator.bundled.Bundled`.
 """
 from .bundled import Bundled  # noqa
 from .schemas import MetadataSchema  # noqa
 import inspect
 import pkgutil
 
-__all__ = []
+__all__ = ['Bundled', 'MetadataSchema', 'iter_names', 'iter_transliterators']
 
-# path_of = {}  # {str: str} transliterator paths, set by ``add_transliterators``
+_transliterators = []
 
 
 def _skip_class_name(name):
@@ -54,6 +57,7 @@ def add_transliterators(path=__path__):
             assert len(_module.__path__) == 1  # There should be only one path
             globals()[name] = getattr(_module, name)
             __all__.append(name)
+            _transliterators.append(name)
 
 
 add_transliterators()
@@ -61,7 +65,7 @@ add_transliterators()
 
 def iter_names():
     """Iterate through bundled transliterator names."""
-    for _ in __all__:
+    for _ in _transliterators:
         yield _
 
 

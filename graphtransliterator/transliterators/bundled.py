@@ -28,7 +28,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         """Returns name of module. Overwritten during testing."""
         return self.__module__
 
-    def init_from(self, method=None, **kwargs):
+    def _init_from(self, method=None, **kwargs):
         """Initialize from easy-reading YAML or from JSON."""
 
         filename = os.path.join(
@@ -67,23 +67,37 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
 
         Parameters
         ----------
-        check_ambiguity: `bool`
-            Should ambiguity be checked.
+        check_ambiguity: `bool`,
+            Should ambiguity be checked. Default is `True.`
+        coverage: `bool`
+            Should test coverage be checked. Default is `True`.
         """
-        self.init_from(
+        self._init_from(
             method="yaml", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs
         )
         return self
 
     def from_JSON(self, check_ambiguity=False, coverage=False, **kwargs):
-        """Initialize from bundled JSON file (best for speed)."""
-        self.init_from(
+        """Initialize from bundled JSON file (best for speed).
+
+        Parameters
+        ----------
+        check_ambiguity: `bool`,
+            Should ambiguity be checked. Default is `False.`
+        coverage: `bool`
+            Should test coverage be checked. Default is `False`."""
+        self._init_from(
             method="json", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs
         )
 
     @classmethod
     def new(cls, method="json", **kwargs):
-        """Return a new class instance from method (json/yaml)."""
+        """Return a new class instance from method (json/yaml).
+
+        Parameters
+        ----------
+        method: `str` (`json` or `yaml`)
+            How to load bundled transliterator, JSON or YAML."""
         assert method in ("json", "yaml"), "Unknown method."
         new_ = cls.__new__(cls)
         if method == "json":

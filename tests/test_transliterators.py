@@ -13,7 +13,7 @@ def _test_bundled_transliterator(transliterator):
             """Initializes test class. Sets directory and name to superclass's."""
             self._module_dir = transliterator._module_dir
             self._module_name = transliterator._module_name
-            self.init_from(method, check_ambiguity=True, coverage=True)
+            self._init_from(method, check_ambiguity=True, coverage=True)
 
         class_name = "Test{}From{}".format(
             type(transliterator).__name__, method.upper()

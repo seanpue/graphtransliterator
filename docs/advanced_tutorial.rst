@@ -8,6 +8,8 @@
 ..     - Repository: https://github.com/seanpue/graphtransliterator/
 .. -------------------------------------------------------------------------------------
 
+.. _`Advanced Tutorial`:
+
 ============================================
 Advanced Tutorial: Bundling a Transliterator
 ============================================
@@ -19,7 +21,7 @@ Contributions to Graph Transliterator are strongly encouraged!
 
 You will make a very simple transliterator while going through the steps of bundling it
 into Graph Transliterator.
-  
+
 Git Basics: Fork, Branch, Sync, Commit
 ======================================
 
@@ -201,8 +203,8 @@ Alternatively, you can use the ``make-json`` command:
 The JSON file loads more quickly than the YAML one, but it is not necessary during
 development.
 
-`__init__.py`
--------------
+__init__.py
+-----------
 
 The `__init__.py` will create the bundled transliterator, which is a subclass of
 `GraphTransliterator` named `Bundled`.

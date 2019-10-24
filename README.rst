@@ -29,8 +29,8 @@ language or script to those of another using rules that you define.
 * Documentation: https://graphtransliterator.readthedocs.io
 * Repository: https://github.com/seanpue/graphtransliterator
 
-Transliteration? What? Why?
----------------------------
+Transliteration... What? Why?
+-----------------------------
 
 Moving text or data from one script or encoding to another is a common problem:
 
@@ -53,10 +53,12 @@ Moving text or data from one script or encoding to another is a common problem:
   information about pronunciation, morphological boundaries, and unwritten elements not
   present in the original script.
 
-Graph Transliterator abstracts transliteration, offering an "easy-reading" method for
+Graph Transliterator abstracts transliteration, offering an "easy reading" method for
 developing transliterators that does not require writing a complex program. It also
 contains bundled transliterators that are rigorously tested. These can be expanded to
 handle many transliteration tasks.
+
+Contributions are very welcome!
 
 
 Features
@@ -80,7 +82,7 @@ Features
 
   * an **"easy reading"** `YAML <https://yaml.org>`_ format that lets you
     quickly craft settings for the transliteration tool
-  * a JSON dump of a transliterator (quicker!)
+  * a `JSON <https://json.org>`_ dump of a transliterator (quicker!)
   * **"direct"** settings, perhaps passed programmatically, using a dictionary
 
 * **Automatically orders rules** by the number of tokens in a
@@ -96,8 +98,9 @@ Features
   in the "easy reading" YAML format
 * Constructs and uses a **directed tree** and performs a **best-first search**
   to find the most specific transliteration rule in a given context
-* Includes **bundled transliterators** that can be appended that check for full
-  test coverage of the nodes and edges of the internal graph and any "on match" rules
+* Includes **bundled transliterators** that *you* can add to
+  hat check for full test coverage of the nodes and edges of the internal graph and any
+  "on match" rules
 * Includes a command-line interface to perform transliteration and other tasks
 
 Sample Code and Graph

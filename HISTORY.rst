@@ -15,9 +15,15 @@ History
 [Unreleased-TODO]
 -----------------
 
-#.#.# (####-##-##)
+0.4.0 (2019-10-24)
 ------------------
-
+* added bundled transliterators to api.rst
+* adjustments to usage.rst
+* adjustments to tutorial.rst
+* fixes to docs (linking module)
+* adjustments to advanced_tutorial.rst
+* adjustments to README.rst
+* fixes to AUTHORS.rst
 * added kudos.rst to docs to acknowledge inspirational projects
 * added advanced tutorial on bundling a transliterator.
 * added cli.rst to docs
