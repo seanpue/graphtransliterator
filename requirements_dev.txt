@@ -1,5 +1,6 @@
 bash_kernel==0.7.2
 bumpversion==0.5.3
+Click==7.0
 coverage==4.5.4
 flake8==3.7.8
 git+https://github.com/seanpue/jupyter-sphinx.git@dev
@@ -7,6 +8,7 @@ marshmallow==3.0.5
 pip==19.2.3
 pytest-runner==5.1
 pytest==5.1.2
+pyyaml==5.1.2
 sphinx-issues==1.2.0
 Sphinx==2.2.0
 tox==3.14.0
