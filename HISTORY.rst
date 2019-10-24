@@ -14,7 +14,6 @@ History
 
 0.4.1 (2019-10-24)
 ------------------
-
 * fixed links to code in docs
 * fixed link to NOTICE
 * added acknowledgements
