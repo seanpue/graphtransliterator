@@ -12,8 +12,12 @@ History
 * add precommit to run black, etc.
 * add static typing with mypy
 
-[Unreleased-TODO]
------------------
+0.4.1 (2019-10-24)
+------------------
+
+* fixed links to code in docs
+* fixed link to NOTICE
+* added acknowledgements
 
 0.4.0 (2019-10-24)
 ------------------

@@ -23,6 +23,7 @@
    contributing
    api
    authors
+   acknowledgements
    kudos
    history
 

@@ -1,3 +1,13 @@
+.. -------------------------------------------------------------------------------------
+.. Note:
+..     This is a documentation source file for Graph Transliterator.
+..     Certain links and other features will not be accessible from here.
+.. Links:
+..     - Documentation: https://graphtransliterator.readthedocs.org
+..     - PyPI: https://pypi.org/project/graphtransliterator/
+..     - Repository: https://github.com/seanpue/graphtransliterator/
+.. -------------------------------------------------------------------------------------
+
 Kudos
 =====
 
@@ -11,7 +21,7 @@ serializer/deserializer).
 
 Those from which code/text has been adopted are mentioned in `NOTICE`_.
 
-.. _NOTICE: https://github.com/seanpue/graphtransliterator/NOTICE
+.. _NOTICE: https://github.com/seanpue/graphtransliterator/blob/master/NOTICE
 .. _astropy: https://docs.astropy.org/en/stable/development/docrules.html
 .. _click: https://github.com/pallets/click
 .. _numpy: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
