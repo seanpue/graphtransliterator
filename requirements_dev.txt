@@ -10,7 +10,7 @@ pytest-runner==5.1
 pytest==5.2.1
 pyyaml==5.1.2
 sphinx-issues==1.2.0
-Sphinx==2.2.0
+Sphinx==2.2.1
 tox==3.14.0
 twine==1.15.0
 watchdog==0.9.0
