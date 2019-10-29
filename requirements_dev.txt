@@ -2,7 +2,7 @@ bash_kernel==0.7.2
 bumpversion==0.5.3
 Click==7.0
 coverage==4.5.4
-flake8==3.7.8
+flake8==3.7.9
 git+https://github.com/seanpue/jupyter-sphinx.git@dev
 marshmallow==3.2.1
 pip==19.3.1
