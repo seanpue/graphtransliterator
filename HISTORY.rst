@@ -13,6 +13,10 @@ History
 * add static typing with mypy
 
 
+0.4.5 (2019-10-31)
+------------------
+* Adjusted make-json CLI test to restore original example.json
+
 0.4.4 (2019-10-24)
 ------------------
 * moved README.rst to include in index.rst
@@ -265,4 +269,4 @@ History
 
 0.1.0 (2019-05-30)
 ------------------
-* First release on PyPI. 
+* First release on PyPI.

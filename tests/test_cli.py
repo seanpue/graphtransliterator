@@ -6,8 +6,10 @@ import click
 from click.testing import CliRunner
 from graphtransliterator import cli
 from graphtransliterator import GraphTransliterator
+from graphtransliterator.transliterators import Example
 from io import StringIO
 import json
+import os
 import yaml
 
 
@@ -124,5 +126,12 @@ def test_cli_test():
 def test_make_json():
     """Tests `make-json` command."""
     runner = CliRunner()
+    # Because make-json generates a JSON file, which may differ slightly from original,,
+    # save and later restore original JSON file.
+    orig_filename = os.path.join(Example().directory, "example.json")
+    with open(orig_filename, "r") as f:
+        orig_json = f.read()
     test_result = runner.invoke(cli.main, ["make-json", "Example"])
     assert test_result.exit_code == 0
+    with open(orig_filename, "w") as f:
+        f.write(orig_json)
