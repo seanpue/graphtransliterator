@@ -15,4 +15,4 @@ deploy:
   on:
     repo: seanpue/graphtransliterator
     python: 3.7
-    tags: false
+#    tags: false
