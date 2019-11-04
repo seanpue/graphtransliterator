@@ -13,7 +13,7 @@ History
 * add static typing with mypy
 
 
-#.#.# (####-##-##)
+0.4.6 (2019-11-04)
 ------------------
 * switched to latest jupyter-sphinx
 * travis adjustments
