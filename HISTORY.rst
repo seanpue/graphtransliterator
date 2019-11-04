@@ -13,6 +13,11 @@ History
 * add static typing with mypy
 
 
+#.#.# (####-##-##)
+------------------
+* switched to latest jupyter-sphinx
+* travis adjustments
+
 0.4.5 (2019-10-31)
 ------------------
 * Adjusted make-json CLI test to restore original example.json
