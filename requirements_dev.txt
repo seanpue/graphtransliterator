@@ -4,7 +4,7 @@ Click==7.0
 coverage==4.5.4
 flake8==3.7.8
 git+https://github.com/seanpue/jupyter-sphinx.git@dev
-marshmallow==3.2.1
+marshmallow==3.2.2
 pip==19.3.1
 pytest-runner==5.1
 pytest==5.2.1
