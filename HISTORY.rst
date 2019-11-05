@@ -13,6 +13,10 @@ History
 * add static typing with mypy
 
 
+0.4.10 (2019-11-04)
+-------------------
+* fixed typo in requirements_dev.txt
+
 0.4.9 (2019-11-04)
 ------------------
 * quick fix to requirements_dev.txt due to readthedocs problem with not reading changes
