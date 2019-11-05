@@ -13,10 +13,14 @@ History
 * add static typing with mypy
 
 
+0.4.8 (2091-11-04)
+------------------
+* twine update to 2.0
+
 0.4.7 (2019-11-04)
 ------------------
 * temp switch back to dev version of jupyter-sphinx for overflow error
-* updated twine to 2.0 so dropped Python 3.5 support
+* Dropped Python 3.5 support for twine 2.0 update
 
 0.4.6 (2019-11-04)
 ------------------
