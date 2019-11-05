@@ -13,7 +13,11 @@ History
 * add static typing with mypy
 
 
-0.4.8 (2091-11-04)
+0.4.9 (2019-11-04)
+------------------
+* quick fix to requirements_dev.txt due to readthedocs problem with not reading changes
+
+0.4.8 (2019-11-04)
 ------------------
 * twine update to 2.0
 
