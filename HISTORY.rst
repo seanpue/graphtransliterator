@@ -29,7 +29,7 @@ History
 * removed extraneous files
 * updated development status in setup.py
 * set to current jupyter-sphinx
-b
+
 0.4.10 (2019-11-04)
 -------------------
 * fixed typo in requirements_dev.txt
