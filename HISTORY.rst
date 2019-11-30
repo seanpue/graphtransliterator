@@ -12,13 +12,16 @@ History
 * add precommit to run black, etc.
 * add static typing with mypy
 
+1.0.1 (2019-11-29)
+------------------
+* updated requirements_dev.txt
 
 1.0.0 (2019-11-26)
 ------------------
 * removed extraneous files
-* updated development status
+* updated development status in setup.py
 * set to current jupyter-sphinx
-
+b
 0.4.10 (2019-11-04)
 -------------------
 * fixed typo in requirements_dev.txt
