@@ -12,6 +12,10 @@ History
 * add precommit to run black, etc.
 * add static typing with mypy
 
+1.0.4 (2019-11-30)
+------------------
+* updates to docs
+
 1.0.3 (2019-11-30)
 ------------------
 * update to paper
