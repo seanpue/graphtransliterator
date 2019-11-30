@@ -16,7 +16,7 @@ convert between transliteration systems.
 
 __author__ = """A. Sean Pue"""
 __email__ = "pue@msu.edu"
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 # Core classes
 from .core import CoverageTransliterator, GraphTransliterator, GraphTransliteratorSchema
