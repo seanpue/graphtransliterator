@@ -193,7 +193,5 @@ texinfo_documents = [
 
 jupyter_sphinx_linenos = True
 jupyter_sphinx_continue_linenos = True
-##def setup(app):
-##   app.add_stylesheet('custom.css')
-##   app.add_stylesheet('jupyter-sphinx.css')
-##
+
+# html_css_files = ['custom.css']

@@ -13,6 +13,12 @@ History
 * add static typing with mypy
 
 
+1.0.0 (2019-11-26)
+------------------
+* removed extraneous files
+* updated development status
+* set to current jupyter-sphinx
+
 0.4.10 (2019-11-04)
 -------------------
 * fixed typo in requirements_dev.txt
