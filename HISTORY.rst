@@ -12,6 +12,14 @@ History
 * add precommit to run black, etc.
 * add static typing with mypy
 
+1.0.3 (2019-11-30)
+------------------
+* update to paper
+
+1.0.2 (2019-11-30)
+------------------
+* updates for Zenodo
+
 1.0.1 (2019-11-29)
 ------------------
 * updated requirements_dev.txt

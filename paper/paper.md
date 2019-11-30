@@ -76,7 +76,7 @@ as `" "`, and `a` as `b` unless it follows a token of class `wb` (for
 wordbreak), in which case it renders `a` as `B`. The `rule` nodes are in double
 circles, and `token` nodes  are single circles. The numbers are the cost of
 the particular edge, and less costly edges are searched first. Previous token
-class (`prev_classes`) constraints are found on the edge before the leaf rule
+class (`prev_classes`) constraints are found on the edge incident to the leaf rule
 node.\label{figure1}](figure1.png)
 
 # How It Works
