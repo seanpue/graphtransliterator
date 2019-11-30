@@ -20,10 +20,10 @@ Graph Transliterator
      :target: https://github.com/ambv/black
 
 .. image:: https://img.shields.io/pypi/pyversions/graphtransliterator
-       :alt: PyPI - Python Version
+     :alt: PyPI - Python Version
 
  .. image:: https://zenodo.org/badge/189464608.svg
-    :target: https://zenodo.org/badge/latestdoi/189464608
+      :target: https://zenodo.org/badge/latestdoi/189464608
 
 A graph-based transliteration tool that lets you convert the symbols of one
 language or script to those of another using rules that you define.
