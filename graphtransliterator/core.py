@@ -422,7 +422,6 @@ class GraphTransliterator:
 
         while stack:  # LIFO
             node_key, parent_key, token_i = stack.popleft()
-            assert token_i < len(tokens), "way past boundary"
 
             curr_node = graph_node[node_key]
             # Constraints are only on preceding edge if it is accepting
@@ -703,8 +702,6 @@ class GraphTransliterator:
                 tokens.pop()
 
         tokens.append(self.whitespace.default)
-
-        assert len(tokens) >= 2  # two whitespaces, at least
 
         return tokens
 

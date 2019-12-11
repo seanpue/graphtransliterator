@@ -4,13 +4,19 @@ History
 
 [Unreleased - Maybe]
 --------------------
-* Save match location in tokenize
+* Save match location in tokenize using token_details
 * Allow insertion of transliteration error messages into output
 * Fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
 * add `compact` flag to remove null values from dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
+
+x.x.x (2019-xx-xx)
+------------------
+* added JOSS citation to README
+* added --version to cli
+* removed some asserts
 
 1.0.4 (2019-11-30)
 ------------------
