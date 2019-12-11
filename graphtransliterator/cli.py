@@ -10,6 +10,7 @@ import sys
 
 
 @click.group()
+@click.version_option()
 def main():
     pass
 

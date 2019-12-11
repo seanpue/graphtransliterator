@@ -422,7 +422,6 @@ class GraphTransliterator:
 
         while stack:  # LIFO
             node_key, parent_key, token_i = stack.popleft()
-            assert token_i < len(tokens), "way past boundary"
 
             curr_node = graph_node[node_key]
             # Constraints are only on preceding edge if it is accepting
@@ -703,8 +702,6 @@ class GraphTransliterator:
                 tokens.pop()
 
         tokens.append(self.whitespace.default)
-
-        assert len(tokens) >= 2  # two whitespaces, at least
 
         return tokens
 
@@ -1261,7 +1258,7 @@ class GraphTransliterator:
         -------
         .. jupyter-execute::
 
-          JSON_settings = '''{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"default": " ", "token_class": "wb", "consolidate": false}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "ignore_errors": false, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a| )", "graphtransliterator_version": "1.0.3"}'''
+          JSON_settings = '''{"tokens": {"a": ["vowel"], " ": ["wb"]}, "rules": [{"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}, {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_classes": null, "next_tokens": null, "cost": 0.5849625007211562}], "whitespace": {"default": " ", "token_class": "wb", "consolidate": false}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"author": "Author McAuthorson"}, "ignore_errors": false, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "wb": [" "]}, "graph": {"node": [{"type": "Start", "ordered_children": {"a": [1], " ": [3]}}, {"type": "token", "token": "a", "ordered_children": {"__rules__": [2]}}, {"type": "rule", "rule_key": 0, "rule": {"production": "A", "prev_classes": null, "prev_tokens": null, "tokens": ["a"], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}, {"type": "token", "token": " ", "ordered_children": {"__rules__": [4]}}, {"type": "rule", "rule_key": 1, "rule": {"production": " ", "prev_classes": null, "prev_tokens": null, "tokens": [" "], "next_tokens": null, "next_classes": null, "cost": 0.5849625007211562}, "accepting": true, "ordered_children": {}}], "edge": {"0": {"1": {"token": "a", "cost": 0.5849625007211562}, "3": {"token": " ", "cost": 0.5849625007211562}}, "1": {"2": {"cost": 0.5849625007211562}}, "3": {"4": {"cost": 0.5849625007211562}}}, "edge_list": [[0, 1], [1, 2], [0, 3], [3, 4]]}, "tokenizer_pattern": "(a| )", "graphtransliterator_version": "1.0.4"}'''
 
           gt = GraphTransliterator.loads(JSON_settings)
           gt.transliterate('a')
