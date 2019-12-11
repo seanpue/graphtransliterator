@@ -3,27 +3,35 @@ Graph Transliterator
 ====================
 
 .. image:: https://img.shields.io/pypi/v/graphtransliterator.svg
-        :target: https://pypi.python.org/pypi/graphtransliterator
+      :target: https://pypi.python.org/pypi/graphtransliterator
+      :alt: PyPi Version
 
 .. image:: https://img.shields.io/travis/seanpue/graphtransliterator.svg
-        :target: https://travis-ci.org/seanpue/graphtransliterator
+      :target: https://travis-ci.org/seanpue/graphtransliterator
+      :alt: Travis status
 
 .. image:: https://readthedocs.org/projects/graphtransliterator/badge/?version=latest
-        :target: https://graphtransliterator.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
+      :target: https://graphtransliterator.readthedocs.io/en/latest/?badge=latest
+      :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/seanpue/graphtransliterator/shield.svg
      :target: https://pyup.io/repos/github/seanpue/graphtransliterator/
-     :alt: Updates
+     :alt: PyUp Updates
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
+     :alt: Code Style: Black
 
 .. image:: https://img.shields.io/pypi/pyversions/graphtransliterator
      :alt: PyPI - Python Version
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3558365.svg
      :target: https://doi.org/10.5281/zenodo.3558365
+     :alt: Software repository DOI
+
+.. image:: https://joss.theoj.org/papers/10.21105/joss.01717/status.svg
+     :target: https://doi.org/10.21105/joss.01717
+     :alt: Paper DOI
 
 A graph-based transliteration tool that lets you convert the symbols of one
 language or script to those of another using rules that you define.
@@ -153,3 +161,11 @@ Get It Now
 .. code-block:: bash
 
    $ pip install -U graphtransliterator
+
+Citation
+========
+
+To cite Graph Transliterator, please use:
+
+    Pue, A. Sean (2019). Graph Transliterator: A graph-based transliteration tool.
+    Journal of Open Source Software, 4(44), 1717, https://doi.org/10.21105/joss.01717

@@ -2,12 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `graphtransliterator` package."""
-import click
+
 from click.testing import CliRunner
 from graphtransliterator import cli
 from graphtransliterator import GraphTransliterator
+from graphtransliterator import __version__ as version
 from graphtransliterator.transliterators import Example
 from io import StringIO
+import click
+import graphtransliterator
 import json
 import os
 import yaml
@@ -21,8 +24,13 @@ def test_command_line_interface():
     assert "main" in result.output
     help_result = runner.invoke(cli.main, ["--help"])
     assert help_result.exit_code == 0
-    assert "--help  Show this message and exit." in help_result.output
+    assert "Show this message and exit." in help_result.output
 
+def test_command_line_version():
+    """Test CLI version."""
+    runner = CliRunner()
+    version_result = runner.invoke(cli.main, ["--version"])
+    assert f"{version}" in version_result.output
 
 test_yaml = """
     tokens:
