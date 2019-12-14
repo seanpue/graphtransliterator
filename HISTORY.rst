@@ -11,12 +11,14 @@ History
 * add `compact` flag to remove null values from dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
+* adjust serialization of graph nodes to numbers not strings
 
 x.x.x (2019-xx-xx)
 ------------------
 * added JOSS citation to README
 * added --version to cli
 * removed some asserts
+* removed rule dictionaries from graph leaves to compress and simplify serialization
 
 1.0.4 (2019-11-30)
 ------------------

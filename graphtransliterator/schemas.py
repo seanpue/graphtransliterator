@@ -14,7 +14,7 @@ from collections import defaultdict
 from .graphs import DirectedGraph
 from .initialize import _onmatch_rule_of, _transliteration_rule_of, _whitespace_rules_of
 from .process import RULE_RE, ONMATCH_RE
-from .rules import TransliterationRule
+#from .rules import TransliterationRule
 import copy
 
 
@@ -211,15 +211,15 @@ class DirectedGraphSchema(Schema):
     class Meta:
         fields = ("node", "edge", "edge_list")
 
-    @post_dump
-    def dict_of_rule(self, data, **kwargs):
-        # Make TransliterationRule a dict
-        for node in data["node"]:
-            rule = node.get("rule")
-            if rule:
-                if type(rule) == TransliterationRule:
-                    node["rule"] = rule._asdict()
-        return data
+#    @post_dump
+#    def dict_of_rule(self, data, **kwargs):
+#        # Make TransliterationRule a dict
+#        for node in data["node"]:
+#            rule = node.get("rule")
+#            if rule:
+#                if type(rule) == TransliterationRule:
+#                    node["rule"] = rule._asdict()
+#        return data
 
     @post_load
     def make_graph(self, data, **kwargs):
@@ -229,8 +229,8 @@ class DirectedGraphSchema(Schema):
         _data = copy.deepcopy(data)
         # convert edge keys back to int if str and coming from JSON
 
-        for node in _data["node"]:
-            rule = node.get("rule")
-            if rule:
-                node["rule"] = _transliteration_rule_of(rule)
+#        for node in _data["node"]:
+#            rule = node.get("rule")
+#            if rule:
+#                node["rule"] = _transliteration_rule_of(rule)
         return DirectedGraph(**_data)
