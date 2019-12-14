@@ -13,7 +13,7 @@ History
 * add static typing with mypy
 * adjust serialization of graph nodes to numbers not strings
 
-x.x.x (2019-xx-xx)
+1.0.5 (2019-12-14)
 ------------------
 * added JOSS citation to README
 * added --version to cli
