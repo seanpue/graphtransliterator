@@ -242,11 +242,12 @@ class GraphTransliterator:
 
         """
         constraints = target_edge.get("constraints")
+        rules = self.rules
         if not constraints:
             return True
         for c_type, c_value in constraints.items():
             if c_type == "prev_tokens":
-                num_tokens = len(curr_node["rule"].tokens)
+                num_tokens = len(rules[curr_node["rule_key"]].tokens)
                 # presume for rule (a) a, with input "aa"
                 # ' ', a, a, ' '  start (token_i=3)
                 #             ^
@@ -282,7 +283,7 @@ class GraphTransliterator:
                     return False
 
             elif c_type == "prev_classes":
-                num_tokens = len(curr_node["rule"].tokens)
+                num_tokens = len(rules[curr_node["rule_key"]].tokens)
                 # presume for rule (a <class_a>) a, with input "aaa"
                 # ' ', a, a, a, ' '
                 #                ^     start (token_i=4)

@@ -165,13 +165,13 @@ def _graph_from(rules):
             parent_key = token_node_key
 
         rule_node_key, _ = graph.add_node(
-            {"type": "rule", "rule_key": rule_key, "rule": rule, "accepting": True}
+            {"type": "rule", "rule_key": rule_key, "accepting": True}  # "rule": rule,
         )
         parent_node = graph.node[parent_key]
         rule_children = parent_node.get("rule_children", [])
         rule_children.append(rule_node_key)
         parent_node["rule_children"] = sorted(
-            rule_children, key=lambda x: graph.node[x]["rule"].cost
+            rule_children, key=lambda x: rules[graph.node[x]['rule_key']].cost
         )
 
         edge_to_rule = graph.add_edge(parent_key, rule_node_key, {"cost": rule.cost})
@@ -201,8 +201,10 @@ def _graph_from(rules):
         # Add rule children to ordered_children dict under '__rules__''
         if rule_children_keys:
             ordered_children["__rules__"] = sorted(
-                rule_children_keys, key=lambda x: graph.edge[node_key][x]["cost"]
+                rule_children_keys,
+                key=lambda x: rules[graph.node[x]['rule_key']].cost
             )
+
             node.pop("rule_children")
 
         token_children = node.get("token_children")
