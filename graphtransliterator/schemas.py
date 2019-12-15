@@ -3,7 +3,7 @@
 from marshmallow import (
     fields,
     post_load,
-    post_dump,
+    pre_dump,
     Schema,
     validate,
     ValidationError,
@@ -14,7 +14,6 @@ from collections import defaultdict
 from .graphs import DirectedGraph
 from .initialize import _onmatch_rule_of, _transliteration_rule_of, _whitespace_rules_of
 from .process import RULE_RE, ONMATCH_RE
-#from .rules import TransliterationRule
 import copy
 
 
@@ -84,6 +83,12 @@ class TransliterationRuleSchema(Schema):
             "cost",
         )
         ordered = True
+
+    @pre_dump
+    def remove_nulls(self, data, **kwargs):
+        """Removes None values from TransliterationRule to compress JSON."""
+        # None is necessary to avoid error if production is ''
+        return {k: v for k, v in data._asdict().items() if v is not None}
 
     @post_load
     def make_transliteration_rule(self, data, **kwargs):
@@ -196,6 +201,23 @@ class SettingsSchema(Schema):
             raise ValidationError(dict(errors))
 
 
+class ConstraintSchema(Schema):
+    prev_classes = fields.List(fields.Str())
+    prev_tokens = fields.List(fields.Str())
+    next_tokens = fields.List(fields.Str())
+    next_classes = fields.List(fields.Str())
+
+
+class EdgeDataSchema(Schema):
+    token = fields.Str()
+    cost = fields.Float()
+    constraints = fields.Nested(ConstraintSchema)
+
+
+class NodeDataSchema(Schema):
+    type = fields.String()
+
+
 class DirectedGraphSchema(Schema):
     """ Schema for :class:`DirectedGraph`.
 
@@ -203,34 +225,17 @@ class DirectedGraphSchema(Schema):
     """
 
     edge = fields.Dict(
-        keys=fields.Int(), values=fields.Dict(keys=fields.Int(), values=fields.Dict())
+        keys=fields.Int(),
+        values=fields.Dict(keys=fields.Int, values=fields.Nested(EdgeDataSchema)),
     )
-    node = fields.List(fields.Dict())
+    node = fields.List(fields.Dict())  # adjust
     edge_list = fields.List(fields.Tuple((fields.Int(), fields.Int())))
 
     class Meta:
         fields = ("node", "edge", "edge_list")
 
-#    @post_dump
-#    def dict_of_rule(self, data, **kwargs):
-#        # Make TransliterationRule a dict
-#        for node in data["node"]:
-#            rule = node.get("rule")
-#            if rule:
-#                if type(rule) == TransliterationRule:
-#                    node["rule"] = rule._asdict()
-#        return data
-
     @post_load
     def make_graph(self, data, **kwargs):
-        # Convert TransliterationRule if loading.
-        # Modification of node below alters original settings, so use a deepcopy.
-
+        # Modification below alters original settings, so use a deepcopy.
         _data = copy.deepcopy(data)
-        # convert edge keys back to int if str and coming from JSON
-
-#        for node in _data["node"]:
-#            rule = node.get("rule")
-#            if rule:
-#                node["rule"] = _transliteration_rule_of(rule)
         return DirectedGraph(**_data)

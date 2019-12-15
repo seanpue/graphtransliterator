@@ -23,7 +23,6 @@ def load_transliterator(source, **kwargs):
         transliterators_mod = mod.transliterators
         transliterator_class = getattr(transliterators_mod, parameter)
         return transliterator_class(**kwargs)
-
     elif format == "json":
         return GraphTransliterator.loads(parameter, **kwargs)
     elif format == "json_file":

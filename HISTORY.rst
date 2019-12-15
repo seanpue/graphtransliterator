@@ -12,6 +12,11 @@ History
 * add precommit to run black, etc.
 * add static typing with mypy
 * adjust serialization of graph nodes to numbers not strings
+* add regex to make-json
+
+x.x.x (xxxx-xx-xx)
+------------------
+* fixed serialization of graph node indexes as integer rather than strings
 
 1.0.5 (2019-12-14)
 ------------------
