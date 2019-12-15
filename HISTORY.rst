@@ -14,7 +14,7 @@ History
 * adjust serialization of graph nodes to numbers not strings
 * add regex to make-json
 
-x.x.x (xxxx-xx-xx)
+1.0.6 (2019-12-15)
 ------------------
 * fixed serialization of graph node indexes as integer rather than strings
 
