@@ -11,8 +11,8 @@ History
 * add `compact` flag to remove null values from dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
-* adjust serialization of graph nodes to numbers not strings
 * add regex to make-json
+* minimize JSON option (remove graph, compress tokens and labels)
 
 1.0.6 (2019-12-15)
 ------------------
