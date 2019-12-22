@@ -7,9 +7,10 @@ from graphtransliterator import process
 from graphtransliterator.core import GraphTransliterator
 from graphtransliterator.core import _easyreading_rule
 from graphtransliterator.exceptions import (
+    AmbiguousTransliterationRulesException,
+    IncorrectVersionException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
-    AmbiguousTransliterationRulesException,
 )
 from graphtransliterator.graphs import DirectedGraph
 from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
@@ -265,6 +266,10 @@ def test_graphtransliterator_structures():
     # invalid node data
     with pytest.raises(ValueError):
         graph.add_node("Not a dict")
+    # test edge_list
+    assert len(graph.edge_list) > 1
+    # test create graph without node, edges but not edge_list ads edge_list
+    assert DirectedGraph(node=graph.node, edge=graph.edge).edge_list == graph.edge_list
 
 
 def test_GraphTransliterator_transliterate(tmpdir):
@@ -401,8 +406,6 @@ def test_serialization():
             settings = gt.dump()
             for _ in to_drop:
                 settings.pop(_)
-            # Confirm ValidationError if onmatch_rules_lookup but not onmatch_rules
-            # (chances of this every being the case are slim!)
             if settings.get("onmatch_rules_lookup") and not settings.get(
                 "onmatch_rules"
             ):
@@ -410,16 +413,15 @@ def test_serialization():
                     assert GraphTransliterator.load(settings)
             else:
                 assert GraphTransliterator.load(settings)
-
-    bad_settings = gt.dump()
-    bad_settings.pop("onmatch_rules")
-    with pytest.raises(ValidationError):
-        assert GraphTransliterator.load(bad_settings)
-    # test
+    # test IncorrectVersionException
+    _ = gt.dump()
+    _['graphtransliterator_version'] += "1"  # add 1 e.g. 1.0.11
+    with pytest.raises(IncorrectVersionException):
+        assert GraphTransliterator.load(_)
 
 
 def test_version():
-    """Tests to make sure version is not a mess due to Black formatting"""
+    """Tests to make sure version is not a mess (e.g. due to Black formatting)"""
 
     assert re.match(r"\d+\.\d+\.\d+$", graphtransliterator.__version__)
 

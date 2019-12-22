@@ -15,6 +15,7 @@ import yaml
 from .exceptions import (
     AmbiguousTransliterationRulesException,
     IncompleteOnMatchRulesCoverageException,
+    IncorrectVersionException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
@@ -35,7 +36,9 @@ from .schemas import (
 )
 from collections import deque
 from .graphs import VisitLoggingDirectedGraph, VisitLoggingList
-from marshmallow import fields, post_load, Schema, validates_schema, ValidationError
+from marshmallow import (
+    fields, pre_load, post_load, Schema, validates_schema, ValidationError
+)
 
 logger = logging.getLogger("graphtransliterator")
 
@@ -67,9 +70,24 @@ class GraphTransliteratorSchema(Schema):
     check_ambiguity = fields.Bool(required=False)
     # field for coverage
     coverage = fields.Bool(required=False)
+    # compressed_settings = fields.Tuple(required=False)
 
     class Meta:
         ordered = True
+
+    @pre_load
+    def check_version(self, data, **kwargs):
+        """Raises error if serialized GraphTransliterator is from a later version."""
+        version = data.get("graphtransliterator_version")
+        if version and version > __version__:
+            raise IncorrectVersionException
+        return data
+
+    # def decompress(self, data, **kwargs):
+    #     compressed_settings = data.get("compressed_settings")
+    #     if compressed_settings:
+    #         pass
+    #     return data
 
     @post_load
     def make_GraphTransliterator(self, data, **kwargs):

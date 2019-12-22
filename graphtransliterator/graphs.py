@@ -37,13 +37,17 @@ class DirectedGraph:
     __slots__ = "edge", "node", "edge_list"
 
     def __init__(self, edge=None, node=None, edge_list=None):
-        if edge or node or edge_list:
-            self.edge = edge
-            self.node = node
+        self.node = node if node else []
+        self.edge = edge if edge else {}
+        if edge:
+            if not edge_list:
+                edge_list = [
+                    tuple([head_key, tail_key])
+                    for head_key, _ in edge.items()
+                    for tail_key in _.keys()
+                ]
             self.edge_list = edge_list
         else:
-            self.edge = {}
-            self.node = []
             self.edge_list = []
 
     def add_edge(self, head, tail, edge_data=None):

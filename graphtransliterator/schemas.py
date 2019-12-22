@@ -215,7 +215,17 @@ class EdgeDataSchema(Schema):
 
 
 class NodeDataSchema(Schema):
+    token = fields.String()
     type = fields.String()
+    ordered_children = fields.Dict()
+    accepting = fields.Bool()
+    rule_key = fields.Int()
+
+    @pre_dump
+    def strip_empty(self, data, **kwargs):
+        """Remove keys with empty values, allowing zero."""
+        _data = {k: v for k, v in data.items() if v or (type(v) == int and v == 0)}
+        return _data
 
 
 class DirectedGraphSchema(Schema):
@@ -228,7 +238,7 @@ class DirectedGraphSchema(Schema):
         keys=fields.Int(),
         values=fields.Dict(keys=fields.Int, values=fields.Nested(EdgeDataSchema)),
     )
-    node = fields.List(fields.Dict())  # adjust
+    node = fields.List(fields.Nested(NodeDataSchema))
     edge_list = fields.List(fields.Tuple((fields.Int(), fields.Int())))
 
     class Meta:

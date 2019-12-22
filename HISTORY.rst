@@ -4,15 +4,26 @@ History
 
 [Unreleased - Maybe]
 --------------------
-* Save match location in tokenize using token_details
-* Allow insertion of transliteration error messages into output
-* Fix Devanagari output in Sphinx-generated Latex PDF
+* save match location in tokenize using token_details
+* allow insertion of transliteration error messages into output
+* fix Devanagari output in Sphinx-generated Latex PDF
 * Add translated messages using Transifex
-* add `compact` flag to remove null values from dump and dumps
+* add `compression_level` to compress dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
-* add regex to make-json
+* add regex option to make-json CLI command
 * minimize JSON option (remove graph, compress tokens and labels)
+* adjust IncorrectVersionException to only consider major, minor versioning not patch
+
+#.#.# (####-##-##)
+------------------
+* added IncorrectVersionException, if serialized version being
+  loaded is from a later version than the current graphtransliterator
+  version
+* added automatic edge_list creation if edge parameter in DirectedGraph
+* added fields to and started using NodeDataSchema
+* added pre_dump to GraphTransliteratorSchema, NodeDataSchema to remove empty values
+  to compress Serialization
 
 1.0.6 (2019-12-15)
 ------------------

@@ -33,6 +33,13 @@ class IncompleteOnMatchRulesCoverageException(GraphTransliteratorException):
     """
 
 
+class IncorrectVersionException(GraphTransliteratorException):
+    """
+    Raised if the GraphTransliterator being loaded is of a later
+    version than the current library.
+    """
+
+
 class NoMatchingTransliterationRuleException(GraphTransliteratorException):
     """
     Raised when no transliteration rule can be matched at a particular
