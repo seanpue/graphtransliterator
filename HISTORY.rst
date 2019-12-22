@@ -15,7 +15,7 @@ History
 * minimize JSON option (remove graph, compress tokens and labels)
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 
-#.#.# (####-##-##)
+1.0.7 (2019-12-22)
 ------------------
 * added IncorrectVersionException, if serialized version being
   loaded is from a later version than the current graphtransliterator
@@ -24,6 +24,7 @@ History
 * added fields to and started using NodeDataSchema
 * added pre_dump to GraphTransliteratorSchema, NodeDataSchema to remove empty values
   to compress Serialization
+* removed rule from graph leaves and updated docs accordingly
 
 1.0.6 (2019-12-15)
 ------------------
