@@ -122,9 +122,12 @@ def _whitespace_rules_of(whitespace):
 
 
 def _tokenizer_pattern_from(tokens):
-    """ Generates regular expression tokenizer pattern from token list."""
+    """ Generates regular expression tokenizer pattern from token list.
 
-    tokens.sort(key=len, reverse=True)
+    Sorts by length and then tokens.
+    """
+
+    tokens.sort(key=lambda x: (len(x), x), reverse=True)
     regex_str = "(" + "|".join([re.escape(_) for _ in tokens]) + ")"
     return regex_str
 

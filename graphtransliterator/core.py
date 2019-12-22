@@ -3,15 +3,7 @@
 """
 GraphTransliterator core classes.
 """
-from graphtransliterator import __version__ as __version__
-import itertools
-import json
-import logging
 
-# import pkg_resources
-import re
-import unicodedata
-import yaml
 from .exceptions import (
     AmbiguousTransliterationRulesException,
     IncompleteOnMatchRulesCoverageException,
@@ -19,6 +11,7 @@ from .exceptions import (
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
+from .graphs import VisitLoggingDirectedGraph, VisitLoggingList
 from .initialize import (
     _graph_from,
     _onmatch_rules_lookup,
@@ -35,10 +28,16 @@ from .schemas import (
     WhitespaceSettingsSchema,
 )
 from collections import deque
-from .graphs import VisitLoggingDirectedGraph, VisitLoggingList
+from graphtransliterator import __version__ as __version__
+import itertools
+import json
+import logging
 from marshmallow import (
     fields, pre_load, post_load, Schema, validates_schema, ValidationError
 )
+import re
+import unicodedata
+import yaml
 
 logger = logging.getLogger("graphtransliterator")
 

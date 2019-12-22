@@ -46,7 +46,7 @@ class DirectedGraph:
                     for head_key, _ in edge.items()
                     for tail_key in _.keys()
                 ]
-            self.edge_list = edge_list
+            self.edge_list = sorted(edge_list)  # sorts for string comparison
         else:
             self.edge_list = []
 

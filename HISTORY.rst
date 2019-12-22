@@ -15,6 +15,13 @@ History
 * minimize JSON option (remove graph, compress tokens and labels)
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 
+#.#.# (2019-12-22)
+------------------
+* added compression.py with decompress_config() and compress_config() to compress JSON
+* added tests/test_compression.py to test compression.py
+* added sorting of edge_list to DirectedGraph to allow dumped JSON comparison in tests
+* adjusted _tokenizer_string_from() to sort by length then string for JSON comparison
+
 1.0.7 (2019-12-22)
 ------------------
 * added IncorrectVersionException, if serialized version being
