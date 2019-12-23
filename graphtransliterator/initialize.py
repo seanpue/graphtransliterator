@@ -3,12 +3,13 @@
 """
 Functions used to initialize a GraphTransliterator.
 """
-
-from collections import defaultdict
 from .graphs import DirectedGraph
+from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
+from collections import defaultdict
 import math
 import re
-from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
+import unicodedata
+
 
 # ---------- initialize tokens ----------
 
@@ -230,3 +231,38 @@ def _graph_from(rules):
         node["ordered_children"] = ordered_children
 
     return graph
+
+
+# ---------- unicode adjustiments during initialization ----------
+
+def _unescape_charnames(input_str):
+    r"""
+    Convert \\N{Unicode charname}-escaped str to unicode characters.
+
+    This is useful for specifying exact character names, and a default
+    escape feature in Python that needs a function to be used for reading
+    from files.
+
+    Parameters
+    ----------
+    input_str : str
+        The unescaped string, with \\N{Unicode charname} converted to
+        the corresponding Unicode characters.
+
+    Examples
+    --------
+
+    .. jupyter-execute::
+
+      GraphTransliterator._unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
+
+    """
+
+    def get_unicode_char(matchobj):
+        """Get Unicode character value from escaped character sequences."""
+        charname = matchobj.group(0)
+        match = re.match(r"\\N{([-A-Z ]+)}", charname)
+        char = unicodedata.lookup(match.group(1))  # KeyError if invalid
+        return char
+
+    return re.sub(r"\\N{[-A-Z ]+}", get_unicode_char, input_str)

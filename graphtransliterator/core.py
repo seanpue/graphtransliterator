@@ -17,6 +17,7 @@ from .initialize import (
     _onmatch_rules_lookup,
     _tokenizer_pattern_from,
     _tokens_by_class_of,
+    _unescape_charnames
 )
 from .process import _process_easyreading_settings
 from .schemas import (
@@ -36,7 +37,6 @@ from marshmallow import (
     fields, pre_load, post_load, Schema, validates_schema, ValidationError
 )
 import re
-import unicodedata
 import yaml
 
 logger = logging.getLogger("graphtransliterator")
@@ -189,6 +189,8 @@ class GraphTransliterator:
     from_yaml_file : Constructor from YAML file in "easy reading" format
 """  # noqa
 
+# ---------- initialize ----------
+
     def __init__(
         self,
         tokens,
@@ -246,567 +248,7 @@ class GraphTransliterator:
         # pkg_resources.require("graphtransliterator")[0].version
         self._graphtransliterator_version = graphtransliterator_version
 
-    def _match_constraints(self, target_edge, curr_node, token_i, tokens):
-        """
-        Match edge constraints.
-
-        Called on edge before a rule. `token_i` is set to location right
-        after tokens consumed.
-
-        """
-        constraints = target_edge.get("constraints")
-        rules = self.rules
-        if not constraints:
-            return True
-        for c_type, c_value in constraints.items():
-            if c_type == "prev_tokens":
-                num_tokens = len(rules[curr_node["rule_key"]].tokens)
-                # presume for rule (a) a, with input "aa"
-                # ' ', a, a, ' '  start (token_i=3)
-                #             ^
-                #         ^       -1 subtract num_tokens
-                #      ^          - len(c_value)
-                start_at = token_i
-                start_at -= num_tokens
-                start_at -= len(c_value)
-
-                if not self._match_tokens(
-                    start_at,
-                    c_value,
-                    tokens,
-                    check_prev=True,
-                    check_next=False,
-                    by_class=False,
-                ):
-                    return False
-            elif c_type == "next_tokens":
-                # presume for rule a (a), with input "aa"
-                # ' ', a, a, ' '  start (token_i=2)
-                #         ^
-                start_at = token_i
-
-                if not self._match_tokens(
-                    start_at,
-                    c_value,
-                    tokens,
-                    check_prev=False,
-                    check_next=True,
-                    by_class=False,
-                ):
-                    return False
-
-            elif c_type == "prev_classes":
-                num_tokens = len(rules[curr_node["rule_key"]].tokens)
-                # presume for rule (a <class_a>) a, with input "aaa"
-                # ' ', a, a, a, ' '
-                #                ^     start (token_i=4)
-                #            ^         -num_tokens
-                #         ^            -len(prev_tokens)
-                #  ^                   -len(prev_classes)
-                start_at = token_i
-                start_at -= num_tokens
-                prev_tokens = constraints.get("prev_tokens")
-                if prev_tokens:
-                    start_at -= len(prev_tokens)
-                start_at -= len(c_value)
-                if not self._match_tokens(
-                    start_at,
-                    c_value,
-                    tokens,
-                    check_prev=True,
-                    check_next=False,
-                    by_class=True,
-                ):
-                    return False
-
-            elif c_type == "next_classes":
-                # presume for rule a (a <class_a>), with input "aaa"
-                # ' ', a, a, a, ' '
-                #         ^          start (token_i=2)
-                #            ^       + len of next_tokens (a)
-                start_at = token_i
-                next_tokens = constraints.get("next_tokens")
-                if next_tokens:
-                    start_at += len(next_tokens)
-                if not self._match_tokens(
-                    start_at,
-                    c_value,
-                    tokens,
-                    check_prev=False,
-                    check_next=True,
-                    by_class=True,
-                ):
-                    return False
-
-        return True
-
-    def match_at(self, token_i, tokens, match_all=False):
-        """
-        Match best (least costly) transliteration rule at a given index in the
-        input tokens and return the index to  that rule. Optionally, return all
-        rules that match.
-
-        Parameters
-        ----------
-        token_i : `int`
-            Location in `tokens` at which to begin
-        tokens : `list` of `str`
-            List of tokens
-        match_all : `bool`, optional
-            If true, return the index of all rules matching at the given
-            index. The default is false.
-
-        Returns
-        -------
-        `int`, `None`, or `list` of `int`
-            Index of matching transliteration rule in
-            :attr:`GraphTransliterator.rules` or None. Returns a `list` of
-            `int` or an empty `list` if ``match_all`` is true.
-
-        Note
-        ----
-        Expects whitespaces token at beginning and end of `tokens`.
-
-        Examples
-        --------
-
-        .. jupyter-execute::
-
-          gt = GraphTransliterator.from_yaml('''
-                  tokens:
-                      a: []
-                      a a: []
-                      ' ': [wb]
-                  rules:
-                      a: <A>
-                      a a: <AA>
-                  whitespace:
-                      default: ' '
-                      consolidate: True
-                      token_class: wb
-          ''')
-          tokens = gt.tokenize("aa")
-          tokens # whitespace added to ends
-
-        .. jupyter-execute::
-
-          gt.match_at(1, tokens) # returns index to rule
-
-        .. jupyter-execute::
-
-          gt.rules[gt.match_at(1, tokens)] # actual rule
-
-        .. jupyter-execute::
-
-          gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
-
-        .. jupyter-execute::
-
-          [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)]
-
-        """  # noqa
-
-        graph = self._graph
-        graph_node = graph.node
-        graph_edge = graph.edge
-        if match_all:
-            matches = []
-        stack = deque()
-
-        def _append_children(node_key, token_i):
-            children = None
-            ordered_children = graph_node[node_key].get("ordered_children")
-            if ordered_children:
-                children = ordered_children.get(tokens[token_i])
-                if children:
-                    # reordered high to low for stack:
-                    for child_key in reversed(children):
-
-                        stack.appendleft((child_key, node_key, token_i))
-                else:
-                    rules_keys = ordered_children.get("__rules__")  # leafs
-                    if rules_keys:
-                        # There may be more than one rule, as certain rules have
-                        # constraints on them.
-                        # Reordered so higher cost go on stack last.
-                        for rule_key in reversed(rules_keys):
-                            stack.appendleft((rule_key, node_key, token_i))
-
-        _append_children(0, token_i)  # Append all children of root node
-
-        while stack:  # LIFO
-            node_key, parent_key, token_i = stack.popleft()
-
-            curr_node = graph_node[node_key]
-            # Constraints are only on preceding edge if it is accepting
-            # But edge is accessed regardless to test coverage
-            incident_edge = graph_edge[parent_key][node_key]
-            # Pass edge, curr_node, token index, and tokens to check constraints
-            if curr_node.get("accepting") and self._match_constraints(
-                incident_edge, curr_node, token_i, tokens
-            ):
-                if match_all:
-                    matches.append(curr_node["rule_key"])
-                    continue
-                else:
-                    return curr_node["rule_key"]
-            else:
-                if token_i < len(tokens) - 1:
-                    token_i += 1
-                _append_children(node_key, token_i)
-        if match_all:
-            return matches
-
-    def _match_tokens(
-        self, start_i, c_value, tokens, check_prev=True, check_next=True, by_class=False
-    ):
-        """Match tokens, with boundary checks."""
-
-        if check_prev and start_i < 0:
-            return False
-        if check_next and start_i + len(c_value) > len(tokens):
-            return False
-        for i in range(0, len(c_value)):
-            if by_class:
-                if not c_value[i] in self._tokens[tokens[start_i + i]]:
-                    return False
-            elif tokens[start_i + i] != c_value[i]:
-                return False
-        return True
-
-    @property
-    def graph(self):
-        """`DirectedGraph`: Graph used in transliteration."""
-        return self._graph
-
-    @property
-    def graphtransliterator_version(self):
-        """`str`: Graph Transliterator version."""
-        return self._graphtransliterator_version
-
-    @property
-    def ignore_errors(self):
-        """`bool`: Ignore transliteration errors setting."""
-        return self._ignore_errors
-
-    @ignore_errors.setter
-    def ignore_errors(self, value):
-        self._ignore_errors = value
-
-    @property
-    def last_matched_rules(self):
-        """
-        `list` of `TransliterationRule`: Last transliteration rules matched.
-        """
-        return [self._rules[_] for _ in self._rule_keys]
-
-    @property
-    def last_matched_rule_tokens(self):
-        """`list` of `list` of `str`: Last matched tokens for each rule."""
-        return [self._rules[_].tokens for _ in self._rule_keys]
-
-    @property
-    def last_input_tokens(self):
-        """
-        `list` of `str`: Last tokenization of the input string, with whitespace
-        at start and end."""
-        return self._input_tokens
-
-    @property
-    def metadata(self):
-        """
-        `dict`: Metadata of transliterator
-        """
-        return self._metadata
-
-    @property
-    def onmatch_rules_lookup(self):
-        """
-        `dict`: On Match Rules lookup
-        """
-        return self._onmatch_rules_lookup
-
-    @property
-    def tokenizer_pattern(self):
-        """
-        `str`: Tokenizer pattern from transliterator
-        """
-        return self._tokenizer_pattern
-
-    @property
-    def tokens_by_class(self):
-        """
-        `dict` of {`str`: `list` of `str`}: Tokenizer pattern from transliterator
-        """
-        return self._tokens_by_class
-
-    def transliterate(self, input):
-        """
-        Transliterate an input string into an output string.
-
-        Parameters
-        ----------
-        input : `str`
-            Input string to transliterate
-
-        Returns
-        -------
-        `str`
-            Transliteration output string
-
-        Raises
-        ------
-        ValueError
-            Cannot parse input
-
-        Note
-        ----
-        Whitespace will be temporarily appended to start and end of input
-        string.
-
-        Example
-        -------
-
-        .. jupyter-execute::
-
-          GraphTransliterator.from_yaml(
-          '''
-          tokens:
-            a: []
-            ' ': [wb]
-          rules:
-            a: A
-            ' ': '_'
-          whitespace:
-            default: ' '
-            consolidate: True
-            token_class: wb
-          ''').transliterate("a a")
-
-        """
-        tokens = self.tokenize(input)  # Adds initial+final whitespace
-        self._input_tokens = tokens  # Tokens are saved here
-        self._rule_keys = []  # Matched ule keys are saved here
-        output = ""
-        token_i = 1  # Adjust for initial whitespace
-
-        while token_i < len(tokens) - 1:  # Adjust for final whitespace
-            rule_key = self.match_at(token_i, tokens)
-            if rule_key is None:
-                logger.warning(
-                    "No matching transliteration rule at token pos %s of %s"
-                    % (token_i, tokens)
-                )
-                # No parsing rule was found at this location
-                if self.ignore_errors:
-                    # Move along if ignoring errors
-                    token_i += 1
-                    continue
-                else:
-                    raise NoMatchingTransliterationRuleException
-            self._rule_keys.append(rule_key)
-            rule = self.rules[rule_key]
-            tokens_matched = rule.tokens
-            if self._onmatch_rules:
-                curr_match_rules = None
-                prev_t = tokens[token_i - 1]
-                curr_t = tokens[token_i]
-                curr_t_rules = self._onmatch_rules_lookup.get(curr_t)
-                if curr_t_rules:
-                    curr_match_rules = curr_t_rules.get(prev_t)
-                if curr_match_rules:
-                    for onmatch_i in curr_match_rules:
-                        onmatch = self._onmatch_rules[onmatch_i]
-                        # <class_a> <class_a> + <class_b>
-                        # a a b
-                        #     ^
-                        # ^      - len(onmatch.prev_rules)
-                        if self._match_tokens(
-                            token_i - len(onmatch.prev_classes),
-                            onmatch.prev_classes,  # Checks last value
-                            tokens,
-                            check_prev=True,
-                            check_next=False,
-                            by_class=True,
-                        ) and self._match_tokens(
-                            token_i,
-                            onmatch.next_classes,  # Checks first value
-                            tokens,
-                            check_prev=False,
-                            check_next=True,
-                            by_class=True,
-                        ):
-                            output += onmatch.production
-                            break  # Only match best onmatch rule
-            output += rule.production
-            token_i += len(tokens_matched)
-        return output
-
-    def tokenize(self, input):
-        """
-        Tokenizes an input string.
-
-        Adds initial and trailing whitespace, which can be consolidated.
-
-        Parameters
-        ----------
-        input : str
-            String to tokenize
-
-        Returns
-        -------
-        `list` of `str`
-            List of tokens, with default whitespace token at beginning and end.
-
-        Raises
-        ------
-        ValueError
-            Unrecognizable input, such as a character that is not in a token
-
-        Examples
-        --------
-        .. jupyter-execute::
-
-          tokens = {'ab': ['class_ab'], ' ': ['wb']}
-          whitespace = {'default': ' ', 'token_class': 'wb', 'consolidate': True}
-          rules = {'ab': 'AB', ' ': '_'}
-          settings = {'tokens': tokens, 'rules': rules, 'whitespace': whitespace}
-          gt = GraphTransliterator.from_easyreading_dict(settings)
-          gt.tokenize('ab ')
-
-        """
-
-        def is_whitespace(token):
-            """Check if token is whitespace."""
-            return self.whitespace.token_class in self.tokens[token]
-
-        # start with a whitespace token
-        tokens = [self.whitespace.default]
-
-        prev_whitespace = True
-
-        match_at = 0
-        while match_at < len(input):
-            match = self._tokenizer.match(input, match_at)
-            if match:
-                match_at = match.end()  # advance match_at
-                token = match.group(0)
-                # Could save match loc here:
-                # matched_at = match.span(0)[0]
-                if is_whitespace(token):
-                    if prev_whitespace and self.whitespace.consolidate:
-                        continue
-                    else:
-                        prev_whitespace = True
-                else:
-                    prev_whitespace = False
-                tokens.append(token)
-            else:
-                logger.warning(
-                    "Unrecognizable token %s at pos %s of %s"
-                    % (input[match_at], match_at, input)
-                )
-                if not self.ignore_errors:
-                    raise UnrecognizableInputTokenException
-                else:
-                    match_at += 1
-
-        if self.whitespace.consolidate:
-            while len(tokens) > 1 and is_whitespace(tokens[-1]):
-                tokens.pop()
-
-        tokens.append(self.whitespace.default)
-
-        return tokens
-
-    def pruned_of(self, productions):
-        """
-        Remove transliteration rules with specific output productions.
-
-        Parameters
-        ----------
-        productions : `str`, or `list` of `str`
-            list of productions to remove
-
-        Returns
-        -------
-        graphtransliterator.GraphTransliterator
-            Graph transliterator pruned of certain productions.
-
-        Note
-        ----
-        Uses original initialization parameters to construct a new
-        :class:`GraphTransliterator`.
-
-        Examples
-        --------
-        .. jupyter-execute::
-
-          gt = GraphTransliterator.from_yaml('''
-                  tokens:
-                      a: []
-                      a a: []
-                      ' ': [wb]
-                  rules:
-                      a: <A>
-                      a a: <AA>
-                  whitespace:
-                      default: ' '
-                      consolidate: True
-                      token_class: wb
-          ''')
-          gt.rules
-
-        .. jupyter-execute::
-
-          gt.pruned_of('<AA>').rules
-
-        .. jupyter-execute::
-
-          gt.pruned_of(['<A>', '<AA>']).rules
-
-        """  # noqa
-        pruned_rules = [_ for _ in self._rules if _.production not in productions]
-        return GraphTransliterator(
-            self._tokens,
-            pruned_rules,
-            self._whitespace,
-            onmatch_rules=self._onmatch_rules,
-            metadata=self._metadata,
-            ignore_errors=self._ignore_errors,
-            check_ambiguity=self._check_ambiguity,
-        )
-
-    @property
-    def productions(self):
-        """
-        `list` of `str`: List of productions of each transliteration rule.
-        """
-        return [_.production for _ in self.rules]
-
-    @property
-    def tokens(self):
-        """
-        `dict` of {`str`:`set` of `str`}: Mappings of tokens to their classes.
-        """
-        return self._tokens
-
-    @property
-    def rules(self):
-        """
-        `list` of `TransliterationRule`: Transliteration rules sorted by cost.
-        """
-        return self._rules
-
-    @property
-    def onmatch_rules(self):
-        """`list` of :class:`OnMatchRules`: Rules for productions between matches."""
-        return self._onmatch_rules
-
-    @property
-    def whitespace(self):
-        """WhiteSpaceRules: Whitespace rules."""
-        return self._whitespace
+# ---------- class methods ----------
 
     @classmethod
     def from_dict(cls, dict_settings, **kwargs):
@@ -997,64 +439,219 @@ class GraphTransliterator:
 
         return cls.from_yaml(yaml_string, **kwargs)
 
-    def dumps(self, compression_level=1):
+# ---------- private functions ----------
+
+    def _match_constraints(self, target_edge, curr_node, token_i, tokens):
         """
+        Match edge constraints.
 
-        Parameters
-        ----------
-        compression_level: `int`
-            A value in 0 (no compression), 1 (default, compression including graph),
-            and 2 (compressiong without graph)
-        separators: `tuple` of `str`
-            Separators used by json.dumps(), default is compact
+        Called on edge before a rule. `token_i` is set to location right
+        after tokens consumed.
 
-        Dump settings of Graph Transliterator to Javascript Object Notation (JSON).
+        """
+        constraints = target_edge.get("constraints")
+        rules = self.rules
+        if not constraints:
+            return True
+        for c_type, c_value in constraints.items():
+            if c_type == "prev_tokens":
+                num_tokens = len(rules[curr_node["rule_key"]].tokens)
+                # presume for rule (a) a, with input "aa"
+                # ' ', a, a, ' '  start (token_i=3)
+                #             ^
+                #         ^       -1 subtract num_tokens
+                #      ^          - len(c_value)
+                start_at = token_i
+                start_at -= num_tokens
+                start_at -= len(c_value)
 
-        Compression is turned on by default.
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=True,
+                    check_next=False,
+                    by_class=False,
+                ):
+                    return False
+            elif c_type == "next_tokens":
+                # presume for rule a (a), with input "aa"
+                # ' ', a, a, ' '  start (token_i=2)
+                #         ^
+                start_at = token_i
 
-        Returns
-        -------
-        `str`
-            JSON string
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=False,
+                    check_next=True,
+                    by_class=False,
+                ):
+                    return False
 
-        Examples
-        --------
-        .. jupyter-execute::
+            elif c_type == "prev_classes":
+                num_tokens = len(rules[curr_node["rule_key"]].tokens)
+                # presume for rule (a <class_a>) a, with input "aaa"
+                # ' ', a, a, a, ' '
+                #                ^     start (token_i=4)
+                #            ^         -num_tokens
+                #         ^            -len(prev_tokens)
+                #  ^                   -len(prev_classes)
+                start_at = token_i
+                start_at -= num_tokens
+                prev_tokens = constraints.get("prev_tokens")
+                if prev_tokens:
+                    start_at -= len(prev_tokens)
+                start_at -= len(c_value)
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=True,
+                    check_next=False,
+                    by_class=True,
+                ):
+                    return False
 
-          yaml_ = '''
-            tokens:
-              a: [vowel]
-              ' ': [wb]
-            rules:
-              a: A
-              ' ': ' '
-            whitespace:
-              default: " "
-              consolidate: false
-              token_class: wb
-            onmatch_rules:
-              - <vowel> + <vowel>: ','  # add a comma between vowels
-            metadata:
-              author: "Author McAuthorson"
-          '''
-          gt = GraphTransliterator.from_yaml(yaml_)
-          gt.dumps()
+            elif c_type == "next_classes":
+                # presume for rule a (a <class_a>), with input "aaa"
+                # ' ', a, a, a, ' '
+                #         ^          start (token_i=2)
+                #            ^       + len of next_tokens (a)
+                start_at = token_i
+                next_tokens = constraints.get("next_tokens")
+                if next_tokens:
+                    start_at += len(next_tokens)
+                if not self._match_tokens(
+                    start_at,
+                    c_value,
+                    tokens,
+                    check_prev=False,
+                    check_next=True,
+                    by_class=True,
+                ):
+                    return False
 
+        return True
 
+    def _match_tokens(
+        self, start_i, c_value, tokens, check_prev=True, check_next=True, by_class=False
+    ):
+        """Match tokens, with boundary checks."""
 
-        See Also
-        --------
-        dump : Dump Graph Transliterator configuration to Python data types
-        load : Load Graph Transliteration from configuration in Python data types
-        loads : Load Graph Transliteration from configuration as a JSON string
-        """  # noqa
+        if check_prev and start_i < 0:
+            return False
+        if check_next and start_i + len(c_value) > len(tokens):
+            return False
+        for i in range(0, len(c_value)):
+            if by_class:
+                if not c_value[i] in self._tokens[tokens[start_i + i]]:
+                    return False
+            elif tokens[start_i + i] != c_value[i]:
+                return False
+        return True
 
-        if compression_level == 0:
-            return GraphTransliteratorSchema().dumps(
-                self
-            )
-        _config = self.dump(compression_level=compression_level)
-        return json.dumps(_config, separators=(',', ':'))
+# ---------- properties ----------
+
+    @property
+    def graph(self):
+        """`DirectedGraph`: Graph used in transliteration."""
+        return self._graph
+
+    @property
+    def graphtransliterator_version(self):
+        """`str`: Graph Transliterator version."""
+        return self._graphtransliterator_version
+
+    @property
+    def ignore_errors(self):
+        """`bool`: Ignore transliteration errors setting."""
+        return self._ignore_errors
+
+    @ignore_errors.setter
+    def ignore_errors(self, value):
+        self._ignore_errors = value
+
+    @property
+    def last_input_tokens(self):
+        """
+        `list` of `str`: Last tokenization of the input string, with whitespace
+        at start and end."""
+        return self._input_tokens
+
+    @property
+    def last_matched_rule_tokens(self):
+        """`list` of `list` of `str`: Last matched tokens for each rule."""
+        return [self._rules[_].tokens for _ in self._rule_keys]
+
+    @property
+    def last_matched_rules(self):
+        """
+        `list` of `TransliterationRule`: Last transliteration rules matched.
+        """
+        return [self._rules[_] for _ in self._rule_keys]
+
+    @property
+    def metadata(self):
+        """
+        `dict`: Metadata of transliterator
+        """
+        return self._metadata
+
+    @property
+    def onmatch_rules_lookup(self):
+        """
+        `dict`: On Match Rules lookup
+        """
+        return self._onmatch_rules_lookup
+
+    @property
+    def tokenizer_pattern(self):
+        """
+        `str`: Tokenizer pattern from transliterator
+        """
+        return self._tokenizer_pattern
+
+    @property
+    def tokens_by_class(self):
+        """
+        `dict` of {`str`: `list` of `str`}: Tokenizer pattern from transliterator
+        """
+        return self._tokens_by_class
+
+    @property
+    def onmatch_rules(self):
+        """`list` of :class:`OnMatchRules`: Rules for productions between matches."""
+        return self._onmatch_rules
+
+    @property
+    def productions(self):
+        """
+        `list` of `str`: List of productions of each transliteration rule.
+        """
+        return [_.production for _ in self.rules]
+
+    @property
+    def rules(self):
+        """
+        `list` of `TransliterationRule`: Transliteration rules sorted by cost.
+        """
+        return self._rules
+
+    @property
+    def tokens(self):
+        """
+        `dict` of {`str`:`set` of `str`}: Mappings of tokens to their classes.
+        """
+        return self._tokens
+
+    @property
+    def whitespace(self):
+        """WhiteSpaceRules: Whitespace rules."""
+        return self._whitespace
+
+# ---------- public functions ----------
 
     def dump(self, compression_level=0):
         """
@@ -1162,6 +759,421 @@ class GraphTransliterator:
                     GraphTransliteratorSchema().dump(self)
                 )
             }
+
+    def dumps(self, compression_level=1):
+        """
+
+        Parameters
+        ----------
+        compression_level: `int`
+            A value in 0 (no compression), 1 (default, compression including graph),
+            and 2 (compressiong without graph)
+        separators: `tuple` of `str`
+            Separators used by json.dumps(), default is compact
+
+        Dump settings of Graph Transliterator to Javascript Object Notation (JSON).
+
+        Compression is turned on by default.
+
+        Returns
+        -------
+        `str`
+            JSON string
+
+        Examples
+        --------
+        .. jupyter-execute::
+
+          yaml_ = '''
+            tokens:
+              a: [vowel]
+              ' ': [wb]
+            rules:
+              a: A
+              ' ': ' '
+            whitespace:
+              default: " "
+              consolidate: false
+              token_class: wb
+            onmatch_rules:
+              - <vowel> + <vowel>: ','  # add a comma between vowels
+            metadata:
+              author: "Author McAuthorson"
+          '''
+          gt = GraphTransliterator.from_yaml(yaml_)
+          gt.dumps()
+
+
+
+        See Also
+        --------
+        dump : Dump Graph Transliterator configuration to Python data types
+        load : Load Graph Transliteration from configuration in Python data types
+        loads : Load Graph Transliteration from configuration as a JSON string
+        """  # noqa
+
+        if compression_level == 0:
+            return GraphTransliteratorSchema().dumps(
+                self
+            )
+        _config = self.dump(compression_level=compression_level)
+        return json.dumps(_config, separators=(',', ':'))
+
+    def match_at(self, token_i, tokens, match_all=False):
+        """
+        Match best (least costly) transliteration rule at a given index in the
+        input tokens and return the index to  that rule. Optionally, return all
+        rules that match.
+
+        Parameters
+        ----------
+        token_i : `int`
+            Location in `tokens` at which to begin
+        tokens : `list` of `str`
+            List of tokens
+        match_all : `bool`, optional
+            If true, return the index of all rules matching at the given
+            index. The default is false.
+
+        Returns
+        -------
+        `int`, `None`, or `list` of `int`
+            Index of matching transliteration rule in
+            :attr:`GraphTransliterator.rules` or None. Returns a `list` of
+            `int` or an empty `list` if ``match_all`` is true.
+
+        Note
+        ----
+        Expects whitespaces token at beginning and end of `tokens`.
+
+        Examples
+        --------
+
+        .. jupyter-execute::
+
+          gt = GraphTransliterator.from_yaml('''
+                  tokens:
+                      a: []
+                      a a: []
+                      ' ': [wb]
+                  rules:
+                      a: <A>
+                      a a: <AA>
+                  whitespace:
+                      default: ' '
+                      consolidate: True
+                      token_class: wb
+          ''')
+          tokens = gt.tokenize("aa")
+          tokens # whitespace added to ends
+
+        .. jupyter-execute::
+
+          gt.match_at(1, tokens) # returns index to rule
+
+        .. jupyter-execute::
+
+          gt.rules[gt.match_at(1, tokens)] # actual rule
+
+        .. jupyter-execute::
+
+          gt.match_at(1, tokens, match_all=True) # index to rules, with match_all
+
+        .. jupyter-execute::
+
+          [gt.rules[_] for _ in gt.match_at(1, tokens, match_all=True)]
+
+        """  # noqa
+
+        graph = self._graph
+        graph_node = graph.node
+        graph_edge = graph.edge
+        if match_all:
+            matches = []
+        stack = deque()
+
+        def _append_children(node_key, token_i):
+            children = None
+            ordered_children = graph_node[node_key].get("ordered_children")
+            if ordered_children:
+                children = ordered_children.get(tokens[token_i])
+                if children:
+                    # reordered high to low for stack:
+                    for child_key in reversed(children):
+
+                        stack.appendleft((child_key, node_key, token_i))
+                else:
+                    rules_keys = ordered_children.get("__rules__")  # leafs
+                    if rules_keys:
+                        # There may be more than one rule, as certain rules have
+                        # constraints on them.
+                        # Reordered so higher cost go on stack last.
+                        for rule_key in reversed(rules_keys):
+                            stack.appendleft((rule_key, node_key, token_i))
+
+        _append_children(0, token_i)  # Append all children of root node
+
+        while stack:  # LIFO
+            node_key, parent_key, token_i = stack.popleft()
+
+            curr_node = graph_node[node_key]
+            # Constraints are only on preceding edge if it is accepting
+            # But edge is accessed regardless to test coverage
+            incident_edge = graph_edge[parent_key][node_key]
+            # Pass edge, curr_node, token index, and tokens to check constraints
+            if curr_node.get("accepting") and self._match_constraints(
+                incident_edge, curr_node, token_i, tokens
+            ):
+                if match_all:
+                    matches.append(curr_node["rule_key"])
+                    continue
+                else:
+                    return curr_node["rule_key"]
+            else:
+                if token_i < len(tokens) - 1:
+                    token_i += 1
+                _append_children(node_key, token_i)
+        if match_all:
+            return matches
+
+    def pruned_of(self, productions):
+        """
+        Remove transliteration rules with specific output productions.
+
+        Parameters
+        ----------
+        productions : `str`, or `list` of `str`
+            list of productions to remove
+
+        Returns
+        -------
+        graphtransliterator.GraphTransliterator
+            Graph transliterator pruned of certain productions.
+
+        Note
+        ----
+        Uses original initialization parameters to construct a new
+        :class:`GraphTransliterator`.
+
+        Examples
+        --------
+        .. jupyter-execute::
+
+          gt = GraphTransliterator.from_yaml('''
+                  tokens:
+                      a: []
+                      a a: []
+                      ' ': [wb]
+                  rules:
+                      a: <A>
+                      a a: <AA>
+                  whitespace:
+                      default: ' '
+                      consolidate: True
+                      token_class: wb
+          ''')
+          gt.rules
+
+        .. jupyter-execute::
+
+          gt.pruned_of('<AA>').rules
+
+        .. jupyter-execute::
+
+          gt.pruned_of(['<A>', '<AA>']).rules
+
+        """  # noqa
+        pruned_rules = [_ for _ in self._rules if _.production not in productions]
+        return GraphTransliterator(
+            self._tokens,
+            pruned_rules,
+            self._whitespace,
+            onmatch_rules=self._onmatch_rules,
+            metadata=self._metadata,
+            ignore_errors=self._ignore_errors,
+            check_ambiguity=self._check_ambiguity,
+        )
+
+    def tokenize(self, input):
+        """
+        Tokenizes an input string.
+
+        Adds initial and trailing whitespace, which can be consolidated.
+
+        Parameters
+        ----------
+        input : str
+            String to tokenize
+
+        Returns
+        -------
+        `list` of `str`
+            List of tokens, with default whitespace token at beginning and end.
+
+        Raises
+        ------
+        ValueError
+            Unrecognizable input, such as a character that is not in a token
+
+        Examples
+        --------
+        .. jupyter-execute::
+
+          tokens = {'ab': ['class_ab'], ' ': ['wb']}
+          whitespace = {'default': ' ', 'token_class': 'wb', 'consolidate': True}
+          rules = {'ab': 'AB', ' ': '_'}
+          settings = {'tokens': tokens, 'rules': rules, 'whitespace': whitespace}
+          gt = GraphTransliterator.from_easyreading_dict(settings)
+          gt.tokenize('ab ')
+
+        """
+
+        def is_whitespace(token):
+            """Check if token is whitespace."""
+            return self.whitespace.token_class in self.tokens[token]
+
+        # start with a whitespace token
+        tokens = [self.whitespace.default]
+
+        prev_whitespace = True
+
+        match_at = 0
+        while match_at < len(input):
+            match = self._tokenizer.match(input, match_at)
+            if match:
+                match_at = match.end()  # advance match_at
+                token = match.group(0)
+                # Could save match loc here:
+                # matched_at = match.span(0)[0]
+                if is_whitespace(token):
+                    if prev_whitespace and self.whitespace.consolidate:
+                        continue
+                    else:
+                        prev_whitespace = True
+                else:
+                    prev_whitespace = False
+                tokens.append(token)
+            else:
+                logger.warning(
+                    "Unrecognizable token %s at pos %s of %s"
+                    % (input[match_at], match_at, input)
+                )
+                if not self.ignore_errors:
+                    raise UnrecognizableInputTokenException
+                else:
+                    match_at += 1
+
+        if self.whitespace.consolidate:
+            while len(tokens) > 1 and is_whitespace(tokens[-1]):
+                tokens.pop()
+
+        tokens.append(self.whitespace.default)
+
+        return tokens
+
+    def transliterate(self, input):
+        """
+        Transliterate an input string into an output string.
+
+        Parameters
+        ----------
+        input : `str`
+            Input string to transliterate
+
+        Returns
+        -------
+        `str`
+            Transliteration output string
+
+        Raises
+        ------
+        ValueError
+            Cannot parse input
+
+        Note
+        ----
+        Whitespace will be temporarily appended to start and end of input
+        string.
+
+        Example
+        -------
+
+        .. jupyter-execute::
+
+          GraphTransliterator.from_yaml(
+          '''
+          tokens:
+            a: []
+            ' ': [wb]
+          rules:
+            a: A
+            ' ': '_'
+          whitespace:
+            default: ' '
+            consolidate: True
+            token_class: wb
+          ''').transliterate("a a")
+
+        """
+        tokens = self.tokenize(input)  # Adds initial+final whitespace
+        self._input_tokens = tokens  # Tokens are saved here
+        self._rule_keys = []  # Matched ule keys are saved here
+        output = ""
+        token_i = 1  # Adjust for initial whitespace
+
+        while token_i < len(tokens) - 1:  # Adjust for final whitespace
+            rule_key = self.match_at(token_i, tokens)
+            if rule_key is None:
+                logger.warning(
+                    "No matching transliteration rule at token pos %s of %s"
+                    % (token_i, tokens)
+                )
+                # No parsing rule was found at this location
+                if self.ignore_errors:
+                    # Move along if ignoring errors
+                    token_i += 1
+                    continue
+                else:
+                    raise NoMatchingTransliterationRuleException
+            self._rule_keys.append(rule_key)
+            rule = self.rules[rule_key]
+            tokens_matched = rule.tokens
+            if self._onmatch_rules:
+                curr_match_rules = None
+                prev_t = tokens[token_i - 1]
+                curr_t = tokens[token_i]
+                curr_t_rules = self._onmatch_rules_lookup.get(curr_t)
+                if curr_t_rules:
+                    curr_match_rules = curr_t_rules.get(prev_t)
+                if curr_match_rules:
+                    for onmatch_i in curr_match_rules:
+                        onmatch = self._onmatch_rules[onmatch_i]
+                        # <class_a> <class_a> + <class_b>
+                        # a a b
+                        #     ^
+                        # ^      - len(onmatch.prev_rules)
+                        if self._match_tokens(
+                            token_i - len(onmatch.prev_classes),
+                            onmatch.prev_classes,  # Checks last value
+                            tokens,
+                            check_prev=True,
+                            check_next=False,
+                            by_class=True,
+                        ) and self._match_tokens(
+                            token_i,
+                            onmatch.next_classes,  # Checks first value
+                            tokens,
+                            check_prev=False,
+                            check_next=True,
+                            by_class=True,
+                        ):
+                            output += onmatch.production
+                            break  # Only match best onmatch rule
+            output += rule.production
+            token_i += len(tokens_matched)
+        return output
+
+# ---------- static methods ----------
 
     @staticmethod
     def load(settings, **kwargs):
@@ -1318,42 +1330,6 @@ class GraphTransliterator:
         _settings = dict(json.loads(settings), **kwargs)
 
         return GraphTransliteratorSchema().load(_settings)
-
-
-# Initialization-related functions for unescaping Unicode
-
-
-def _unescape_charnames(input_str):
-    r"""
-    Convert \\N{Unicode charname}-escaped str to unicode characters.
-
-    This is useful for specifying exact character names, and a default
-    escape feature in Python that needs a function to be used for reading
-    from files.
-
-    Parameters
-    ----------
-    input_str : str
-        The unescaped string, with \\N{Unicode charname} converted to
-        the corresponding Unicode characters.
-
-    Examples
-    --------
-
-    .. jupyter-execute::
-
-      GraphTransliterator._unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
-
-    """
-
-    def get_unicode_char(matchobj):
-        """Get Unicode character value from escaped character sequences."""
-        charname = matchobj.group(0)
-        match = re.match(r"\\N{([-A-Z ]+)}", charname)
-        char = unicodedata.lookup(match.group(1))  # KeyError if invalid
-        return char
-
-    return re.sub(r"\\N{[-A-Z ]+}", get_unicode_char, input_str)
 
 
 class CoverageTransliterator(GraphTransliterator):
