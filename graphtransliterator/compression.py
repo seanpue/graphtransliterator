@@ -14,6 +14,7 @@ def compress_config(config):
     as numerous tuples. It contains the graph definition but not easily generatable
     items.
 
+
     Parameters
     ----------
     config : `dict`
@@ -239,7 +240,10 @@ def compress_config(config):
 
 def strip_empty(d):
     """Strips entries of dict with no value, but allow zero."""
-    return {k: v for k, v in d.items() if v or (type(v) == int and v == 0)}
+    return {
+        k: v for k, v in d.items() if v or
+        (type(v) == int and v == 0) or
+        (type(v) == str and v == "")}
 
 
 def decompress_config(compressed_config):
@@ -252,6 +256,7 @@ def decompress_config(compressed_config):
             x = _node[index]
             out = {}
             for k, v in x.items():
+                k = int(k)
                 if k == -1:
                     out["__rules__"] = v
                 else:
@@ -366,8 +371,8 @@ def decompress_config(compressed_config):
     _nodetype_from_id = {i: _ for i, _ in enumerate(_nodetype_list)}
     node = [decompress_node(_) for _ in _nodes]
     edge = {
-        head_id: {
-            tail_id: decompress_edge_data(edge_data)
+        int(head_id): {
+            int(tail_id): decompress_edge_data(edge_data)
             for tail_id, edge_data in tail.items()
         }
         for head_id, tail in _edges.items()

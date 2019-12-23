@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Functions to process "easy reading" settings of GraphTransliterator."""
+"""
+Functions to process "easy reading" settings of GraphTransliterator.
+"""
 
 import re
 

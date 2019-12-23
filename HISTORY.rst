@@ -7,16 +7,26 @@ History
 * save match location in tokenize using token_details
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
-* Add translated messages using Transifex
+* add translated messages using Transifex
 * add `compression_level` to compress dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
 * add regex option to make-json CLI command
-* minimize JSON option (remove graph, compress tokens and labels)
-* adjust IncorrectVersionException to only consider major, minor versioning not patch
+* compress JSON option (remove graph, compress tokens and labels)
+* adjust IncorrectVersionException to only consider major, minor versioning not patchx
+* allow removal of graph during compression
+
+[To Do]
+-------
+* Adjust documentation to mention compression, check for coverage mentions.
 
 #.#.# (2019-12-22)
 ------------------
+* moved ambiguity-checking functions to ambiguity.py and tests to test_ambiguity.py
+* removed coverage keyword from GraphTransliterator.__init__ since it does nothing
+  there.
+* set check_ambiguity to read keyword during JSON load
+* allowed empty string productions during JSON compression
 * added compression.py with decompress_config() and compress_config() to compress JSON
 * added tests/test_compression.py to test compression.py
 * added sorting of edge_list to DirectedGraph to allow dumped JSON comparison in tests

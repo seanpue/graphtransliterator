@@ -3,9 +3,9 @@
 """
 GraphTransliterator core classes.
 """
-
+from .ambiguity import check_for_ambiguity
+from .compression import compress_config, decompress_config
 from .exceptions import (
-    AmbiguousTransliterationRulesException,
     IncompleteOnMatchRulesCoverageException,
     IncorrectVersionException,
     NoMatchingTransliterationRuleException,
@@ -28,8 +28,8 @@ from .schemas import (
     WhitespaceSettingsSchema,
 )
 from collections import deque
+
 from graphtransliterator import __version__ as __version__
-import itertools
 import json
 import logging
 from marshmallow import (
@@ -40,6 +40,9 @@ import unicodedata
 import yaml
 
 logger = logging.getLogger("graphtransliterator")
+
+DEFAULT_COMPRESSION_LEVEL = 1
+HIGHEST_COMPRESSION_LEVEL = 1
 
 
 class GraphTransliteratorSchema(Schema):
@@ -75,18 +78,16 @@ class GraphTransliteratorSchema(Schema):
         ordered = True
 
     @pre_load
-    def check_version(self, data, **kwargs):
+    def check_version_and_compression(self, data, **kwargs):
         """Raises error if serialized GraphTransliterator is from a later version."""
         version = data.get("graphtransliterator_version")
         if version and version > __version__:
             raise IncorrectVersionException
+        compressed_settings = data.get("compressed_settings")
+        if compressed_settings:
+            data = decompress_config(compressed_settings)
+            data.update(graphtransliterator_version=version)
         return data
-
-    # def decompress(self, data, **kwargs):
-    #     compressed_settings = data.get("compressed_settings")
-    #     if compressed_settings:
-    #         pass
-    #     return data
 
     @post_load
     def make_GraphTransliterator(self, data, **kwargs):
@@ -94,10 +95,8 @@ class GraphTransliteratorSchema(Schema):
         for key in ("tokens", "tokens_by_class"):
             if data.get(key):  # tokens_by_class can be generated
                 data[key] = {k: set(v) for k, v in data[key].items()}
-        # Do not check ambiguity if deserializing serialized GraphTransliterator
-        data["check_ambiguity"] = False
-        if data.get("coverage"):
-            return CoverageTransliterator(**data)
+        # Do not check ambiguity by default if deserializing
+        data["check_ambiguity"] = kwargs.get("check_ambiguity", False)
         return GraphTransliterator(**data)
 
     @validates_schema
@@ -171,9 +170,6 @@ class GraphTransliterator:
     graphtransliterator_version: `str`, optional
         Version of graphtransliterator, added by `dump()` and `dumps()`.
 
-    coverage: `bool`, optional
-        Create CoverageTransliterator, which tracks node, edge, and onmatch rule access
-
     Example
     -------
     .. jupyter-execute::
@@ -207,7 +203,7 @@ class GraphTransliterator:
         graph=None,
         tokenizer_pattern=None,
         graphtransliterator_version=None,
-        coverage=False,
+        **kwargs
     ):
         self._tokens = tokens
         self._rules = rules
@@ -827,18 +823,24 @@ class GraphTransliterator:
             Graph transliterator
         """
         settings = SettingsSchema().load(dict_settings)
-        return cls(
+        args = [
             settings["tokens"],
             settings["rules"],
-            settings["whitespace"],
-            onmatch_rules=settings.get("onmatch_rules"),
-            metadata=settings.get("metadata"),
-            tokens_by_class=settings.get("tokens_by_class"),  # will be generated
-            graph=settings.get("graph"),  # will be generated
-            tokenizer_pattern=settings.get("tokenizer_pattern"),  # will be generated
-            ignore_errors=kwargs.get("ignore_errors", False),
-            check_ambiguity=kwargs.get("check_ambiguity", True),
-        )
+            settings["whitespace"]
+        ]
+        kwargs = {
+            "onmatch_rules": settings.get("onmatch_rules"),
+            "metadata": settings.get("metadata"),
+            "tokens_by_class": settings.get("tokens_by_class"),  # will be generated
+            "graph": settings.get("graph"),  # will be generated
+            "tokenizer_pattern": settings.get("tokenizer_pattern"),  # will be generated
+            "ignore_errors": kwargs.get("ignore_errors", False),
+            "check_ambiguity": kwargs.get("check_ambiguity", True),
+        }
+        if kwargs.get("coverage"):
+            return CoverageTransliterator(*args, **kwargs)
+        else:
+            return cls(*args, **kwargs)
 
     @classmethod
     def from_easyreading_dict(cls, easyreading_settings, **kwargs):
@@ -995,9 +997,20 @@ class GraphTransliterator:
 
         return cls.from_yaml(yaml_string, **kwargs)
 
-    def dumps(self):
+    def dumps(self, compression_level=1):
         """
+
+        Parameters
+        ----------
+        compression_level: `int`
+            A value in 0 (no compression), 1 (default, compression including graph),
+            and 2 (compressiong without graph)
+        separators: `tuple` of `str`
+            Separators used by json.dumps(), default is compact
+
         Dump settings of Graph Transliterator to Javascript Object Notation (JSON).
+
+        Compression is turned on by default.
 
         Returns
         -------
@@ -1028,6 +1041,7 @@ class GraphTransliterator:
           gt.dumps()
 
 
+
         See Also
         --------
         dump : Dump Graph Transliterator configuration to Python data types
@@ -1035,11 +1049,24 @@ class GraphTransliterator:
         loads : Load Graph Transliteration from configuration as a JSON string
         """  # noqa
 
-        return GraphTransliteratorSchema().dumps(self)
+        if compression_level == 0:
+            return GraphTransliteratorSchema().dumps(
+                self
+            )
+        _config = self.dump(compression_level=compression_level)
+        return json.dumps(_config, separators=(',', ':'))
 
-    def dump(self):
+    def dump(self, compression_level=0):
         """
         Dump configuration of Graph Transliterator to Python data types.
+
+        Compression is turned off by default.
+
+        Parameters
+        ----------
+        compression_level: `int`
+            A value in 0 (default, no compression), 1 (compression including graph),
+            and 2 (compressiong without graph)
 
         Returns
         -------
@@ -1120,7 +1147,21 @@ class GraphTransliterator:
         loads : Load Graph Transliteration from configuration as a JSON string
 
 """  # noqa
-        return GraphTransliteratorSchema().dump(self)
+        if compression_level == 0:
+            return GraphTransliteratorSchema().dump(
+                self
+            )
+        elif compression_level not in range(1, HIGHEST_COMPRESSION_LEVEL+1):
+            raise ValueError(
+                f"Compression level must be between 0 and {HIGHEST_COMPRESSION_LEVEL}"
+            )
+        if compression_level == 1:
+            return {
+                "graphtransliterator_version": __version__,
+                "compressed_settings": compress_config(
+                    GraphTransliteratorSchema().dump(self)
+                )
+            }
 
     @staticmethod
     def load(settings, **kwargs):
@@ -1275,214 +1316,8 @@ class GraphTransliterator:
         """  # noqa
         # combine kwargs with settings
         _settings = dict(json.loads(settings), **kwargs)
+
         return GraphTransliteratorSchema().load(_settings)
-
-
-def check_for_ambiguity(transliterator):
-    """
-    Check if multiple transliteration rules could match the same tokens.
-
-    This function first groups the transliteration rules by number of
-    tokens. It then checks to see if any pair of the same cost would match
-    the same sequence of tokens. If so, it finally checks if a less costly
-    rule would match those particular sequences. If not, there is
-    ambiguity.
-
-    Details of all ambiguity are sent in a :func:`logging.warning`.
-
-    Note
-    ----
-    Called during initialization if ``check_ambiguity`` is set.
-
-    Raises
-    ------
-    AmbiguousTransliterationRulesException
-        Multiple transliteration rules could match the same tokens.
-
-    Example
-    -------
-    .. jupyter-execute::
-
-      yaml_filename = '''
-      tokens:
-        a: [class1, class2]
-        ' ': [wb]
-      rules:
-        <class1> a: AW
-        <class2> a: AA # ambiguous rule
-      whitespace:
-        default: ' '
-        consolidate: True
-        token_class: wb
-      '''
-      gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
-      gt.check_for_ambiguity()
-
-    """
-    ambiguity = False
-
-    all_tokens = set(transliterator._tokens.keys())
-
-    rules = transliterator._rules
-
-    if not rules:
-        return True
-
-    max_prev = [_count_of_prev(rule) for rule in rules]
-    global_max_prev = max(max_prev)
-    max_curr_next = [_count_of_curr_and_next(rule) for rule in rules]
-    global_max_curr_next = max(max_curr_next)
-
-    # Generate a matrix of rules, where width is the max of
-    # any previous tokens/classes + max of current/next tokens/classes.
-    # Each rule's specifications starting from the max of the previous
-    # tokens/classes. Other positions are filled by the set of all possible
-    # tokens.
-
-    matrix = []
-
-    width = global_max_prev + global_max_curr_next
-
-    for i, rule in enumerate(rules):
-        row = [all_tokens] * (global_max_prev - max_prev[i])
-        row += _tokens_possible(rule, transliterator._tokens_by_class)
-        row += [all_tokens] * (width - len(row))
-        matrix += [row]
-
-    def full_intersection(i, j):
-        """ Intersection of  matrix[i] and matrix[j], else None."""
-
-        intersections = []
-        for k in range(width):
-            intersection = matrix[i][k].intersection(matrix[j][k])
-            if not intersection:
-                return None
-            intersections += [intersection]
-        return intersections
-
-    def covered_by(intersection, row):
-        """Check if intersection is covered by row."""
-        for i in range(len(intersection)):
-            diff = intersection[i].difference(row[i])
-            if diff:
-                return False
-        return True
-
-    # Iterate through rules based on cost (number of tokens). If there are
-    # ambiguities, then see if a less costly rule would match the rule. If it does
-    # not, there is ambiguity.
-
-    for _group_val, group_iter in itertools.groupby(
-        enumerate(transliterator._rules), key=lambda x: x[1].cost
-    ):
-
-        group = list(group_iter)
-        if len(group) == 1:
-            continue
-        for i in range(len(group) - 1):
-            for j in range(i + 1, len(group)):
-                i_index = group[i][0]
-                j_index = group[j][0]
-                intersection = full_intersection(i_index, j_index)
-                if not intersection:
-                    break
-
-                # Check if a less costly rule matches intersection
-
-                def covered_by_less_costly():
-                    for r_i, rule in enumerate(rules):
-                        if r_i in (i_index, j_index):
-                            continue
-                        if rule.cost > rules[i_index].cost:
-                            continue
-                        rule_tokens = matrix[r_i]
-                        if covered_by(intersection, rule_tokens):
-                            return True
-                    return False
-
-                if not covered_by_less_costly():
-                    logging.warning(
-                        "The pattern {} can be matched by both:\n"
-                        "  {}\n"
-                        "  {}\n".format(
-                            intersection,
-                            _easyreading_rule(rules[i_index]),
-                            _easyreading_rule(rules[j_index]),
-                        )
-                    )
-                    ambiguity = True
-    if ambiguity:
-        raise AmbiguousTransliterationRulesException
-
-
-def _easyreading_rule(rule):
-    """Get an easy-reading string of a rule."""
-
-    def _token_str(x):
-        return " ".join(x)
-
-    def _class_str(x):
-        return " ".join(["<%s>" % _ for _ in x])
-
-    out = ""
-    if rule.prev_classes and rule.prev_tokens:
-        out = "({} {}) ".format(
-            _class_str(rule.prev_classes), _token_str(rule.prev_tokens)
-        )
-    elif rule.prev_classes:
-        out = "{} ".format(_class_str(rule.prev_classes))
-    elif rule.prev_tokens:
-        out = "({}) ".format(_token_str(rule.prev_tokens))
-
-    out += _token_str(rule.tokens)
-
-    if rule.next_tokens and rule.next_classes:
-        out += " ({} {})".format(
-            _token_str(rule.next_tokens), _class_str(rule.next_classes)
-        )
-    elif rule.next_tokens:
-        out += " ({})".format(_token_str(rule.next_tokens))
-    elif rule.next_classes:
-        out += " {}".format(_class_str(rule.next_classes))
-    return out
-
-
-def _count_of_prev(rule):
-    """Count previous tokens to be present before a match in a rule."""
-
-    return len(rule.prev_classes or []) + len(rule.prev_tokens or [])
-
-
-def _count_of_curr_and_next(rule):
-    """Count tokens to be matched and those to follow them in rule."""
-
-    return len(rule.tokens) + len(rule.next_tokens or []) + len(rule.next_classes or [])
-
-
-def _prev_tokens_possible(rule, tokens_by_class):
-    """`list` of set of possible preceding tokens for a rule."""
-
-    return [tokens_by_class[_] for _ in rule.prev_classes or []] + [
-        set([_]) for _ in rule.prev_tokens or []
-    ]
-
-
-def _curr_and_next_tokens_possible(rule, tokens_by_class):
-    """`list` of sets of possible current and following tokens for a rule."""
-
-    return (
-        [set([_]) for _ in rule.tokens]
-        + [set([_]) for _ in rule.next_tokens or []]
-        + [tokens_by_class[_] for _ in rule.next_classes or []]
-    )
-
-
-def _tokens_possible(row, tokens_by_class):
-    """`list` of sets of possible tokens matched for a rule."""
-
-    return _prev_tokens_possible(row, tokens_by_class) + _curr_and_next_tokens_possible(
-        row, tokens_by_class
-    )
 
 
 # Initialization-related functions for unescaping Unicode
