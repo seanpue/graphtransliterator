@@ -9,8 +9,6 @@ from graphtransliterator import GraphTransliterator
 from graphtransliterator import __version__ as version
 from graphtransliterator.transliterators import Example
 from io import StringIO
-import click
-import graphtransliterator
 import json
 import os
 import yaml
@@ -134,12 +132,28 @@ def test_cli_test():
 def test_make_json():
     """Tests `make-json` command."""
     runner = CliRunner()
-    # Because make-json generates a JSON file, which may differ slightly from original,,
+    # Because make-json generates a JSON file, which may differ slightly from original,
     # save and later restore original JSON file.
     orig_filename = os.path.join(Example().directory, "example.json")
     with open(orig_filename, "r") as f:
         orig_json = f.read()
     test_result = runner.invoke(cli.main, ["make-json", "Example"])
     assert test_result.exit_code == 0
+    # Test regex matching
+    test_result = runner.invoke(cli.main, ["make-json", "-re", "Examp"])
+    assert "Made JSON of" in test_result.output
+    assert test_result.exit_code == 0
+    # Test regex not Matching
+    test_result = runner.invoke(cli.main, ["make-json", "-re", "!"])
+    assert "No bundled transliterator found " in test_result.output
+    assert test_result.exit_code == 0  # no error here
+    # Restore JSON file
     with open(orig_filename, "w") as f:
         f.write(orig_json)
+
+
+def test_list_bundled():
+    runner = CliRunner()
+    test_result = runner.invoke(cli.main, ["list-bundled"])
+    assert "Bundled transliterators:" in test_result.output
+    assert "Example" in test_result.output

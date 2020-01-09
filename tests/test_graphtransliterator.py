@@ -243,7 +243,6 @@ def test_graphtransliterator_structures():
     # test add_edge
     graph.add_edge(0, 1, {"type": "edge_test1"})
     assert graph.edge[0][1]["type"] == "edge_test1"
-    assert type(graph.to_dict()) == dict
     # test add_edge with no edge data
     graph.add_edge(1, 2)
     # edge tail not in graph

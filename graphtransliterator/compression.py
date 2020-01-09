@@ -2,11 +2,10 @@
 """
 Functions used to compress and decompress a GraphTransliterator.
 """
-
 import math
 
 
-def compress_config(config):
+def compress_config(config, compression_level=1):
     """
     Compress configuration to minimize JSON size.
 
@@ -96,37 +95,12 @@ def compress_config(config):
                         Token: Token id (`int`) or -1 for None
     """
 
+    # No compression, human-readable
+    if compression_level == 0:
+        return config
+
     def compressed_cost(x):
         return -1 * round((1 / (2 ** x - 1) - 1))  # convert to -int
-
-    def compress_node(_node):
-        def compressed_ordered_children():
-            x = _node.get("ordered_children")
-            out = {}
-            for k, v in x.items():
-                if k == "__rules__":
-                    out[-1] = v
-                else:
-                    out[_token_id[k]] = v
-            return out
-
-        _type_id = _nodetype_id[_node["type"]]
-        _accepting = 1 if _node.get("accepting") else 0
-
-        if _node["type"] == "Start":
-            new_node = tuple([_type_id, _accepting, compressed_ordered_children()])
-        elif _node["type"] == "rule":
-            new_node = tuple([_type_id, _accepting, _node["rule_key"]])
-        elif _node["type"] == "token":
-            new_node = tuple(
-                [
-                    _type_id,
-                    _accepting,
-                    _token_id[_node["token"]],
-                    compressed_ordered_children(),
-                ]
-            )
-        return new_node
 
     def compress_edge_data(data):
 
@@ -160,6 +134,35 @@ def compress_config(config):
             new_token = _token_id[_token]
 
         return tuple([new_constraints, new_cost, new_token])
+
+    def compress_node(_node):
+        def compressed_ordered_children():
+            x = _node.get("ordered_children")
+            out = {}
+            for k, v in x.items():
+                if k == "__rules__":
+                    out[-1] = v
+                else:
+                    out[_token_id[k]] = v
+            return out
+
+        _type_id = _nodetype_id[_node["type"]]
+        _accepting = 1 if _node.get("accepting") else 0
+
+        if _node["type"] == "Start":
+            new_node = tuple([_type_id, _accepting, compressed_ordered_children()])
+        elif _node["type"] == "rule":
+            new_node = tuple([_type_id, _accepting, _node["rule_key"]])
+        elif _node["type"] == "token":
+            new_node = tuple(
+                [
+                    _type_id,
+                    _accepting,
+                    _token_id[_node["token"]],
+                    compressed_ordered_children(),
+                ]
+            )
+        return new_node
 
     token_list = tuple(sorted(config["tokens"].keys()))
     _token_id = {_: i for i, _ in enumerate(token_list)}
@@ -213,29 +216,46 @@ def compress_config(config):
         else 0
     )
     metadata = config.get("metadata", 0)
-    _graph = config.get("graph")
-    node = tuple(compress_node(_) for _ in _graph["node"])
-    _edge = _graph["edge"]
-    edge = {
-        int(head_id): {
-            int(tail_id): compress_edge_data(edge_data)
-            for tail_id, edge_data in tail.items()
-        }
-        for head_id, tail in _edge.items()
-    }
 
-    return tuple(
-        [
-            class_list,
-            token_list,
-            tokens,
-            rules,
-            whitespace,
-            onmatch_rules,
-            metadata,
-            [nodetype_list, node, edge],
-        ]
-    )
+    if compression_level == 1:
+        # Compress with generated graph; no information loss.
+        _graph = config.get("graph")
+        node = tuple(compress_node(_) for _ in _graph["node"])
+        _edge = _graph["edge"]
+        edge = {
+            int(head_id): {
+                int(tail_id): compress_edge_data(edge_data)
+                for tail_id, edge_data in tail.items()
+            }
+            for head_id, tail in _edge.items()
+        }
+
+        return tuple(
+            [
+                class_list,
+                token_list,
+                tokens,
+                rules,
+                whitespace,
+                onmatch_rules,
+                metadata,
+                [nodetype_list, node, edge],
+            ]
+        )
+    elif compression_level == 2:
+        # Compress without graph; no information loss.
+        return tuple(
+            [
+                class_list,
+                token_list,
+                tokens,
+                rules,
+                whitespace,
+                onmatch_rules,
+                metadata,
+                None,
+            ]
+        )
 
 
 def strip_empty(d):
@@ -367,22 +387,25 @@ def decompress_config(compressed_config):
         if _onmatch_rules
         else None
     )
-    [_nodetype_list, _nodes, _edges] = _graph
-    _nodetype_from_id = {i: _ for i, _ in enumerate(_nodetype_list)}
-    node = [decompress_node(_) for _ in _nodes]
-    edge = {
-        int(head_id): {
-            int(tail_id): decompress_edge_data(edge_data)
-            for tail_id, edge_data in tail.items()
+    if not _graph:  # no graph due to compression
+        graph = None
+    else:
+        [_nodetype_list, _nodes, _edges] = _graph
+        _nodetype_from_id = {i: _ for i, _ in enumerate(_nodetype_list)}
+        node = [decompress_node(_) for _ in _nodes]
+        edge = {
+            int(head_id): {
+                int(tail_id): decompress_edge_data(edge_data)
+                for tail_id, edge_data in tail.items()
+            }
+            for head_id, tail in _edges.items()
         }
-        for head_id, tail in _edges.items()
-    }
-
+        graph = {"node": node, "edge": edge}
     return {
         "tokens": tokens,
         "rules": rules,
         "whitespace": whitespace,
         "onmatch_rules": onmatch_rules,
-        "graph": {"node": node, "edge": edge},
+        "graph": graph,
         "metadata": metadata,
     }

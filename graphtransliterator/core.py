@@ -41,8 +41,8 @@ import yaml
 
 logger = logging.getLogger("graphtransliterator")
 
-DEFAULT_COMPRESSION_LEVEL = 1
-HIGHEST_COMPRESSION_LEVEL = 1
+DEFAULT_COMPRESSION_LEVEL = 2
+HIGHEST_COMPRESSION_LEVEL = 2
 
 
 class GraphTransliteratorSchema(Schema):
@@ -52,12 +52,10 @@ class GraphTransliteratorSchema(Schema):
         keys=fields.Str(), values=fields.List(fields.Str()), required=True
     )
     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
-
     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
     onmatch_rules = fields.Nested(
         OnMatchRuleSchema, many=True, required=False, allow_none=True
     )
-
     metadata = fields.Dict(
         keys=fields.Str(), required=False  # No restriction on values
     )
@@ -66,7 +64,9 @@ class GraphTransliteratorSchema(Schema):
     tokens_by_class = fields.Dict(
         keys=fields.Str(), values=fields.List(fields.Str), required=False
     )
-    graph = fields.Nested(DirectedGraphSchema, required=False)
+    graph = fields.Nested(
+        DirectedGraphSchema, many=False, allow_none=True, required=False
+    )
     tokenizer_pattern = fields.Str(required=False)
     graphtransliterator_version = fields.Str(required=False)
     check_ambiguity = fields.Bool(required=False)
@@ -244,200 +244,9 @@ class GraphTransliterator:
         # When, or if, necessary, add version checking here
         if not graphtransliterator_version:
             graphtransliterator_version = __version__
-        # problems with readthedocs + jupyter-sphinx due to pythonpath import
-        # pkg_resources.require("graphtransliterator")[0].version
         self._graphtransliterator_version = graphtransliterator_version
 
 # ---------- class methods ----------
-
-    @classmethod
-    def from_dict(cls, dict_settings, **kwargs):
-        """Generate GraphTransliterator from `dict` settings.
-
-        Parameters
-        ----------
-        dict_settings : `dict`
-            Dictionary of settings
-
-        Returns
-        -------
-        GraphTransliterator
-            Graph transliterator
-        """
-        settings = SettingsSchema().load(dict_settings)
-        args = [
-            settings["tokens"],
-            settings["rules"],
-            settings["whitespace"]
-        ]
-        kwargs = {
-            "onmatch_rules": settings.get("onmatch_rules"),
-            "metadata": settings.get("metadata"),
-            "tokens_by_class": settings.get("tokens_by_class"),  # will be generated
-            "graph": settings.get("graph"),  # will be generated
-            "tokenizer_pattern": settings.get("tokenizer_pattern"),  # will be generated
-            "ignore_errors": kwargs.get("ignore_errors", False),
-            "check_ambiguity": kwargs.get("check_ambiguity", True),
-        }
-        if kwargs.get("coverage"):
-            return CoverageTransliterator(*args, **kwargs)
-        else:
-            return cls(*args, **kwargs)
-
-    @classmethod
-    def from_easyreading_dict(cls, easyreading_settings, **kwargs):
-        """
-        Constructs `GraphTransliterator` from a dictionary of settings in
-        "easy reading" format, i.e. the loaded contents of a YAML string.
-
-        Parameters
-        ----------
-        easyreading_settings : `dict`
-            Settings dictionary in easy reading format with keys:
-
-                ``"tokens"``
-                  Mappings of tokens to their classes
-                  (`dict` of {str: `list` of `str`})
-
-                ``"rules"``
-                  Transliteration rules in "easy reading" format
-                  (`list` of `dict` of {`str`: `str`})
-
-                ``"onmatch_rules"``
-                  On match rules in "easy reading" format
-                  (`dict` of {`str`: `str`}, optional)
-
-                ``"whitespace"``
-                  Whitespace definitions, including default whitespace token,
-                  class of whitespace tokens, and whether or not to consolidate
-                  (`dict` of {'default': `str`, 'token_class': `str`,
-                  consolidate: `bool`}, optional)
-
-                ``"metadata"``
-                  Dictionary of metadata (`dict`, optional)
-
-        Returns
-        -------
-        GraphTransliterator
-            Graph Transliterator
-
-        Note
-        ----
-        Called by :meth:`from_yaml`.
-
-        Example
-        -------
-        .. jupyter-execute::
-
-          tokens = {
-              'ab': ['class_ab'],
-              ' ': ['wb']
-          }
-          whitespace = {
-              'default': ' ',
-              'token_class': 'wb',
-              'consolidate': True
-          }
-          onmatch_rules = [
-              {'<class_ab> + <class_ab>': ','}
-          ]
-          rules = {'ab': 'AB',
-                   ' ': '_'}
-          settings = {'tokens': tokens,
-                      'rules': rules,
-                      'whitespace': whitespace,
-                      'onmatch_rules': onmatch_rules}
-          gt = GraphTransliterator.from_easyreading_dict(settings)
-          gt.transliterate("ab abab")
-
-
-        See Also
-        --------
-        from_yaml : Constructor from YAML string in "easy reading" format
-        from_yaml_file : Constructor from YAML file in "easy reading" format
-        """
-        # Validate easyreading settings
-        _ = EasyReadingSettingsSchema().load(easyreading_settings)
-        # Convert those to regular settings
-        _ = _process_easyreading_settings(_)
-        # Validation of regular settings is done in from_dict
-        return cls.from_dict(_, **kwargs)
-
-    @classmethod
-    def from_yaml(cls, yaml_str, charnames_escaped=True, **kwargs):
-        """
-        Construct GraphTransliterator from a YAML str.
-
-        Parameters
-        ----------
-        yaml_str : str
-            YAML mappings of tokens, rules, and (optionally) onmatch_rules
-        charnames_escaped : boolean
-            Unescape Unicode during YAML read (default True)
-
-        Note
-        ----
-        Called by :meth:`from_yaml_file` and calls :meth:`from_easyreading_dict`.
-
-        Example
-        -------
-        .. jupyter-execute::
-
-          yaml_ = '''
-          tokens:
-            a: [class1]
-            ' ': [wb]
-          rules:
-            a: A
-            ' ': ' '
-          whitespace:
-            default: ' '
-            consolidate: True
-            token_class: wb
-          onmatch_rules:
-            - <class1> + <class1>: "+"
-          '''
-          gt = GraphTransliterator.from_yaml(yaml_)
-          gt.transliterate("a aa")
-
-
-        See Also
-        --------
-        from_easyreading_dict : Constructor from dictionary in "easy reading" format
-        from_yaml : Constructor from YAML string in "easy reading" format
-        from_yaml_file : Constructor from YAML file in "easy reading" format
-        """
-        if charnames_escaped:
-            yaml_str = _unescape_charnames(yaml_str)
-
-        settings = yaml.safe_load(yaml_str)
-
-        return cls.from_easyreading_dict(settings, **kwargs)
-
-    @classmethod
-    def from_yaml_file(cls, yaml_filename, **kwargs):
-        """
-        Construct GraphTransliterator from YAML file.
-
-        Parameters
-        ----------
-        yaml_filename : str
-            Name of YAML file, containing tokens, rules, and (optionally)
-            onmatch_rules
-
-        Note
-        ----
-        Calls :meth:`from_yaml`.
-
-        See Also
-        --------
-        from_yaml : Constructor from YAML string in "easy reading" format
-        from_easyreading_dict : Constructor from dictionary in "easy reading" format
-        """
-        with open(yaml_filename, "r") as f:
-            yaml_string = f.read()
-
-        return cls.from_yaml(yaml_string, **kwargs)
 
 # ---------- private functions ----------
 
@@ -752,22 +561,22 @@ class GraphTransliterator:
             raise ValueError(
                 f"Compression level must be between 0 and {HIGHEST_COMPRESSION_LEVEL}"
             )
-        if compression_level == 1:
-            return {
-                "graphtransliterator_version": __version__,
-                "compressed_settings": compress_config(
-                    GraphTransliteratorSchema().dump(self)
-                )
-            }
+        return {
+            "graphtransliterator_version": __version__,
+            "compressed_settings": compress_config(
+                GraphTransliteratorSchema().dump(self),
+                compression_level=compression_level
+            )
+        }
 
-    def dumps(self, compression_level=1):
+    def dumps(self, compression_level=2):
         """
 
         Parameters
         ----------
         compression_level: `int`
-            A value in 0 (no compression), 1 (default, compression including graph),
-            and 2 (compressiong without graph)
+            A value in 0 (no compression), 1 (compression including graph),
+            and 2 (default, compression without graph)
         separators: `tuple` of `str`
             Separators used by json.dumps(), default is compact
 
@@ -1174,6 +983,192 @@ class GraphTransliterator:
         return output
 
 # ---------- static methods ----------
+
+    @staticmethod
+    def from_dict(dict_settings, **kwargs):
+        """Generate GraphTransliterator from `dict` settings.
+
+        Parameters
+        ----------
+        dict_settings : `dict`
+            Dictionary of settings
+
+        Returns
+        -------
+        GraphTransliterator
+            Graph transliterator
+        """
+        settings = SettingsSchema().load(dict_settings)
+        args = [
+            settings["tokens"],
+            settings["rules"],
+            settings["whitespace"]
+        ]
+        kwargs = {
+            "onmatch_rules": settings.get("onmatch_rules"),
+            "metadata": settings.get("metadata"),
+            "tokens_by_class": settings.get("tokens_by_class"),  # will be generated
+            "graph": settings.get("graph"),  # will be generated
+            "tokenizer_pattern": settings.get("tokenizer_pattern"),  # will be generated
+            "ignore_errors": kwargs.get("ignore_errors", False),
+            "check_ambiguity": kwargs.get("check_ambiguity", True),
+        }
+        return GraphTransliterator(*args, **kwargs)
+
+    @staticmethod
+    def from_easyreading_dict(easyreading_settings, **kwargs):
+        """
+        Constructs `GraphTransliterator` from a dictionary of settings in
+        "easy reading" format, i.e. the loaded contents of a YAML string.
+
+        Parameters
+        ----------
+        easyreading_settings : `dict`
+            Settings dictionary in easy reading format with keys:
+
+                ``"tokens"``
+                  Mappings of tokens to their classes
+                  (`dict` of {str: `list` of `str`})
+
+                ``"rules"``
+                  Transliteration rules in "easy reading" format
+                  (`list` of `dict` of {`str`: `str`})
+
+                ``"onmatch_rules"``
+                  On match rules in "easy reading" format
+                  (`dict` of {`str`: `str`}, optional)
+
+                ``"whitespace"``
+                  Whitespace definitions, including default whitespace token,
+                  class of whitespace tokens, and whether or not to consolidate
+                  (`dict` of {'default': `str`, 'token_class': `str`,
+                  consolidate: `bool`}, optional)
+
+                ``"metadata"``
+                  Dictionary of metadata (`dict`, optional)
+
+        Returns
+        -------
+        GraphTransliterator
+            Graph Transliterator
+
+        Note
+        ----
+        Called by :meth:`from_yaml`.
+
+        Example
+        -------
+        .. jupyter-execute::
+
+          tokens = {
+              'ab': ['class_ab'],
+              ' ': ['wb']
+          }
+          whitespace = {
+              'default': ' ',
+              'token_class': 'wb',
+              'consolidate': True
+          }
+          onmatch_rules = [
+              {'<class_ab> + <class_ab>': ','}
+          ]
+          rules = {'ab': 'AB',
+                   ' ': '_'}
+          settings = {'tokens': tokens,
+                      'rules': rules,
+                      'whitespace': whitespace,
+                      'onmatch_rules': onmatch_rules}
+          gt = GraphTransliterator.from_easyreading_dict(settings)
+          gt.transliterate("ab abab")
+
+
+        See Also
+        --------
+        from_yaml : Constructor from YAML string in "easy reading" format
+        from_yaml_file : Constructor from YAML file in "easy reading" format
+        """
+        # Validate easyreading settings
+        _ = EasyReadingSettingsSchema().load(easyreading_settings)
+        # Convert those to regular settings
+        _ = _process_easyreading_settings(_)
+        # Validation of regular settings is done in from_dict
+        return GraphTransliterator.from_dict(_, **kwargs)
+
+    @staticmethod
+    def from_yaml(yaml_str, charnames_escaped=True, **kwargs):
+        """
+        Construct GraphTransliterator from a YAML str.
+
+        Parameters
+        ----------
+        yaml_str : str
+            YAML mappings of tokens, rules, and (optionally) onmatch_rules
+        charnames_escaped : boolean
+            Unescape Unicode during YAML read (default True)
+
+        Note
+        ----
+        Called by :meth:`from_yaml_file` and calls :meth:`from_easyreading_dict`.
+
+        Example
+        -------
+        .. jupyter-execute::
+
+          yaml_ = '''
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            a: A
+            ' ': ' '
+          whitespace:
+            default: ' '
+            consolidate: True
+            token_class: wb
+          onmatch_rules:
+            - <class1> + <class1>: "+"
+          '''
+          gt = GraphTransliterator.from_yaml(yaml_)
+          gt.transliterate("a aa")
+
+
+        See Also
+        --------
+        from_easyreading_dict : Constructor from dictionary in "easy reading" format
+        from_yaml : Constructor from YAML string in "easy reading" format
+        from_yaml_file : Constructor from YAML file in "easy reading" format
+        """
+        if charnames_escaped:
+            yaml_str = _unescape_charnames(yaml_str)
+
+        settings = yaml.safe_load(yaml_str)
+
+        return GraphTransliterator.from_easyreading_dict(settings, **kwargs)
+
+    @staticmethod
+    def from_yaml_file(yaml_filename, **kwargs):
+        """
+        Construct GraphTransliterator from YAML file.
+
+        Parameters
+        ----------
+        yaml_filename : str
+            Name of YAML file, containing tokens, rules, and (optionally)
+            onmatch_rules
+
+        Note
+        ----
+        Calls :meth:`from_yaml`.
+
+        See Also
+        --------
+        from_yaml : Constructor from YAML string in "easy reading" format
+        from_easyreading_dict : Constructor from dictionary in "easy reading" format
+        """
+        with open(yaml_filename, "r") as f:
+            yaml_string = f.read()
+
+        return GraphTransliterator.from_yaml(yaml_string, **kwargs)
 
     @staticmethod
     def load(settings, **kwargs):

@@ -21,6 +21,9 @@ __version__ = "1.0.7"
 # Core classes
 from .core import CoverageTransliterator, GraphTransliterator, GraphTransliteratorSchema
 
+# Constants
+from .core import DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL
+
 # Exceptions
 from .exceptions import (
     GraphTransliteratorException,

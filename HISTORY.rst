@@ -8,23 +8,28 @@ History
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
 * add translated messages using Transifex
-* add `compression_level` to compress dump and dumps
 * add precommit to run black, etc.
 * add static typing with mypy
-* add regex option to make-json CLI command
-* compress JSON option (remove graph, compress tokens and labels)
-* adjust IncorrectVersionException to only consider major, minor versioning not patchx
-* allow removal of graph during compression
+* adjust IncorrectVersionException to only consider major, minor versioning not patch
+* Adjust CSS for CLI output in docs
 
 [To Do]
 -------
-* Adjust documentation to mention compression, check for coverage mentions.
 
 #.#.# (2019-12-22)
 ------------------
+* remove to_dict from DirectedGraph, since it is handled through Marshmallow schemas.
+* Adjust documentation to mention compression.
+* added list-bundled CLI command
+* added --regex/-re flag to graphtransliterator make-json CLI command to allow regular
+  expressions
+* remove coverage keyword from GraphTransliterator
+* reorganized core.py
+* converted from_dict, from_easyreading_dict, from_yaml, and from_yaml_file to static
+  methods from class methods
 * moved ambiguity-checking functions to ambiguity.py and tests to test_ambiguity.py
-* removed coverage keyword from GraphTransliterator.__init__ since it does nothing
-  there.
+* set three levels of compression: 0 (Human-readable), 1 (no data loss, includes graph),
+  2 (no data loss, but no graph); 2 is fastest and set to default.
 * set check_ambiguity to read keyword during JSON load
 * allowed empty string productions during JSON compression
 * added compression.py with decompress_config() and compress_config() to compress JSON
