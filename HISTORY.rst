@@ -18,6 +18,7 @@ History
 
 #.#.# (2019-12-22)
 ------------------
+* Rebuilt bundled transliterators
 * remove to_dict from DirectedGraph, since it is handled through Marshmallow schemas.
 * Adjust documentation to mention compression.
 * added list-bundled CLI command
