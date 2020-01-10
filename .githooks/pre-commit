@@ -1,0 +1,5 @@
+if [ ! -z "$BUMPVERSION_NEW_VERSION" ]
+then
+    graphtransliterator make-json .+
+    git add .
+fi
