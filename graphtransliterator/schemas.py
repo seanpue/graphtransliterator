@@ -249,3 +249,9 @@ class DirectedGraphSchema(Schema):
         # Modification below alters original settings, so use a deepcopy.
         _data = copy.deepcopy(data)
         return DirectedGraph(**_data)
+
+    @pre_dump(pass_many=True)
+    def sort_edge_list(self, data, many, **kwargs):
+        """Sort edge list to make dumps consistent."""
+        data.edge_list = sorted(data.edge_list)
+        return data

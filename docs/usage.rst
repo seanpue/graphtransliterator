@@ -647,10 +647,16 @@ The settings of a Graph Transliterator can be serialized using
 types. A JSON string of the same can be accessed using
 :meth:`GraphTransliterator.dumps`. Validation is not performed during a dump.
 
+By default, :meth:`GraphTransliterator.dumps` will use compression level 2, which
+removes the internal graph and indexes tokens and graph node labels. Compression level 1
+also indexes tokens and graph node labels and contains the graph. Compression level 0
+is human readable and includes the graph. No information is lost during compression.
+Level 2, the default, loads the fastest and also has the smallest file size.
+
 A GraphTransliterator can be loaded from serialized settings, e.g. in an API context,
 using :meth:`GraphTransliterator.load` and from JSON data as
 :meth:`GraphTransliterator.loads`. Because they are intended to be quick, neither method
-performs ambiguity checks or strict validation checking.
+performs ambiguity checks or strict validation checking by default.
 
 Serialization can be useful if providing an API or making the configured Graph
 Transliterator available in other programming languages, e.g. Javascript.
