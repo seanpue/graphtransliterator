@@ -194,4 +194,4 @@ texinfo_documents = [
 jupyter_sphinx_linenos = True
 jupyter_sphinx_continue_linenos = True
 
-# html_css_files = ['custom.css']
+# html_css_files = ['custom.css'] (reads from ./_static)

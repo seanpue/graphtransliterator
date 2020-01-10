@@ -5,9 +5,7 @@
 # from click.testing import CliRunner
 from graphtransliterator import process
 from graphtransliterator.core import GraphTransliterator
-from graphtransliterator.core import _easyreading_rule
 from graphtransliterator.exceptions import (
-    AmbiguousTransliterationRulesException,
     IncorrectVersionException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
@@ -245,7 +243,6 @@ def test_graphtransliterator_structures():
     # test add_edge
     graph.add_edge(0, 1, {"type": "edge_test1"})
     assert graph.edge[0][1]["type"] == "edge_test1"
-    assert type(graph.to_dict()) == dict
     # test add_edge with no edge data
     graph.add_edge(1, 2)
     # edge tail not in graph
@@ -565,50 +562,6 @@ def test_GraphTransliterator_ignore_errors():
     assert gt.ignore_errors is False
 
 
-def test_GraphParser_check_ambiguity():
-    """ Test for rules that can both match the same thing."""
-
-    yaml_for_test = r"""
-        tokens:
-          a: [token, class1, class2]
-          b: [token, class1, class2]
-          ' ': [wb]
-        rules:
-          a <class1>: A<class1> # these should be ambiguous
-          a <class2>: A<class2>
-
-          <class1> a: <class1>A  # these should be ambiguous
-          <class2> a: <class2>A # these should be ambiguous
-
-          (<class1> b) a (b <class2>): A # ambigous
-          (<class2> b) a (b <class1>): A # ambiguous
-          a: A # not ambiguous
-        whitespace:
-          default: ' '
-          token_class: 'wb'
-          consolidate: true
-        """
-    with pytest.raises(AmbiguousTransliterationRulesException):
-        GraphTransliterator.from_yaml(yaml_for_test, check_for_ambiguity=True)
-    # check that ambiguity matches if rules are of different shape
-    yaml = """
-        tokens:
-          a: []
-          ' ': [wb]
-        rules:
-          <wb> a: _A
-          a <wb>: A_
-          a: a
-          ' ': ' '
-        whitespace:
-          default: " "        # default whitespace token
-          consolidate: true  # whitespace should be consolidated
-          token_class: wb     # whitespace token class
-        """
-    with pytest.raises(AmbiguousTransliterationRulesException):
-        GraphTransliterator.from_yaml(yaml, check_for_ambiguity=True)
-
-
 def test_GraphTransliterator_types():
     """Test internal types."""
     pr = TransliterationRule(
@@ -669,31 +622,6 @@ def test_GraphTransliterator_pruned_of():
     assert len(gt.pruned_of("B").rules) == 1
     assert gt.pruned_of("B").rules[0].production == "A"
     assert gt.pruned_of(["A", "B"])  # if no rules present will still work
-
-
-def test_GraphTransliterator_easy_reading():
-    assert (
-        _easyreading_rule(
-            TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0)
-        )
-        == "<class_a> a <class_a>"
-    )
-    assert (
-        _easyreading_rule(
-            TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0)
-        )
-        == "<class_a> a <class_a>"
-    )
-    assert (
-        _easyreading_rule(TransliterationRule("", [], ["b"], ["a"], ["b"], [], 0))
-        == "(b) a (b)"
-    )
-    assert (
-        _easyreading_rule(
-            TransliterationRule("", ["class_a"], ["b"], ["a"], ["b"], ["class_a"], 0)
-        )
-        == "(<class_a> b) a (b <class_a>)"
-    )
 
 
 def test_GraphTransliterator_graph():

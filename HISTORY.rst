@@ -7,13 +7,36 @@ History
 * save match location in tokenize using token_details
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
-* Add translated messages using Transifex
-* add `compression_level` to compress dump and dumps
-* add precommit to run black, etc.
+* add translated messages using Transifex
+* add precommit to run black
 * add static typing with mypy
-* add regex option to make-json CLI command
-* minimize JSON option (remove graph, compress tokens and labels)
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
+* Adjust CSS for CLI output in docs
+
+[To Do]
+-------
+
+1.1.0 (2020-01-10)
+------------------
+* Added pre-commit hook to rebuild bundled transliterators with bump2version
+* remove to_dict from DirectedGraph, since it is handled through Marshmallow schemas.
+* Adjust documentation to mention compression.
+* added list-bundled CLI command
+* added --regex/-re flag to graphtransliterator make-json CLI command to allow regular
+  expressions
+* removed coverage keyword from GraphTransliterator
+* reorganized core.py
+* converted from_dict, from_easyreading_dict, from_yaml, and from_yaml_file to static
+  methods from class methods
+* moved ambiguity-checking functions to ambiguity.py and tests to test_ambiguity.py
+* set three levels of compression: 0 (Human-readable), 1 (no data loss, includes graph),
+  2 (no data loss, and no graph); 2 is fastest and set to default.
+* set check_ambiguity to read keyword during JSON load
+* allowed empty string productions during JSON compression
+* added compression.py with decompress_config() and compress_config() to compress JSON
+* added tests/test_compression.py to test compression.py
+* added sorting of edge_list to DirectedGraph to allow dumped JSON comparison in tests
+* adjusted _tokenizer_string_from() to sort by length then string for JSON comparison
 
 1.0.7 (2019-12-22)
 ------------------

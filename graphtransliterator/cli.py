@@ -2,10 +2,13 @@
 
 """Console script for graphtransliterator."""
 
-from graphtransliterator import GraphTransliterator
+from graphtransliterator import (
+    DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL, GraphTransliterator
+)
 import click
 import json
 import os
+import re
 import sys
 
 
@@ -103,10 +106,17 @@ def transliterate(from_, to, input, check_ambiguity, ignore_errors):
     help="Check for ambiguity.",
     show_default=True,
 )
-def dump(from_, check_ambiguity):
+@click.option(
+    "--compression-level",
+    "-cl",
+    default=DEFAULT_COMPRESSION_LEVEL,
+    help=f"Compression level, from 0 to {HIGHEST_COMPRESSION_LEVEL}",
+    show_default=True,
+)
+def dump(from_, check_ambiguity, compression_level):
     """Dump transliterator as JSON."""
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity)
-    click.echo(transliterator.dumps())
+    click.echo(transliterator.dumps(compression_level=compression_level))
 
 
 @click.command()
@@ -156,25 +166,48 @@ def test(bundled, check_ambiguity):
     click.echo(transliterator.run_yaml_tests())
 
 
-@click.argument("bundled", nargs=1)
 @click.command()
-def make_json(bundled):
-    """Make JSON rules of BUNDLED transliterator."""
+def list_bundled():
+    """List BUNDLED transliterators."""
+    import graphtransliterator.transliterators as transliterators
+    click.echo("Bundled transliterators:")
+    for _ in transliterators.iter_names():
+        click.echo(f"  {_}")
+
+
+@click.argument("bundled", nargs=1)
+@click.option('--regex', '-re', is_flag=True,
+              help="Match transliterators using regular expression.")
+@click.command()
+def make_json(bundled, regex):
+    """Make JSON rules of BUNDLED transliterator(s)."""
     import graphtransliterator.transliterators as transliterators  # pragma: no cover
-    transliterator_class = getattr(transliterators, bundled)
-    transliterator = transliterator_class.new(method="yaml")
-    json_filename = os.path.join(
-        transliterator.directory, transliterator.name + ".json"
-    )
-    with open(json_filename, "w") as f:
-        f.write(transliterator.dumps())
+    if not regex:
+        bundled = f"^{bundled}$"
+    to_dump = [_ for _ in transliterators.iter_names() if re.match(bundled, _)]
+    if not to_dump:
+        click.echo(f"No bundled transliterator found matching /{bundled}/.")
+        click.echo(
+            'Try "graphtransliterator list-bundled" for a list.'
+        )
+        return
+    for _ in to_dump:
+        transliterator_class = getattr(transliterators, _)
+        transliterator = transliterator_class.new(method="yaml")
+        json_filename = os.path.join(
+            transliterator.directory, transliterator.name + ".json"
+        )
+        with open(json_filename, "w") as f:
+            f.write(transliterator.dumps())
+        click.echo(f"Made JSON of {_}.")
 
 
-main.add_command(transliterate)
 main.add_command(dump)
 main.add_command(generate_tests)
-main.add_command(test)
+main.add_command(list_bundled)
 main.add_command(make_json)
+main.add_command(test)
+main.add_command(transliterate)
 
 if __name__ == "__main__":
     sys.exit(main())  # pragma: no cover

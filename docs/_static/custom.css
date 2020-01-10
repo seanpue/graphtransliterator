@@ -1,3 +1,2 @@
-div.jupyter_container + p {
-    margin-top: 24px;
-}
+/* Custom style for fake shell commands */
+div.highlight-console + div.docutils { margin-bottom: 0 px}

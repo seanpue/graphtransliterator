@@ -19,9 +19,10 @@ class DirectedGraph:
     Attributes
     ----------
     node : `list` of `dict`
-        List of node attributes
+        List of node data
     edge : `dict` of {`int`: `dict` of {`int`: `dict`}}
         Mapping from head to tail of edge, holding edge data
+
     edge_list : `list` of `tuple` of (`int`, `int`)
         List of head and tail of each edge
 
@@ -36,7 +37,7 @@ class DirectedGraph:
 
     __slots__ = "edge", "node", "edge_list"
 
-    def __init__(self, edge=None, node=None, edge_list=None):
+    def __init__(self, node=None, edge=None, edge_list=None):
         self.node = node if node else []
         self.edge = edge if edge else {}
         if edge:
@@ -46,7 +47,7 @@ class DirectedGraph:
                     for head_key, _ in edge.items()
                     for tail_key in _.keys()
                 ]
-            self.edge_list = edge_list
+            self.edge_list = sorted(edge_list)  # sorts for string comparison
         else:
             self.edge_list = []
 
@@ -156,57 +157,6 @@ class DirectedGraph:
         node_key = len(self.node)
         self.node.append(node_data)
         return node_key, self.node[node_key]
-
-    def to_dict(self):
-        """Convert graph to a dict, e.g. for serialize.
-
-        Returns
-        -------
-        dict
-            Serialization of graph as a dictionary keyed by:
-
-            ``"edge"``
-               Edge data
-               (`dict` of {`int`: `dict` of {`int`: `dict`}})
-
-            ``"node"``
-                Node data
-                (`list` of `dict`)
-
-            ``"edge_list"``
-                List of edges
-                (`list` of `tuple` (`int`, `int`))
-
-        Examples
-        --------
-        .. jupyter-execute::
-
-          g = DirectedGraph()
-          g.add_node()
-
-        .. jupyter-execute::
-
-          g.add_node({'datakey1': 'data value'})
-
-        .. jupyter-execute::
-
-          g.node
-
-        .. jupyter-execute::
-
-          g.add_edge(0, 1)
-
-        .. jupyter-execute::
-
-          g.add_edge(1, 0)
-
-        .. jupyter-execute::
-
-          g.to_dict()
-
-        """
-
-        return {"edge": self.edge, "node": self.node, "edge_list": self.edge_list}
 
 
 class VisitLoggingList(UserList):

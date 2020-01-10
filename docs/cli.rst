@@ -22,8 +22,9 @@
 ======================
 Command Line Interface
 ======================
-Graph Transliterator has a simple command line interface with five commands:
-``dump``, ``generate-tests``, ``make-json``, ``test``, and ``transliterate``.
+Graph Transliterator has a simple command line interface with six commands:
+``dump``, ``generate-tests``, ``list-bundled``, ``make-json``, ``test``,
+and ``transliterate``.
 
 
 .. code-block:: console
@@ -83,17 +84,49 @@ the second parameter:
   run(cli.dump, ['--from', 'yaml_file', '../graphtransliterator/transliterators/example/example.yaml'])
 
 If you want to check for ambiguity in the transliterator before the dump, use the
---`check-ambiguity` or `-ca` option:
+``--check-ambiguity`` or ``-ca`` option:
 
 .. code-block:: console
 
-  $ graphtransliterator dump --from bundled Example --check-ambiguity
+  $ graphtransliterator dump --from bundled Example --check-ambiguity # human readable
 
 .. jupyter-execute::
   :hide-code:
 
-  run(cli.dump, ['--from', 'bundled', 'Example', '--check-ambiguity'])
+  run(cli.dump, ['--from', 'bundled', 'Example', '--check-ambiguity']) # not human readable, with graph
 
+The compression level can of the JSON be specified using the ``--compression-level`` or
+``-cl`` command. Compression level 0 is human readable; compression level 1 is not human
+readable and includes the generated graph; compression level 2 is not human readable
+and does not include the graph. Compression level 2, which is the fastest, is the
+default. There is no information lost during these compressions:
+
+.. code-block:: console
+
+  $ graphtransliterator dump --from bundled Example --compression-level 0 # human readable, with graph
+
+.. jupyter-execute::
+  :hide-code:
+
+  run(cli.dump, ['--from', 'bundled', 'Example', '--compression-level', '0'])
+
+.. code-block:: console
+
+  $ graphtransliterator dump --from bundled Example --compression-level 1 # not human readable, with graph
+
+.. jupyter-execute::
+  :hide-code:
+
+  run(cli.dump, ['--from', 'bundled', 'Example', '--compression-level', '1'])
+
+.. code-block:: console
+
+  $ graphtransliterator dump --from bundled Example --compression-level 2 # default; not human readable, no graph
+
+.. jupyter-execute::
+  :hide-code:
+
+  run(cli.dump, ['--from', 'bundled', 'Example', '--compression-level', '2'])
 
 Generate Tests
 --------------
@@ -128,9 +161,30 @@ actual JSON, or the name of a YAML file). Ambiguity checking can be turned on us
   run(cli.generate_tests, ['--from', 'bundled', 'Example'])
 
 
+List Bundled Transliterators
+----------------------------
+The ``list-bundled`` command provides a list of bundled transliterators:
+
+.. code-block:: console
+
+  $ graphtransliterator test --help
+
+
+Make JSON of Bundled Transliterator(s)
+--------------------------------------
+The ``make-json`` command makes new JSON files of bundled transliterators:
+
+.. code-block:: console
+
+  $ graphtransliterator make-json --help
+
+It also allows regular-expression matching using the ``--reg-ex`` or ``-re`` flag.
+Matching starts at the start of the string. This command is for people creating
+new bundled transliterators.
+
 Test
 ----
-The `test` command tests a bundled transliterator:
+The ``test`` command tests a bundled transliterator:
 
 .. code-block:: console
 
@@ -147,7 +201,7 @@ You can write the tests first and then begin developing the transliterator:
 
 .. code-block:: console
 
-  $ graphtransliterator cli.test('Example')
+  $ graphtransliterator test Example
 
 .. jupyter-execute::
   :hide-code:
@@ -156,7 +210,7 @@ You can write the tests first and then begin developing the transliterator:
 
 Transliterate
 -------------
-The `transliterate` command will transliterate any following arguments:
+The ``transliterate`` command will transliterate any following arguments:
 
 .. code-block:: console
 
@@ -192,7 +246,7 @@ only one input string, it will return a string:
 .. jupyter-execute::
   :hide-code:
 
-  run(cli.transliterate, ['--f', 'json_file', '../graphtransliterator/transliterators/example/example.json', 'a'])
+  run(cli.transliterate, ['-f', 'json_file', '../graphtransliterator/transliterators/example/example.json', 'a'])
 
 .. code-block:: console
 
@@ -202,7 +256,7 @@ only one input string, it will return a string:
 .. jupyter-execute::
   :hide-code:
 
-  run(cli.transliterate, ['--f', 'yaml_file', '../graphtransliterator/transliterators/example/example.json', 'a'])
+  run(cli.transliterate, ['-f', 'yaml_file', '../graphtransliterator/transliterators/example/example.json', 'a'])
 
 Otherwise, it will return a list:
 
@@ -213,7 +267,7 @@ Otherwise, it will return a list:
 .. jupyter-execute::
   :hide-code:
 
-  run(cli.transliterate, ['--f', 'json_file', '../graphtransliterator/transliterators/example/example.json', 'a', 'a'])
+  run(cli.transliterate, ['-f', 'json_file', '../graphtransliterator/transliterators/example/example.json', 'a', 'a'])
 
 
 The `transliterate` command also an optional ``--to`` or ``-t`` command that specifies
