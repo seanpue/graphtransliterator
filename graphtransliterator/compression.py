@@ -261,9 +261,10 @@ def compress_config(config, compression_level=1):
 def strip_empty(d):
     """Strips entries of dict with no value, but allow zero."""
     return {
-        k: v for k, v in d.items() if v or
-        (type(v) == int and v == 0) or
-        (type(v) == str and v == "")}
+        k: v
+        for k, v in d.items()
+        if v or (type(v) == int and v == 0) or (type(v) == str and v == "")
+    }
 
 
 def decompress_config(compressed_config):

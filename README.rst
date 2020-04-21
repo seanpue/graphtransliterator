@@ -152,7 +152,7 @@ Sample Code and Graph
    circles, and `token` nodes  are single circles. The numbers are the cost of the
    particular edge, and less costly edges are searched first. Previous token classes
    and previous tokens that must be present are found as constraints on the edges
-   incident to the terminal leaf `rule` nodes. 
+   incident to the terminal leaf `rule` nodes.
 
 
 Get It Now
