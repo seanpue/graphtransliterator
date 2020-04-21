@@ -24,11 +24,13 @@ def test_command_line_interface():
     assert help_result.exit_code == 0
     assert "Show this message and exit." in help_result.output
 
+
 def test_command_line_version():
     """Test CLI version."""
     runner = CliRunner()
     version_result = runner.invoke(cli.main, ["--version"])
     assert f"{version}" in version_result.output
+
 
 test_yaml = """
     tokens:
@@ -119,6 +121,10 @@ def test_cli_dump():
     assert dump_result.exit_code == 0
     json_ = dump_result.output
     assert GraphTransliterator.loads(json_).transliterate("a") == "A"
+    # check that dump remains the same (important for version control)
+    for i in range(0, 50):
+        _ = runner.invoke(cli.main, ["dump", "--from", "bundled", "Example"])
+        assert _.output == json_, "JSON dump varies"
 
 
 def test_cli_test():

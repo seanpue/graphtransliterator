@@ -19,6 +19,8 @@ History
 
 ?.?.? (????-??-??)
 ------------------
+* Added test to check compressed dump is uniform
+* Fixed sorting of class id in compressed dump to make JSON output uniform
 * Added Python 3.8 support
 
 1.1.0 (2020-01-10)

@@ -167,7 +167,7 @@ def compress_config(config, compression_level=1):
     token_list = tuple(sorted(config["tokens"].keys()))
     _token_id = {_: i for i, _ in enumerate(token_list)}
 
-    class_list = tuple(set().union(*config["tokens"].values()))
+    class_list = tuple(sorted(set().union(*config["tokens"].values())))
     _class_id = {_: i for i, _ in enumerate(class_list)}
     tokens = tuple(
         tuple(_class_id[_] for _ in config["tokens"][tkn]) for tkn in token_list
