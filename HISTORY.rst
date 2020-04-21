@@ -17,7 +17,7 @@ History
 [To Do]
 -------
 
-?.?.? (????-??-??)
+1.1.1 (2020-04-21)
 ------------------
 * Added test to check compressed dump is uniform
 * Fixed sorting of class id in compressed dump to make JSON output uniform
