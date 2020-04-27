@@ -17,7 +17,7 @@ from .initialize import (
     _onmatch_rules_lookup,
     _tokenizer_pattern_from,
     _tokens_by_class_of,
-    _unescape_charnames
+    _unescape_charnames,
 )
 from .process import _process_easyreading_settings
 from .schemas import (
@@ -34,7 +34,12 @@ from graphtransliterator import __version__ as __version__
 import json
 import logging
 from marshmallow import (
-    fields, pre_load, post_load, Schema, validates_schema, ValidationError
+    fields,
+    pre_load,
+    post_load,
+    Schema,
+    validates_schema,
+    ValidationError,
 )
 import re
 import yaml
@@ -189,7 +194,7 @@ class GraphTransliterator:
     from_yaml_file : Constructor from YAML file in "easy reading" format
 """  # noqa
 
-# ---------- initialize ----------
+    # ---------- initialize ----------
 
     def __init__(
         self,
@@ -205,7 +210,7 @@ class GraphTransliterator:
         graph=None,
         tokenizer_pattern=None,
         graphtransliterator_version=None,
-        **kwargs
+        **kwargs,
     ):
         self._tokens = tokens
         self._rules = rules
@@ -246,9 +251,9 @@ class GraphTransliterator:
             graphtransliterator_version = __version__
         self._graphtransliterator_version = graphtransliterator_version
 
-# ---------- class methods ----------
+    # ---------- class methods ----------
 
-# ---------- private functions ----------
+    # ---------- private functions ----------
 
     def _match_constraints(self, target_edge, curr_node, token_i, tokens):
         """
@@ -262,21 +267,21 @@ class GraphTransliterator:
         rules = self.rules
         if not constraints:
             return True
-        for c_type, c_value in constraints.items():
+        for c_type, c_values in constraints.items():
             if c_type == "prev_tokens":
                 num_tokens = len(rules[curr_node["rule_key"]].tokens)
                 # presume for rule (a) a, with input "aa"
                 # ' ', a, a, ' '  start (token_i=3)
                 #             ^
                 #         ^       -1 subtract num_tokens
-                #      ^          - len(c_value)
+                #      ^          - len(constraint_values)
                 start_at = token_i
                 start_at -= num_tokens
-                start_at -= len(c_value)
+                start_at -= len(c_values)
 
                 if not self._match_tokens(
                     start_at,
-                    c_value,
+                    c_values,
                     tokens,
                     check_prev=True,
                     check_next=False,
@@ -291,7 +296,7 @@ class GraphTransliterator:
 
                 if not self._match_tokens(
                     start_at,
-                    c_value,
+                    c_values,
                     tokens,
                     check_prev=False,
                     check_next=True,
@@ -312,10 +317,10 @@ class GraphTransliterator:
                 prev_tokens = constraints.get("prev_tokens")
                 if prev_tokens:
                     start_at -= len(prev_tokens)
-                start_at -= len(c_value)
+                start_at -= len(c_values)
                 if not self._match_tokens(
                     start_at,
-                    c_value,
+                    c_values,
                     tokens,
                     check_prev=True,
                     check_next=False,
@@ -334,7 +339,7 @@ class GraphTransliterator:
                     start_at += len(next_tokens)
                 if not self._match_tokens(
                     start_at,
-                    c_value,
+                    c_values,
                     tokens,
                     check_prev=False,
                     check_next=True,
@@ -345,23 +350,32 @@ class GraphTransliterator:
         return True
 
     def _match_tokens(
-        self, start_i, c_value, tokens, check_prev=True, check_next=True, by_class=False
+        self,
+        start_i,
+        constraint_values,
+        tokens,
+        check_prev=True,
+        check_next=True,
+        by_class=False,
     ):
-        """Match tokens, with boundary checks."""
+        """
+        Match tokens at a particular index, optionally checking previous or next tokens
+        and by token class, with boundary checks."""
+        import pdb
 
         if check_prev and start_i < 0:
             return False
-        if check_next and start_i + len(c_value) > len(tokens):
+        if check_next and start_i + len(constraint_values) > len(tokens):
             return False
-        for i in range(0, len(c_value)):
+        for i in range(0, len(constraint_values)):
             if by_class:
-                if not c_value[i] in self._tokens[tokens[start_i + i]]:
+                if not constraint_values[i] in self._tokens[tokens[start_i + i]]:
                     return False
-            elif tokens[start_i + i] != c_value[i]:
+            elif tokens[start_i + i] != constraint_values[i]:
                 return False
         return True
 
-# ---------- properties ----------
+    # ---------- properties ----------
 
     @property
     def graph(self):
@@ -460,7 +474,7 @@ class GraphTransliterator:
         """WhiteSpaceRules: Whitespace rules."""
         return self._whitespace
 
-# ---------- public functions ----------
+    # ---------- public functions ----------
 
     def dump(self, compression_level=0):
         """
@@ -554,10 +568,8 @@ class GraphTransliterator:
 
 """  # noqa
         if compression_level == 0:
-            return GraphTransliteratorSchema().dump(
-                self
-            )
-        elif compression_level not in range(1, HIGHEST_COMPRESSION_LEVEL+1):
+            return GraphTransliteratorSchema().dump(self)
+        elif compression_level not in range(1, HIGHEST_COMPRESSION_LEVEL + 1):
             raise ValueError(
                 f"Compression level must be between 0 and {HIGHEST_COMPRESSION_LEVEL}"
             )
@@ -565,8 +577,8 @@ class GraphTransliterator:
             "graphtransliterator_version": __version__,
             "compressed_settings": compress_config(
                 GraphTransliteratorSchema().dump(self),
-                compression_level=compression_level
-            )
+                compression_level=compression_level,
+            ),
         }
 
     def dumps(self, compression_level=2):
@@ -622,11 +634,9 @@ class GraphTransliterator:
         """  # noqa
 
         if compression_level == 0:
-            return GraphTransliteratorSchema().dumps(
-                self
-            )
+            return GraphTransliteratorSchema().dumps(self)
         _config = self.dump(compression_level=compression_level)
-        return json.dumps(_config, separators=(',', ':'))
+        return json.dumps(_config, separators=(",", ":"))
 
     def match_at(self, token_i, tokens, match_all=False):
         """
@@ -982,7 +992,7 @@ class GraphTransliterator:
             token_i += len(tokens_matched)
         return output
 
-# ---------- static methods ----------
+    # ---------- static methods ----------
 
     @staticmethod
     def from_dict(dict_settings, **kwargs):
@@ -999,11 +1009,7 @@ class GraphTransliterator:
             Graph transliterator
         """
         settings = SettingsSchema().load(dict_settings)
-        args = [
-            settings["tokens"],
-            settings["rules"],
-            settings["whitespace"]
-        ]
+        args = [settings["tokens"], settings["rules"], settings["whitespace"]]
         kwargs = {
             "onmatch_rules": settings.get("onmatch_rules"),
             "metadata": settings.get("metadata"),

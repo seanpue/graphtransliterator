@@ -174,6 +174,7 @@ def compress_config(config, compression_level=1):
     )
     nodetype_list = tuple(sorted(set([_["type"] for _ in config["graph"]["node"]])))
     _nodetype_id = {_: i for i, _ in enumerate(nodetype_list)}
+
     rules = tuple(
         (
             r["production"],
@@ -258,7 +259,7 @@ def compress_config(config, compression_level=1):
         )
 
 
-def strip_empty(d):
+def _strip_empty(d):
     """Strips entries of dict with no value, but allow zero."""
     return {
         k: v
@@ -301,7 +302,7 @@ def decompress_config(compressed_config):
                 "token": _token_from_id[_node[2]],
                 "ordered_children": decompressed_ordered_children(3),
             }
-        return strip_empty(new_node)
+        return _strip_empty(new_node)
 
     def decompress_edge_data(data):
 
@@ -323,7 +324,7 @@ def decompress_config(compressed_config):
 
         if _constraints:
             # filter out unused values
-            out["constraints"] = strip_empty(
+            out["constraints"] = _strip_empty(
                 {
                     "prev_classes": _class_from_ids_of(0),
                     "prev_tokens": _token_from_ids_of(1),
@@ -358,7 +359,7 @@ def decompress_config(compressed_config):
         tkn: [_class_list[_] for _ in _tokens[i]] for i, tkn in enumerate(_token_list)
     }
     rules = [
-        strip_empty(
+        _strip_empty(
             {
                 "production": _[0],
                 "prev_classes": [_class_list[i] for i in _[1]] if _[1] else [],

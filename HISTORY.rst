@@ -17,6 +17,10 @@ History
 [To Do]
 -------
 
+?.?.? (2020-??-??)
+------------------
+* updated LICENSE, minor code updates, security updates
+
 1.1.1 (2020-04-21)
 ------------------
 * Added test to check compressed dump is uniform

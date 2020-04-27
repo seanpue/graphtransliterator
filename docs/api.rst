@@ -20,7 +20,7 @@ Public members can (and should) be imported from :class:`graphtransliterator`::
   from graphtransliterator import GraphTransliterator
 
 Bundled transliterators require that :class:`graphtransliterator.transliterators`:
-be imported:
+be imported::
 
   import graphtransliterator.transliterators
   transliterators.iter_names()
