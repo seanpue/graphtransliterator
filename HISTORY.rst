@@ -17,7 +17,7 @@ History
 [To Do]
 -------
 
-?.?.? (2020-??-??)
+1.1.2 (2020-04-29)
 ------------------
 * updated LICENSE, minor code updates, security updates
 
