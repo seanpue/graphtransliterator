@@ -21,6 +21,8 @@ serializer/deserializer).
 
 Those from which code/text has been adopted are mentioned in `NOTICE`_.
 
+[ ~ Dependencies scanned by PyUp.io ~ ]
+
 .. _NOTICE: https://github.com/seanpue/graphtransliterator/blob/master/NOTICE
 .. _astropy: https://docs.astropy.org/en/stable/development/docrules.html
 .. _click: https://github.com/pallets/click
