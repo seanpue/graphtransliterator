@@ -3,7 +3,7 @@ bumpversion==0.5.3
 Click==7.1.2
 coverage==5.1
 flake8==3.7.9
-jupyter_sphinx==0.2.3
+jupyter_sphinx==0.2.4
 marshmallow==3.5.1
 pip==20.1
 pytest-runner==5.2
