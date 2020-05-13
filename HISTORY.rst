@@ -17,10 +17,10 @@ History
 [To Do]
 -------
 
-?.?.? (2020-05-13)
+1.2.0 (2020-05-13)
 ------------------
-* changes to bundled.py and cli.py to add dump tests
-* updated docks with dump_tests
+* changes to bundled.py and cli.py with dump-tests command
+* updated cli.rst
 
 1.1.2 (2020-04-29)
 ------------------
