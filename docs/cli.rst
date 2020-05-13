@@ -23,7 +23,7 @@
 Command Line Interface
 ======================
 Graph Transliterator has a simple command line interface with six commands:
-``dump``, ``generate-tests``, ``list-bundled``, ``make-json``, ``test``,
+``dump``, ``dump-tests``, ``generate-tests``, ``list-bundled``, ``make-json``, ``test``,
 and ``transliterate``.
 
 
@@ -127,6 +127,43 @@ default. There is no information lost during these compressions:
   :hide-code:
 
   run(cli.dump, ['--from', 'bundled', 'Example', '--compression-level', '2'])
+
+Dump Tests
+----------
+
+The ``dump-tests`` command dumps the tests of a bundled transliterator:
+
+
+.. code-block:: console
+
+  $ graphtransliterator dump-tests --help
+
+.. jupyter-execute::
+  :hide-code:
+
+  run(cli.dump_tests, ['--help'])
+
+By default, it outputs the original YAML tests file, preserving any comments:
+
+.. code-block:: console
+
+  $ graphtransliterator dump-tests Example
+
+.. jupyter-execute::
+  :hide-code:
+
+  run(cli.dump_tests, ['Example'])
+
+To output as JSON, use the ``--to`` or ``-t`` flag:
+
+.. code-block:: console
+
+  $ graphtransliterator dump-tests --to json Example
+
+.. jupyter-execute::
+  :hide-code:
+
+  run(cli.dump_tests, ['--to', 'json', 'Example'])
 
 Generate Tests
 --------------
@@ -256,7 +293,7 @@ only one input string, it will return a string:
 .. jupyter-execute::
   :hide-code:
 
-  run(cli.transliterate, ['-f', 'yaml_file', '../graphtransliterator/transliterators/example/example.json', 'a'])
+  run(cli.transliterate, ['-f', 'yaml_file', '../graphtransliterator/transliterators/example/example.yaml', 'a'])
 
 Otherwise, it will return a list:
 
@@ -271,16 +308,16 @@ Otherwise, it will return a list:
 
 
 The `transliterate` command also an optional ``--to`` or ``-t`` command that specifies
-the output format, a `python` string (default) or a `json` string:
+the output format, a ```python`` string (default) or a ``json`` string:
 
 .. code-block:: console
 
-  $ graphtransliterator transliterate --from bundled Example --to python a
+  $ graphtransliterator transliterate --from bundled Example a
 
 .. jupyter-execute::
   :hide-code:
 
-  run(cli.transliterate, ['-f', 'bundled', 'Example', '--to', 'python', 'a'])
+  run(cli.transliterate, ['-f', 'bundled', 'Example', 'a'])
 
 .. code-block:: console
 

@@ -361,7 +361,6 @@ class GraphTransliterator:
         """
         Match tokens at a particular index, optionally checking previous or next tokens
         and by token class, with boundary checks."""
-        import pdb
 
         if check_prev and start_i < 0:
             return False

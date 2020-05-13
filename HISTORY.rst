@@ -17,6 +17,11 @@ History
 [To Do]
 -------
 
+?.?.? (2020-05-13)
+------------------
+* changes to bundled.py and cli.py to add dump tests
+* updated docks with dump_tests
+
 1.1.2 (2020-04-29)
 ------------------
 * updated LICENSE, minor code updates, security updates

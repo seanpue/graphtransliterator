@@ -106,15 +106,20 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             new_.from_YAML(**kwargs)
         return new_
 
+    @property
+    def yaml_tests_filen(self):
+        """
+        `dict`: Metadata of transliterator
+        """
+        return os.path.join(self.directory, "tests", "{}_tests.yaml".format(self.name))
+
     def load_yaml_tests(self):
         """Iterator for YAML tests.
 
         Assumes tests are found in subdirectory `tests` of module with name
         `NAME_tests.yaml, e.g. `source_to_target/tests/source_to_target_tests.yaml`.
         """
-        test_file = os.path.join(
-            self.directory, "tests", "{}_tests.yaml".format(self.name)
-        )
+        test_file = self.yaml_tests_filen
         with open(test_file, "r") as f:
             return {str(k): str(i) for k, i in yaml.safe_load(f).items()}
 

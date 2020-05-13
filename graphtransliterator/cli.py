@@ -3,7 +3,9 @@
 """Console script for graphtransliterator."""
 
 from graphtransliterator import (
-    DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL, GraphTransliterator
+    DEFAULT_COMPRESSION_LEVEL,
+    HIGHEST_COMPRESSION_LEVEL,
+    GraphTransliterator,
 )
 import click
 import json
@@ -52,7 +54,7 @@ def load_transliterator(source, **kwargs):
     "--to",
     "-t",
     type=click.Choice(["json", "python"]),
-    help="Output format",
+    help="Format in which to output",
     nargs=1,
     required=False,
     show_default=True,
@@ -121,6 +123,28 @@ def dump(from_, check_ambiguity, compression_level):
 
 @click.command()
 @click.option(
+    "--to",
+    "-t",
+    default="yaml",
+    help="Format (json/yaml) in which to dump",
+    type=click.Choice(["json", "yaml"], str),
+    show_default=True,
+)
+@click.argument("bundled")
+def dump_tests(bundled, to):
+    """Dump BUNDLED tests."""
+    transliterator = load_transliterator(["bundled", bundled])
+
+    if to == "json":
+        transliteration_tests = transliterator.load_yaml_tests()
+        click.echo(json.dumps(transliteration_tests))
+    elif to == "yaml":
+        with open(transliterator.yaml_tests_filen, "r") as f:
+            click.echo(f.read())
+
+
+@click.command()
+@click.option(
     "--from",
     "-f",
     "from_",
@@ -142,6 +166,7 @@ def dump(from_, check_ambiguity, compression_level):
 def generate_tests(from_, check_ambiguity):
     """Generate tests as YAML."""
     import graphtransliterator.transliterators  # pragma: no cover
+
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity)
     yaml_tests = graphtransliterator.transliterators.Bundled.generate_yaml_tests(
         transliterator
@@ -157,7 +182,7 @@ def generate_tests(from_, check_ambiguity):
     help="Check for ambiguity.",
     show_default=True,
 )
-@click.argument("bundled", nargs=1)
+@click.argument("bundled")
 def test(bundled, check_ambiguity):
     """Test BUNDLED transliterator."""
     transliterator = load_transliterator(
@@ -170,26 +195,30 @@ def test(bundled, check_ambiguity):
 def list_bundled():
     """List BUNDLED transliterators."""
     import graphtransliterator.transliterators as transliterators
+
     click.echo("Bundled transliterators:")
     for _ in transliterators.iter_names():
         click.echo(f"  {_}")
 
 
 @click.argument("bundled", nargs=1)
-@click.option('--regex', '-re', is_flag=True,
-              help="Match transliterators using regular expression.")
+@click.option(
+    "--regex",
+    "-re",
+    is_flag=True,
+    help="Match transliterators using regular expression.",
+)
 @click.command()
 def make_json(bundled, regex):
     """Make JSON rules of BUNDLED transliterator(s)."""
     import graphtransliterator.transliterators as transliterators  # pragma: no cover
+
     if not regex:
         bundled = f"^{bundled}$"
     to_dump = [_ for _ in transliterators.iter_names() if re.match(bundled, _)]
     if not to_dump:
         click.echo(f"No bundled transliterator found matching /{bundled}/.")
-        click.echo(
-            'Try "graphtransliterator list-bundled" for a list.'
-        )
+        click.echo('Try "graphtransliterator list-bundled" for a list.')
         return
     for _ in to_dump:
         transliterator_class = getattr(transliterators, _)
@@ -203,6 +232,7 @@ def make_json(bundled, regex):
 
 
 main.add_command(dump)
+main.add_command(dump_tests)
 main.add_command(generate_tests)
 main.add_command(list_bundled)
 main.add_command(make_json)
