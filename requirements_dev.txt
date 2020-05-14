@@ -1,5 +1,5 @@
 bash_kernel==0.7.2
-bumpversion==0.5.3
+bumpversion==0.6.0
 Click==7.1.2
 coverage==5.1
 flake8==3.7.9
