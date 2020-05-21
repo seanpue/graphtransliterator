@@ -12,7 +12,6 @@ History
 * add static typing with mypy
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 * Adjust CSS for CLI output in docs
-* JSON dump option of bundled transliterators from CLI
 
 [To Do]
 -------
