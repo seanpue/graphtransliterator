@@ -4,7 +4,7 @@ Click==7.1.2
 coverage==5.1
 flake8==3.8.2
 jupyter_sphinx==0.2.4
-marshmallow==3.6.0
+marshmallow==3.8.0
 pip==20.1.1
 pytest-runner==5.2
 pytest==5.4.2
