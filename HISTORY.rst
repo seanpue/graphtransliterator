@@ -13,8 +13,9 @@ History
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 * Adjust CSS for CLI output in docs
 
-[To Do]
--------
+#.#.# (2020-10-16)
+------------------
+* updated docs/conf.py for jupyter_sphinx
 
 1.2.0 (2020-05-13)
 ------------------
