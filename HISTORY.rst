@@ -13,7 +13,11 @@ History
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 * Adjust CSS for CLI output in docs
 
-#.#.# (2020-10-16)
+[To do]
+-------
+* Add on/off switch characters
+
+1.2.1 (2020-10-29)
 ------------------
 * updated docs/conf.py for jupyter_sphinx
 
