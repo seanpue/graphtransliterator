@@ -22,7 +22,6 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
@@ -40,11 +39,9 @@ setup(
         "": ["*.yaml", "*.json"]
     },
     entry_points={
-        'console_scripts': [
-            'graphtransliterator=graphtransliterator.cli:main',
-        ],
+        "console_scripts": ["graphtransliterator=graphtransliterator.cli:main",],
     },
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
