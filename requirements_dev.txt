@@ -13,5 +13,5 @@ sphinx-issues==1.2.0
 tox==3.23.1
 Sphinx==3.5.4
 twine==3.4.1
-watchdog==2.1.0
+watchdog==2.1.1
 wheel==0.36.2
