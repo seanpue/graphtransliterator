@@ -1,6 +1,6 @@
 bash_kernel==0.7.2
 bumpversion==0.6.0
-Click==7.1.2
+Click==8.0.0
 coverage==5.5
 flake8==3.9.1
 jupyter_sphinx==0.3.2
