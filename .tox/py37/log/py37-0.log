@@ -1,9 +1,0 @@
-action: py37, msg: getenv
-cwd: /Users/seanpue/newerx/graphtransliterator/.tox
-cmd: /Users/seanpue/.pyenv/versions/3.7.5/bin/python3.7 -m virtualenv --no-download --python /Users/seanpue/.pyenv/versions/3.7.5/bin/python3.7 py37
-Already using interpreter /Users/seanpue/.pyenv/versions/3.7.5/bin/python3.7
-Using base prefix '/Users/seanpue/.pyenv/versions/3.7.5'
-New python executable in /Users/seanpue/newerx/graphtransliterator/.tox/py37/bin/python3.7
-Also creating executable in /Users/seanpue/newerx/graphtransliterator/.tox/py37/bin/python
-Installing setuptools, pip, wheel...
-done.
