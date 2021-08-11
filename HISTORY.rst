@@ -4,6 +4,8 @@ History
 
 [Unreleased - Maybe]
 --------------------
+* updated CONTRIBUTING.rst for new Python versions
+* added github actions to publish to pypi and testpypi
 * save match location in tokenize using token_details
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
