@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Advanced Tutorial: Bundling a Transliterator &mdash; Graph Transliterator 1.2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Tutorial: Using GraphTransliterator" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Graph Transliterator
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bundled.html">Bundled Transliterators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial: Using GraphTransliterator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Tutorial: Bundling a Transliterator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#git-basics-fork-branch-sync-commit">Git Basics: Fork, Branch, Sync, Commit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fork">Fork</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#branch">Branch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sync">Sync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commit">Commit</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-transliterator">Adding A Transliterator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yaml-file">YAML File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-file">JSON File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#init-py">__init__.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tests">Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-the-transliterator">Testing the Transliterator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pushing-your-transliterator">Pushing Your Transliterator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kudos.html">Kudos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Graph Transliterator</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Advanced Tutorial: Bundling a Transliterator</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/advanced_tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="advanced-tutorial-bundling-a-transliterator">
+<span id="advanced-tutorial"></span><h1>Advanced Tutorial: Bundling a Transliterator<a class="headerlink" href="#advanced-tutorial-bundling-a-transliterator" title="Permalink to this headline">¶</a></h1>
+<p>This advanced tutorial builds upon the original tutorial to show you how to bundle a
+transliterator for inclusion in Graph Transliterator.</p>
+<p>Contributions to Graph Transliterator are strongly encouraged!</p>
+<p>You will make a very simple transliterator while going through the steps of bundling it
+into Graph Transliterator.</p>
+<div class="section" id="git-basics-fork-branch-sync-commit">
+<h2>Git Basics: Fork, Branch, Sync, Commit<a class="headerlink" href="#git-basics-fork-branch-sync-commit" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fork">
+<h3>Fork<a class="headerlink" href="#fork" title="Permalink to this headline">¶</a></h3>
+<p>The first thing to do, if you have not already, is to create a fork of Graph
+Transliterator.  See <a class="reference external" href="https://help.github.com/en/articles/fork-a-repo">https://help.github.com/en/articles/fork-a-repo</a></p>
+<p>(From here on out, we will be using the command line.)</p>
+<p>After creating a fork, clone your forked repo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/YOUR-USERNAME/graphtransliterator
+</pre></div>
+</div>
+</div>
+<div class="section" id="branch">
+<h3>Branch<a class="headerlink" href="#branch" title="Permalink to this headline">¶</a></h3>
+<p>Once you have done that, go into that directory and create a new branch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> graphtransliterator
+git checkout -b <span class="o">[</span>name_of_your_transliterator_branch<span class="o">]</span>
+</pre></div>
+</div>
+<p>For this example, you can use the branch <cite>a_to_b</cite>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> graphtransliterator
+git checkout -b a_to_b
+</pre></div>
+</div>
+<p>Then, push that branch to the origin (your personal github fork):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git push origin <span class="o">[</span>name_of_your_transliterator_branch<span class="o">]</span>
+
+Here that would be:
+
+.. code-block:: bash
+
+  git push origin a_to_b
+</pre></div>
+</div>
+<p>Next, add a remote upstream for Graph Transliterator (the official Graph Transliterator
+repo):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git remote add upstream https://github.com/seanpue/graphtransliterator.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="sync">
+<h3>Sync<a class="headerlink" href="#sync" title="Permalink to this headline">¶</a></h3>
+<p>To update your local copy of the the remote (official Graph Transliterator repo), run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git fetch upstream
+</pre></div>
+</div>
+<p>To sync your personal fork with the remote, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git merge upstream/master
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://help.github.com/en/articles/syncing-a-fork">https://help.github.com/en/articles/syncing-a-fork</a> for more info.
+You can run the previous two commands at any time.</p>
+</div>
+<div class="section" id="commit">
+<h3>Commit<a class="headerlink" href="#commit" title="Permalink to this headline">¶</a></h3>
+<p>You can commit your changes by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git commit -m <span class="s1">&#39;comment here about the commit&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="adding-a-transliterator">
+<h2>Adding A Transliterator<a class="headerlink" href="#adding-a-transliterator" title="Permalink to this headline">¶</a></h2>
+<p>To add a transliterator, the next step is to create a subdirectory in
+<code class="docutils literal notranslate"><span class="pre">transliterators</span></code>.  For this tutorial, you can make a branch named <code class="docutils literal notranslate"><span class="pre">a_to_b</span></code>.</p>
+<p>Note that this will be under <code class="docutils literal notranslate"><span class="pre">graphtransliterator/transliterators</span></code>, so from the
+root directory enter:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> graphtransliterator/transliterators
+mkdir <span class="o">[</span>name_of_your_transliterator<span class="o">]</span>
+<span class="nb">cd</span> <span class="o">[</span>name_of_your_transliterator<span class="o">]</span>
+</pre></div>
+</div>
+<p>For this example, you would enter:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> graphtransliterator/transliterators
+mkdir a_to_b
+<span class="nb">cd</span> a_to_b
+</pre></div>
+</div>
+<p>In the <code class="docutils literal notranslate"><span class="pre">graphtransliterator/transliterators/[name_of_your_transliterator]</span></code> directory,
+you will add:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>an <cite>__init__.py</cite></p></li>
+<li><p>a YAML file in the “easy reading format”</p></li>
+<li><p>a JSON file that is a serialization of the transliterator (optional)</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">tests</span></code> directory including a file named <code class="docutils literal notranslate"><span class="pre">[name_of_your_transliterator]_tests.yaml</span></code></p></li>
+<li><p>a Python test named <code class="docutils literal notranslate"><span class="pre">test_[name_of_your_transliterator].py</span></code> (optional)</p></li>
+</ul>
+</div></blockquote>
+<p>Here is a tree showing the file organization:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>transliterators
+├── {{source_to_target}}
+|   ├── __init__.py
+|   ├── {{source_to_target}}.json
+|   ├── {{source_to_target}}.yaml
+└── tests
+    ├── test_{{source_to_target}}.py
+    └── {{source_to_target}}_tests.yaml
+</pre></div>
+</div>
+<div class="section" id="yaml-file">
+<h3>YAML File<a class="headerlink" href="#yaml-file" title="Permalink to this headline">¶</a></h3>
+<p>The YAML file should contain the “easy reading” version of your transliterator.
+For this example, create a file called <code class="docutils literal notranslate"><span class="pre">a_to_b.yaml</span></code>.  Add a <code class="docutils literal notranslate"><span class="pre">metadata</span></code> field to the
+YAML file, as well, following the guidelines.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tokens</span><span class="p">:</span>
+  <span class="nt">a</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">a_class</span><span class="p p-Indicator">]</span>
+  <span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">whitespace</span><span class="p p-Indicator">]</span>
+<span class="nt">rules</span><span class="p">:</span>
+  <span class="nt">a</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="nt">onmatch_rules</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">&lt;a_class&gt; + &lt;a_class&gt;</span><span class="p">:</span> <span class="s">&quot;,&quot;</span>
+<span class="nt">whitespace</span><span class="p">:</span>
+  <span class="nt">default</span><span class="p">:</span> <span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span>
+  <span class="nt">token_class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">whitespace</span>
+  <span class="nt">consolidate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">A to B</span>
+  <span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.1</span>
+  <span class="nt">url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">http://website_of_project.com</span>
+  <span class="nt">author</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Your Name is Optional</span>
+  <span class="nt">author_email</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">your_email@is_option.al</span>
+  <span class="nt">maintainer</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Maintainer&#39;s Name is Optional</span>
+  <span class="nt">maintainer_email</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">maintainers_email@is_option.al</span>
+  <span class="nt">license</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MIT or Other Open Source License</span>
+  <span class="nt">keywords</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">add</span><span class="p p-Indicator">,</span> <span class="nv">keywords</span><span class="p p-Indicator">,</span> <span class="nv">here</span><span class="p p-Indicator">,</span> <span class="nv">as</span><span class="p p-Indicator">,</span> <span class="nv">a</span><span class="p p-Indicator">,</span> <span class="nv">list</span><span class="p p-Indicator">]</span>
+  <span class="nt">project_urls</span><span class="p">:</span>
+     <span class="nt">Documentation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://link_to_documentation.html</span>
+     <span class="nt">Source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://link_to_sourcecode.html</span>
+     <span class="nt">Tracker</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://link_to_issue_tracker.html</span>
+</pre></div>
+</div>
+<p>For most use cases, the <code class="docutils literal notranslate"><span class="pre">project_urls</span></code> can link to the Graph Transliterator
+Github page.</p>
+</div>
+<div class="section" id="json-file">
+<h3>JSON File<a class="headerlink" href="#json-file" title="Permalink to this headline">¶</a></h3>
+<p>To create a JSON file, you can use the command line interface:</p>
+<blockquote>
+<div><p>$ graphtransliterator dump –from yaml_file a_to_b.yaml &gt; a_to_b.json</p>
+</div></blockquote>
+<p>Alternatively, you can use the <code class="docutils literal notranslate"><span class="pre">make-json</span></code> command:</p>
+<blockquote>
+<div><p>$ graphtransliterator make-json AToB</p>
+</div></blockquote>
+<p>The JSON file loads more quickly than the YAML one, but it is not necessary during
+development.</p>
+</div>
+<div class="section" id="init-py">
+<h3>__init__.py<a class="headerlink" href="#init-py" title="Permalink to this headline">¶</a></h3>
+<p>The <cite>__init__.py</cite> will create the bundled transliterator, which is a subclass of
+<cite>GraphTransliterator</cite> named <cite>Bundled</cite>.</p>
+<p>Following convention, uou need to name your transliterator’s class is CamelCase. For
+this example, it would be <code class="docutils literal notranslate"><span class="pre">AToB</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">graphtransliterator.transliterators</span> <span class="kn">import</span> <span class="n">Bundled</span>
+
+<span class="k">class</span> <span class="nc">AToB</span><span class="p">(</span><span class="n">Bundled</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A to B Bundled Graph Transliterator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize transliterator from YAML.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_YAML</span><span class="p">(</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>  <span class="c1"># defaults to check_ambiguity=True, check_coverage=True</span>
+        <span class="c1"># When ready, remove the previous lines and initialize more quickly from JSON:</span>
+        <span class="c1"># self.init_from_JSON(**kwargs) # check_ambiguity=False, check_coverage=False</span>
+</pre></div>
+</div>
+<p>When you load the bundled transliterator from YAML using <code class="docutils literal notranslate"><span class="pre">from_YAML</span></code> it will check
+for ambiguity as well as check the coverage of the tests. You can turn those features
+off temporarily here.</p>
+<p>When a transliterator is added into Graph Transliterator, it will likely be set to load
+from JSON by default. Tests will check for ambiguity and coverage.</p>
+</div>
+<div class="section" id="tests">
+<h3>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h3>
+<p>Graph Transliterator requires that all bundled transliterators have tests that visit
+every edge and node of the internal graph and that use all on-match rules. The test file
+should be a YAML file defining a dictionary keyed from input to correct output.</p>
+<p>You can test the transliterator as you are developing it by adding YAML tests and
+running the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>graphtransliterator <span class="nb">test</span> <span class="o">[</span>name_of_your_transliterator<span class="o">]</span>
+</pre></div>
+</div>
+<p>Tests can be generated using the command line interface:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir tests
+graphtransliterator generate-tests --from bundled <span class="o">[</span>name_of_your_transliterator<span class="o">]</span> &gt; tests/<span class="o">[</span>name_of_your_transliterator<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="testing-the-transliterator">
+<h2>Testing the Transliterator<a class="headerlink" href="#testing-the-transliterator" title="Permalink to this headline">¶</a></h2>
+<p>You should test the transliterator to make sure everything is correct, including its
+metadata. To do that, navigate back to the root directory of <cite>graphtransliterator</cite>
+and execute the command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>py.test tests/test_transliterators.py
+</pre></div>
+</div>
+<p>You can also run the complete suite of tests by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tox
+</pre></div>
+</div>
+</div>
+<div class="section" id="pushing-your-transliterator">
+<h2>Pushing Your Transliterator<a class="headerlink" href="#pushing-your-transliterator" title="Permalink to this headline">¶</a></h2>
+<p>When you are finished with a version of your transliterator, you should once again
+commit it to your github branch after syncing your branch with the remote. Then you can
+make a pull request to include the transliterator in Graph Transliterator. You can do
+that from the Graph Transliterator Github page.
+See <a class="reference external" href="https://help.github.com/en/articles/creating-a-pull-request-from-a-fork">https://help.github.com/en/articles/creating-a-pull-request-from-a-fork</a>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Tutorial: Using GraphTransliterator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

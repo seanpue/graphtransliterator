@@ -1,0 +1,3 @@
+[console_scripts]
+graphtransliterator = graphtransliterator.cli:main
+

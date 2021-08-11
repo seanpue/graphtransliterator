@@ -17,6 +17,13 @@ History
 -------
 * Add on/off switch characters
 
+1.2.2 (2021-08-11)
+------------------
+* updated dependencies
+* fixed tox.ini
+* updated schema.py error message
+* updated docs/conf.py for jupyter_sphinx
+
 1.2.1 (2020-10-29)
 ------------------
 * updated docs/conf.py for jupyter_sphinx

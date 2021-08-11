@@ -1,0 +1,22 @@
+
+    tokens:
+      a: [token, class1]
+      b: [token, class2]
+      u: [token]
+      ' ': [wb]
+    rules:
+      a: A
+      b: B
+      <wb> u: \N{DEVANAGARI LETTER U}
+    onmatch_rules:
+      -
+        <class1> + <class2>: ","
+      -
+        <class1> + <token>: \N{DEVANAGARI SIGN VIRAMA}
+    whitespace:
+      default: ' '
+      token_class: 'wb'
+      consolidate: true
+    metadata:
+      author: Author
+    

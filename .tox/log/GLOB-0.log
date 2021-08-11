@@ -1,0 +1,158 @@
+action: GLOB, msg: packaging
+cwd: /Users/seanpue/newerx/graphtransliterator
+cmd: /Users/seanpue/.pyenv/versions/3.7.5/bin/python3.7 setup.py sdist --formats=zip --dist-dir .tox/dist
+running sdist
+running egg_info
+writing graphtransliterator.egg-info/PKG-INFO
+writing dependency_links to graphtransliterator.egg-info/dependency_links.txt
+writing entry points to graphtransliterator.egg-info/entry_points.txt
+writing requirements to graphtransliterator.egg-info/requires.txt
+writing top-level names to graphtransliterator.egg-info/top_level.txt
+reading manifest file 'graphtransliterator.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no previously-included files matching '__pycache__' found under directory '*'
+warning: no files found matching '*.jpg' under directory 'docs'
+warning: no files found matching '*.gif' under directory 'docs'
+writing manifest file 'graphtransliterator.egg-info/SOURCES.txt'
+running check
+creating graphtransliterator-1.2.0
+creating graphtransliterator-1.2.0/docs
+creating graphtransliterator-1.2.0/docs/_build
+creating graphtransliterator-1.2.0/docs/_build/html
+creating graphtransliterator-1.2.0/docs/_build/html/_images
+creating graphtransliterator-1.2.0/docs/_build/html/_static
+creating graphtransliterator-1.2.0/docs/_static
+creating graphtransliterator-1.2.0/graphtransliterator
+creating graphtransliterator-1.2.0/graphtransliterator.egg-info
+creating graphtransliterator-1.2.0/tests
+copying files to graphtransliterator-1.2.0...
+copying AUTHORS.rst -> graphtransliterator-1.2.0
+copying CODE_OF_CONDUCT.rst -> graphtransliterator-1.2.0
+copying CONTRIBUTING.rst -> graphtransliterator-1.2.0
+copying HISTORY.rst -> graphtransliterator-1.2.0
+copying LICENSE -> graphtransliterator-1.2.0
+copying MANIFEST.in -> graphtransliterator-1.2.0
+copying README.rst -> graphtransliterator-1.2.0
+copying setup.cfg -> graphtransliterator-1.2.0
+copying setup.py -> graphtransliterator-1.2.0
+copying docs/Makefile -> graphtransliterator-1.2.0/docs
+copying docs/acknowledgements.rst -> graphtransliterator-1.2.0/docs
+copying docs/advanced_tutorial.rst -> graphtransliterator-1.2.0/docs
+copying docs/api.rst -> graphtransliterator-1.2.0/docs
+copying docs/authors.rst -> graphtransliterator-1.2.0/docs
+copying docs/bundled.rst -> graphtransliterator-1.2.0/docs
+copying docs/cli.rst -> graphtransliterator-1.2.0/docs
+copying docs/code_of_conduct.rst -> graphtransliterator-1.2.0/docs
+copying docs/conf.py -> graphtransliterator-1.2.0/docs
+copying docs/contributing.rst -> graphtransliterator-1.2.0/docs
+copying docs/history.rst -> graphtransliterator-1.2.0/docs
+copying docs/index.rst -> graphtransliterator-1.2.0/docs
+copying docs/installation.rst -> graphtransliterator-1.2.0/docs
+copying docs/kudos.rst -> graphtransliterator-1.2.0/docs
+copying docs/make.bat -> graphtransliterator-1.2.0/docs
+copying docs/tutorial.rst -> graphtransliterator-1.2.0/docs
+copying docs/usage.rst -> graphtransliterator-1.2.0/docs
+copying docs/_build/html/_images/figure1.png -> graphtransliterator-1.2.0/docs/_build/html/_images
+copying docs/_build/html/_static/figure1.png -> graphtransliterator-1.2.0/docs/_build/html/_static
+copying docs/_build/html/_static/file.png -> graphtransliterator-1.2.0/docs/_build/html/_static
+copying docs/_build/html/_static/minus.png -> graphtransliterator-1.2.0/docs/_build/html/_static
+copying docs/_build/html/_static/plus.png -> graphtransliterator-1.2.0/docs/_build/html/_static
+copying docs/_build/html/_static/sample_graph.png -> graphtransliterator-1.2.0/docs/_build/html/_static
+copying docs/_static/figure1.png -> graphtransliterator-1.2.0/docs/_static
+copying docs/_static/sample_graph.png -> graphtransliterator-1.2.0/docs/_static
+copying graphtransliterator/__init__.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/ambiguity.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/cli.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/compression.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/core.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/exceptions.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/graphs.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/initialize.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/process.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/rules.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator/schemas.py -> graphtransliterator-1.2.0/graphtransliterator
+copying graphtransliterator.egg-info/PKG-INFO -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying graphtransliterator.egg-info/SOURCES.txt -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying graphtransliterator.egg-info/dependency_links.txt -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying graphtransliterator.egg-info/entry_points.txt -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying graphtransliterator.egg-info/not-zip-safe -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying graphtransliterator.egg-info/requires.txt -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying graphtransliterator.egg-info/top_level.txt -> graphtransliterator-1.2.0/graphtransliterator.egg-info
+copying tests/test_ambiguity.py -> graphtransliterator-1.2.0/tests
+copying tests/test_cli.py -> graphtransliterator-1.2.0/tests
+copying tests/test_compression.py -> graphtransliterator-1.2.0/tests
+copying tests/test_coverage.py -> graphtransliterator-1.2.0/tests
+copying tests/test_graphtransliterator.py -> graphtransliterator-1.2.0/tests
+copying tests/test_transliterators.py -> graphtransliterator-1.2.0/tests
+Writing graphtransliterator-1.2.0/setup.cfg
+creating '.tox/dist/graphtransliterator-1.2.0.zip' and adding 'graphtransliterator-1.2.0' to it
+adding 'graphtransliterator-1.2.0'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info'
+adding 'graphtransliterator-1.2.0/tests'
+adding 'graphtransliterator-1.2.0/docs'
+adding 'graphtransliterator-1.2.0/graphtransliterator'
+adding 'graphtransliterator-1.2.0/PKG-INFO'
+adding 'graphtransliterator-1.2.0/LICENSE'
+adding 'graphtransliterator-1.2.0/CONTRIBUTING.rst'
+adding 'graphtransliterator-1.2.0/MANIFEST.in'
+adding 'graphtransliterator-1.2.0/setup.py'
+adding 'graphtransliterator-1.2.0/HISTORY.rst'
+adding 'graphtransliterator-1.2.0/AUTHORS.rst'
+adding 'graphtransliterator-1.2.0/setup.cfg'
+adding 'graphtransliterator-1.2.0/README.rst'
+adding 'graphtransliterator-1.2.0/CODE_OF_CONDUCT.rst'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/PKG-INFO'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/not-zip-safe'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/SOURCES.txt'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/entry_points.txt'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/requires.txt'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/top_level.txt'
+adding 'graphtransliterator-1.2.0/graphtransliterator.egg-info/dependency_links.txt'
+adding 'graphtransliterator-1.2.0/tests/test_compression.py'
+adding 'graphtransliterator-1.2.0/tests/test_coverage.py'
+adding 'graphtransliterator-1.2.0/tests/test_transliterators.py'
+adding 'graphtransliterator-1.2.0/tests/test_ambiguity.py'
+adding 'graphtransliterator-1.2.0/tests/test_cli.py'
+adding 'graphtransliterator-1.2.0/tests/test_graphtransliterator.py'
+adding 'graphtransliterator-1.2.0/docs/_static'
+adding 'graphtransliterator-1.2.0/docs/_build'
+adding 'graphtransliterator-1.2.0/docs/index.rst'
+adding 'graphtransliterator-1.2.0/docs/advanced_tutorial.rst'
+adding 'graphtransliterator-1.2.0/docs/acknowledgements.rst'
+adding 'graphtransliterator-1.2.0/docs/contributing.rst'
+adding 'graphtransliterator-1.2.0/docs/bundled.rst'
+adding 'graphtransliterator-1.2.0/docs/Makefile'
+adding 'graphtransliterator-1.2.0/docs/cli.rst'
+adding 'graphtransliterator-1.2.0/docs/conf.py'
+adding 'graphtransliterator-1.2.0/docs/kudos.rst'
+adding 'graphtransliterator-1.2.0/docs/tutorial.rst'
+adding 'graphtransliterator-1.2.0/docs/usage.rst'
+adding 'graphtransliterator-1.2.0/docs/make.bat'
+adding 'graphtransliterator-1.2.0/docs/history.rst'
+adding 'graphtransliterator-1.2.0/docs/installation.rst'
+adding 'graphtransliterator-1.2.0/docs/authors.rst'
+adding 'graphtransliterator-1.2.0/docs/api.rst'
+adding 'graphtransliterator-1.2.0/docs/code_of_conduct.rst'
+adding 'graphtransliterator-1.2.0/docs/_static/sample_graph.png'
+adding 'graphtransliterator-1.2.0/docs/_static/figure1.png'
+adding 'graphtransliterator-1.2.0/docs/_build/html'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_static'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_images'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_static/plus.png'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_static/file.png'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_static/minus.png'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_static/sample_graph.png'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_static/figure1.png'
+adding 'graphtransliterator-1.2.0/docs/_build/html/_images/figure1.png'
+adding 'graphtransliterator-1.2.0/graphtransliterator/ambiguity.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/initialize.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/compression.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/__init__.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/rules.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/core.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/schemas.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/cli.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/exceptions.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/process.py'
+adding 'graphtransliterator-1.2.0/graphtransliterator/graphs.py'
+removing 'graphtransliterator-1.2.0' (and everything under it)

@@ -45,7 +45,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx_issues",
-    "jupyter_sphinx.execute",
+    "jupyter_sphinx",
 ]
 # Github repo
 issues_github_path = "seanpue/graphtransliterator"

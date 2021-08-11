@@ -1,0 +1,456 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Bundled Transliterators &mdash; Graph Transliterator 1.2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command Line Interface" href="cli.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Graph Transliterator
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Bundled Transliterators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#test-coverage-of-bundled-transliterators">Test Coverage of Bundled Transliterators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#class-structure-and-naming-conventions">Class Structure and Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-requirements">Metadata Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial: Using GraphTransliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_tutorial.html">Advanced Tutorial: Bundling a Transliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kudos.html">Kudos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Graph Transliterator</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Bundled Transliterators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/bundled.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bundled-transliterators">
+<h1>Bundled Transliterators<a class="headerlink" href="#bundled-transliterators" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Python code on this page: <a class="reference download internal" download="" href="_downloads/93e4d9ccd3b8ea88f6aaba15a7f038d1/bundled.py"><code class="xref download docutils literal notranslate"><span class="pre">bundled.py</span></code></a> Jupyter Notebook: <a class="reference download internal" download="" href="_downloads/a1d6a4b8a8963c924ef7c92674560ef2/bundled.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">bundled.ipynb</span></code></a></p>
+</div>
+<p>Graph Transliterator includes bundled transliterators in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bundled</span></code> subclass of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">GraphTransliterator</span></code> that can be used as follows:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">graphtransliterator.transliterators</span> <span class="k">as</span> <span class="nn">transliterators</span>
+<span class="n">example_transliterator</span> <span class="o">=</span> <span class="n">transliterators</span><span class="o">.</span><span class="n">Example</span><span class="p">()</span>
+<span class="n">example_transliterator</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;A&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>To access transliterator classes, use the iterator
+<code class="xref py py-func docutils literal notranslate"><span class="pre">transliterators.iter_transliterators()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>4
+5</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">bundled_iterator</span> <span class="o">=</span> <span class="n">transliterators</span><span class="o">.</span><span class="n">iter_transliterators</span><span class="p">()</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">bundled_iterator</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;example.Example at 0x1059ca610&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>To access the names of transliterator classes, use the iterator
+<code class="xref py py-func docutils literal notranslate"><span class="pre">transliterators.iter_names()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>6
+7</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">bundled_names_iterator</span> <span class="o">=</span> <span class="n">transliterators</span><span class="o">.</span><span class="n">iter_names</span><span class="p">()</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">bundled_names_iterator</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;Example&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>The actual bundled transliterators are submodules of
+<a class="reference internal" href="api.html#module-graphtransliterator.transliterators" title="graphtransliterator.transliterators"><code class="xref py py-class docutils literal notranslate"><span class="pre">graphtransliterator.transliterators</span></code></a>, but they are loaded into the namespace
+of <code class="xref py py-class docutils literal notranslate"><span class="pre">transliterators</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>8</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">graphtransliterator.transliterators</span> <span class="kn">import</span> <span class="n">Example</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>Each instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">Bundled</span></code> contains a <code class="xref py py-attr docutils literal notranslate"><span class="pre">directory</span></code> attribute:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">transliterator</span> <span class="o">=</span> <span class="n">Example</span><span class="p">()</span>
+<span class="n">transliterator</span><span class="o">.</span><span class="n">directory</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;/Users/seanpue/newerx/graphtransliterator/graphtransliterator/transliterators/example&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Each will contain an easy-reading YAML file that you can view:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tokens</span><span class="p">:</span>
+  <span class="nt">a</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">vowel</span><span class="p p-Indicator">]</span>
+  <span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="nv">whitespace</span><span class="p p-Indicator">]</span>
+  <span class="nt">b</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">consonant</span><span class="p p-Indicator">]</span>
+<span class="nt">rules</span><span class="p">:</span>
+  <span class="nt">a</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">A</span>
+  <span class="nt">b</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">B</span>
+  <span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span>
+  <span class="nt">(&lt;consonant&gt; a) b (a &lt;consonant&gt;)</span><span class="p">:</span>  <span class="s">&quot;!B!&quot;</span>
+<span class="nt">onmatch_rules</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">&lt;vowel&gt; + &lt;vowel&gt;</span><span class="p">:</span> <span class="s">&quot;,&quot;</span>
+<span class="nt">whitespace</span><span class="p">:</span>
+  <span class="nt">consolidate</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+  <span class="nt">default</span><span class="p">:</span> <span class="s">&quot;</span><span class="nv"> </span><span class="s">&quot;</span>
+  <span class="nt">token_class</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">whitespace</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example</span>
+  <span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
+  <span class="nt">description</span><span class="p">:</span> <span class="s">&quot;An</span><span class="nv"> </span><span class="s">Example</span><span class="nv"> </span><span class="s">Bundled</span><span class="nv"> </span><span class="s">Transliterator&quot;</span>
+  <span class="nt">url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample</span>
+  <span class="nt">author</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Author McAuthorson</span>
+  <span class="nt">author_email</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">author_mcauthorson@msu.edu</span>
+  <span class="nt">license</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">MIT License</span>
+  <span class="nt">keywords</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">example</span>
+  <span class="nt">project_urls</span><span class="p">:</span>
+    <span class="nt">Documentation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example</span>
+    <span class="nt">Source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example</span>
+    <span class="nt">Tracker</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/seanpue/graphtransliterator/issues</span>
+</pre></div>
+</div>
+<p>There is also a JSON dump of the transliterator for quick loading:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;graphtransliterator_version&quot;</span><span class="p">:</span><span class="s2">&quot;1.2.0&quot;</span><span class="p">,</span><span class="nt">&quot;compressed_settings&quot;</span><span class="p">:[[</span><span class="s2">&quot;consonant&quot;</span><span class="p">,</span><span class="s2">&quot;vowel&quot;</span><span class="p">,</span><span class="s2">&quot;whitespace&quot;</span><span class="p">],[</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="s2">&quot;b&quot;</span><span class="p">],[[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">]],[[</span><span class="s2">&quot;!B!&quot;</span><span class="p">,[</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">],</span><span class="mi">-5</span><span class="p">],[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="mi">1</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">],[</span><span class="s2">&quot;B&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="mi">2</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">],[</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,[</span><span class="mi">0</span><span class="p">],</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">-1</span><span class="p">]],[</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot;whitespace&quot;</span><span class="p">,</span><span class="mi">0</span><span class="p">],[[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">],</span><span class="s2">&quot;,&quot;</span><span class="p">]],{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;example&quot;</span><span class="p">,</span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;An Example Bundled Transliterator&quot;</span><span class="p">,</span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="s2">&quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;</span><span class="p">,</span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="s2">&quot;Author McAuthorson&quot;</span><span class="p">,</span><span class="nt">&quot;author_email&quot;</span><span class="p">:</span><span class="s2">&quot;author_mcauthorson@msu.edu&quot;</span><span class="p">,</span><span class="nt">&quot;license&quot;</span><span class="p">:</span><span class="s2">&quot;MIT License&quot;</span><span class="p">,</span><span class="nt">&quot;keywords&quot;</span><span class="p">:[</span><span class="s2">&quot;example&quot;</span><span class="p">],</span><span class="nt">&quot;project_urls&quot;</span><span class="p">:{</span><span class="nt">&quot;Documentation&quot;</span><span class="p">:</span><span class="s2">&quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;</span><span class="p">,</span><span class="nt">&quot;Source&quot;</span><span class="p">:</span><span class="s2">&quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;</span><span class="p">,</span><span class="nt">&quot;Tracker&quot;</span><span class="p">:</span><span class="s2">&quot;https://github.com/seanpue/graphtransliterator/issues&quot;</span><span class="p">}},</span><span class="kc">null</span><span class="p">]}</span>
+</pre></div>
+</div>
+<div class="section" id="test-coverage-of-bundled-transliterators">
+<h2>Test Coverage of Bundled Transliterators<a class="headerlink" href="#test-coverage-of-bundled-transliterators" title="Permalink to this headline">¶</a></h2>
+<p>Each bundled transliterators requires rigorous testing: every node and edge, as
+well as any onmatch rules, if applicable, must be visited. A separate subclass
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CoverageTransliterator</span></code>  of <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphTransliterator</span></code> is used
+during testing.</p>
+<p>It logs visits to nodes, edges, and onmatch rules. The tests are found in a subdirectory
+of the transliterator named “tests”. They are in a YAML file consisting of a
+dictionary keyed from transliteration input to correct output, e.g.:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># YAML declaration of tests for bundled Graph Transliterator</span>
+<span class="c1"># These are in the form of a dictionary.</span>
+<span class="c1"># The key is the source text, and the value is the correct transliteration.</span>
+<span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span>
+<span class="nt">a</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">A</span>
+<span class="nt">aa</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">A,A</span>
+<span class="nt">babab</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">BA!B!AB</span>
+<span class="nt">b</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">B</span>
+</pre></div>
+</div>
+<p>Once the tests are completed, Graph Transliterator checks that all components of the
+graph and all of the onmatch rules have been visited.</p>
+</div>
+<div class="section" id="class-structure-and-naming-conventions">
+<h2>Class Structure and Naming Conventions<a class="headerlink" href="#class-structure-and-naming-conventions" title="Permalink to this headline">¶</a></h2>
+<p>Each transliterator must include a class definition in a submodule of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">transliterators</span></code>.</p>
+<p>The class name of each transliterator must be unique and follow camel-case conventions,
+e.g. <cite>SourceToTarget</cite>. File and directory names should, if applicable, be lowercased as
+<cite>source_to_target</cite>.</p>
+<p>The bundled files should follow this directory structure, where {{source_to_target}} is
+the name of the transliterator:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>transliterators
+├── {{source_to_target}}
+|   ├── __init__.py
+|   ├── {{source_to_target}}.json
+|   ├── {{source_to_target}}.yaml
+└── tests
+    ├── test_{{source_to_target}}.py
+    └── {{source_to_target}}_tests.yaml
+</pre></div>
+</div>
+<p>The bundled transliterator will:</p>
+<ul class="simple">
+<li><p>include both an easy-reading YAML file <code class="docutils literal notranslate"><span class="pre">{{source_to_target}}.yaml</span></code> and a
+JSON file <code class="docutils literal notranslate"><span class="pre">{{source_to_target}}.json</span></code>.</p></li>
+<li><p>have tests in a YAML format consisting of a dictionary keyed from transliteration to
+correct output in <code class="docutils literal notranslate"><span class="pre">{{source_to_target}}_tests.yaml</span></code>. It must include complete test
+coverage of its graph. Every node and edge of the graph must be visited during the
+course of the tests, as well as every on-match rule. Each on-match rule must be
+utilized during the course of the tests.</p></li>
+<li><p>include metadata about the transliterator in its easy-reading YAML file.</p></li>
+<li><p>have an optional custom test file <code class="docutils literal notranslate"><span class="pre">test_{{source_to_target.py}}</span></code>. This is useful
+during development.</p></li>
+</ul>
+</div>
+<div class="section" id="metadata-requirements">
+<h2>Metadata Requirements<a class="headerlink" href="#metadata-requirements" title="Permalink to this headline">¶</a></h2>
+<p>Each <code class="xref py py-class docutils literal notranslate"><span class="pre">Bundled</span></code> transliterator can include the following metadata fields. These
+fields are a subset of the metadata of <code class="xref py py-mod docutils literal notranslate"><span class="pre">setuptools</span></code>.</p>
+<dl class="simple">
+<dt>name (<cite>str</cite>)</dt><dd><p>Name of the transliterator, e.g. “source_to_target”.</p>
+</dd>
+<dt>version (<cite>str</cite>, optional)</dt><dd><p>Version of the transliterator. Semantic versioning (<a class="reference external" href="https://semver.org">https://semver.org</a>) is
+recommended.</p>
+</dd>
+<dt>url     (<cite>str</cite>, optional)</dt><dd><p>URL for the transliterator, e.g. github repository.</p>
+</dd>
+<dt>author (<cite>str</cite>, optional)</dt><dd><p>Author of the transliterator</p>
+</dd>
+<dt>author_email (<cite>str</cite>, optional)</dt><dd><p>E-mail address of the author.</p>
+</dd>
+<dt>maintainer (<cite>str</cite>, optional)</dt><dd><p>Name of the maintainer.</p>
+</dd>
+<dt>maintainer_email (<cite>str</cite>, optional)</dt><dd><p>E-mail address of the maintainer.</p>
+</dd>
+<dt>license (<cite>str</cite>, optional)</dt><dd><p>License of the transliterator. An open-source license is required for inclusion in
+this project.</p>
+</dd>
+<dt>keywords (<cite>list</cite> of <cite>str</cite>, optional)</dt><dd><p>List of keywords.</p>
+</dd>
+<dt>project_urls (<cite>dict</cite> of {<cite>str</cite>: <cite>str</cite>}, optional)</dt><dd><p>Dictionary of project URLS, e.g. <cite>Documentation</cite>, <cite>Source</cite>, etc.</p>
+</dd>
+</dl>
+<p>Metadata is validated using a <code class="xref py py-class docutils literal notranslate"><span class="pre">BundledMetadataSchema</span></code> found in
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">transliterators.schemas</span></code>.</p>
+<p>To browse metadata, you can use <code class="xref py py-func docutils literal notranslate"><span class="pre">iter_transliterators()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-default notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>11
+12
+13</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="n">transliterator</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">transliterators</span><span class="o">.</span><span class="n">iter_transliterators</span><span class="p">())</span>
+<span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">transliterator</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;author&#39;: &#39;Author McAuthorson&#39;,
+ &#39;author_email&#39;: &#39;author_mcauthorson@msu.edu&#39;,
+ &#39;description&#39;: &#39;An Example Bundled Transliterator&#39;,
+ &#39;keywords&#39;: [&#39;example&#39;],
+ &#39;license&#39;: &#39;MIT License&#39;,
+ &#39;name&#39;: &#39;example&#39;,
+ &#39;project_urls&#39;: {&#39;Documentation&#39;: &#39;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&#39;,
+                  &#39;Source&#39;: &#39;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&#39;,
+                  &#39;Tracker&#39;: &#39;https://github.com/seanpue/graphtransliterator/issues&#39;},
+ &#39;url&#39;: &#39;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&#39;,
+ &#39;version&#39;: &#39;1.0.0&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

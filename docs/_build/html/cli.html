@@ -1,0 +1,655 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Line Interface &mdash; Graph Transliterator 1.2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+  <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial: Using GraphTransliterator" href="tutorial.html" />
+    <link rel="prev" title="Bundled Transliterators" href="bundled.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Graph Transliterator
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bundled.html">Bundled Transliterators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dump">Dump</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dump-tests">Dump Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-tests">Generate Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#list-bundled-transliterators">List Bundled Transliterators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-json-of-bundled-transliterator-s">Make JSON of Bundled Transliterator(s)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test">Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transliterate">Transliterate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial: Using GraphTransliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_tutorial.html">Advanced Tutorial: Bundling a Transliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kudos.html">Kudos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Graph Transliterator</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Command Line Interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="section" id="command-line-interface">
+<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<p>Graph Transliterator has a simple command line interface with six commands:
+<code class="docutils literal notranslate"><span class="pre">dump</span></code>, <code class="docutils literal notranslate"><span class="pre">dump-tests</span></code>, <code class="docutils literal notranslate"><span class="pre">generate-tests</span></code>, <code class="docutils literal notranslate"><span class="pre">list-bundled</span></code>, <code class="docutils literal notranslate"><span class="pre">make-json</span></code>, <code class="docutils literal notranslate"><span class="pre">test</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">transliterate</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator --help
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: main [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  dump            Dump transliterator as JSON.
+  dump-tests      Dump BUNDLED tests.
+  generate-tests  Generate tests as YAML.
+  list-bundled    List BUNDLED transliterators.
+  make-json       Make JSON rules of BUNDLED transliterator(s).
+  test            Test BUNDLED transliterator.
+  transliterate   Transliterate INPUT.
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="dump">
+<h2>Dump<a class="headerlink" href="#dump" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dump</span></code> command will output the specified transliterator as JSON:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --help
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: dump [OPTIONS]
+
+  Dump transliterator as JSON.
+
+Options:
+  -f, --from &lt;CHOICE TEXT&gt;...     Format (bundled/yaml_file) and source (name or
+                                  filename) of transliterator  [required]
+
+  -ca, --check-ambiguity / -nca, --no-check-ambiguity
+                                  Check for ambiguity.  [default: False]
+  -cl, --compression-level INTEGER
+                                  Compression level, from 0 to 2  [default: 2]
+  --help                          Show this message and exit.
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>It require a <code class="docutils literal notranslate"><span class="pre">--from</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code> option with two arguments. The first argument
+specifies the format of the transliterator (<cite>bundled</cite> or <cite>yaml_file</cite>) and the
+second a parameter for that format (the name of the bundled transliterator or the name
+of a YAML file).</p>
+<p>To load a bundled transliterator, used <cite>bundled</cite> as the first parameter and give its
+(class) name, which will be in CamelCase, as the second:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --from bundled Example
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot;graphtransliterator_version&quot;:&quot;1.2.0&quot;,&quot;compressed_settings&quot;:[[&quot;consonant&quot;,&quot;vowel&quot;,&quot;whitespace&quot;],[&quot; &quot;,&quot;a&quot;,&quot;b&quot;],[[2],[1],[0]],[[&quot;!B!&quot;,[0],[1],[2],[1],[0],-5],[&quot;A&quot;,0,0,[1],0,0,-1],[&quot;B&quot;,0,0,[2],0,0,-1],[&quot; &quot;,0,0,[0],0,0,-1]],[&quot; &quot;,&quot;whitespace&quot;,0],[[[1],[1],&quot;,&quot;]],{&quot;name&quot;:&quot;example&quot;,&quot;version&quot;:&quot;1.0.0&quot;,&quot;description&quot;:&quot;An Example Bundled Transliterator&quot;,&quot;url&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;,&quot;author&quot;:&quot;Author McAuthorson&quot;,&quot;author_email&quot;:&quot;author_mcauthorson@msu.edu&quot;,&quot;license&quot;:&quot;MIT License&quot;,&quot;keywords&quot;:[&quot;example&quot;],&quot;project_urls&quot;:{&quot;Documentation&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;,&quot;Source&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;,&quot;Tracker&quot;:&quot;https://github.com/seanpue/graphtransliterator/issues&quot;}},null]}
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>To load from a YAML file, give <cite>yaml_file</cite> as the first and the the name of the file as
+the second parameter:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --from yaml_file ../graphtransliterator/transliterators/example/example.yaml
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot;graphtransliterator_version&quot;:&quot;1.2.0&quot;,&quot;compressed_settings&quot;:[[&quot;consonant&quot;,&quot;vowel&quot;,&quot;whitespace&quot;],[&quot; &quot;,&quot;a&quot;,&quot;b&quot;],[[2],[1],[0]],[[&quot;!B!&quot;,[0],[1],[2],[1],[0],-5],[&quot;A&quot;,0,0,[1],0,0,-1],[&quot;B&quot;,0,0,[2],0,0,-1],[&quot; &quot;,0,0,[0],0,0,-1]],[&quot; &quot;,&quot;whitespace&quot;,0],[[[1],[1],&quot;,&quot;]],{&quot;name&quot;:&quot;example&quot;,&quot;version&quot;:&quot;1.0.0&quot;,&quot;description&quot;:&quot;An Example Bundled Transliterator&quot;,&quot;url&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;,&quot;author&quot;:&quot;Author McAuthorson&quot;,&quot;author_email&quot;:&quot;author_mcauthorson@msu.edu&quot;,&quot;license&quot;:&quot;MIT License&quot;,&quot;keywords&quot;:[&quot;example&quot;],&quot;project_urls&quot;:{&quot;Documentation&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;,&quot;Source&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;,&quot;Tracker&quot;:&quot;https://github.com/seanpue/graphtransliterator/issues&quot;}},null]}
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you want to check for ambiguity in the transliterator before the dump, use the
+<code class="docutils literal notranslate"><span class="pre">--check-ambiguity</span></code> or <code class="docutils literal notranslate"><span class="pre">-ca</span></code> option:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --from bundled Example --check-ambiguity <span class="c1"># human readable</span>
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot;graphtransliterator_version&quot;:&quot;1.2.0&quot;,&quot;compressed_settings&quot;:[[&quot;consonant&quot;,&quot;vowel&quot;,&quot;whitespace&quot;],[&quot; &quot;,&quot;a&quot;,&quot;b&quot;],[[2],[1],[0]],[[&quot;!B!&quot;,[0],[1],[2],[1],[0],-5],[&quot;A&quot;,0,0,[1],0,0,-1],[&quot;B&quot;,0,0,[2],0,0,-1],[&quot; &quot;,0,0,[0],0,0,-1]],[&quot; &quot;,&quot;whitespace&quot;,0],[[[1],[1],&quot;,&quot;]],{&quot;name&quot;:&quot;example&quot;,&quot;version&quot;:&quot;1.0.0&quot;,&quot;description&quot;:&quot;An Example Bundled Transliterator&quot;,&quot;url&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;,&quot;author&quot;:&quot;Author McAuthorson&quot;,&quot;author_email&quot;:&quot;author_mcauthorson@msu.edu&quot;,&quot;license&quot;:&quot;MIT License&quot;,&quot;keywords&quot;:[&quot;example&quot;],&quot;project_urls&quot;:{&quot;Documentation&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;,&quot;Source&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;,&quot;Tracker&quot;:&quot;https://github.com/seanpue/graphtransliterator/issues&quot;}},null]}
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>The compression level can of the JSON be specified using the <code class="docutils literal notranslate"><span class="pre">--compression-level</span></code> or
+<code class="docutils literal notranslate"><span class="pre">-cl</span></code> command. Compression level 0 is human readable; compression level 1 is not human
+readable and includes the generated graph; compression level 2 is not human readable
+and does not include the graph. Compression level 2, which is the fastest, is the
+default. There is no information lost during these compressions:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --from bundled Example --compression-level <span class="m">0</span> <span class="c1"># human readable, with graph</span>
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot;tokens&quot;: {&quot;a&quot;: [&quot;vowel&quot;], &quot; &quot;: [&quot;whitespace&quot;], &quot;b&quot;: [&quot;consonant&quot;]}, &quot;rules&quot;: [{&quot;production&quot;: &quot;!B!&quot;, &quot;prev_classes&quot;: [&quot;consonant&quot;], &quot;prev_tokens&quot;: [&quot;a&quot;], &quot;tokens&quot;: [&quot;b&quot;], &quot;next_classes&quot;: [&quot;consonant&quot;], &quot;next_tokens&quot;: [&quot;a&quot;], &quot;cost&quot;: 0.22239242133644802}, {&quot;production&quot;: &quot;A&quot;, &quot;tokens&quot;: [&quot;a&quot;], &quot;cost&quot;: 0.5849625007211562}, {&quot;production&quot;: &quot;B&quot;, &quot;tokens&quot;: [&quot;b&quot;], &quot;cost&quot;: 0.5849625007211562}, {&quot;production&quot;: &quot; &quot;, &quot;tokens&quot;: [&quot; &quot;], &quot;cost&quot;: 0.5849625007211562}], &quot;whitespace&quot;: {&quot;consolidate&quot;: false, &quot;default&quot;: &quot; &quot;, &quot;token_class&quot;: &quot;whitespace&quot;}, &quot;onmatch_rules&quot;: [{&quot;prev_classes&quot;: [&quot;vowel&quot;], &quot;next_classes&quot;: [&quot;vowel&quot;], &quot;production&quot;: &quot;,&quot;}], &quot;metadata&quot;: {&quot;name&quot;: &quot;example&quot;, &quot;version&quot;: &quot;1.0.0&quot;, &quot;description&quot;: &quot;An Example Bundled Transliterator&quot;, &quot;url&quot;: &quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;, &quot;author&quot;: &quot;Author McAuthorson&quot;, &quot;author_email&quot;: &quot;author_mcauthorson@msu.edu&quot;, &quot;license&quot;: &quot;MIT License&quot;, &quot;keywords&quot;: [&quot;example&quot;], &quot;project_urls&quot;: {&quot;Documentation&quot;: &quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;, &quot;Source&quot;: &quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;, &quot;Tracker&quot;: &quot;https://github.com/seanpue/graphtransliterator/issues&quot;}}, &quot;ignore_errors&quot;: false, &quot;onmatch_rules_lookup&quot;: {&quot;a&quot;: {&quot;a&quot;: [0]}}, &quot;tokens_by_class&quot;: {&quot;vowel&quot;: [&quot;a&quot;], &quot;whitespace&quot;: [&quot; &quot;], &quot;consonant&quot;: [&quot;b&quot;]}, &quot;graph&quot;: {&quot;node&quot;: [{&quot;type&quot;: &quot;Start&quot;, &quot;ordered_children&quot;: {&quot;b&quot;: [1], &quot;a&quot;: [3], &quot; &quot;: [6]}}, {&quot;type&quot;: &quot;token&quot;, &quot;token&quot;: &quot;b&quot;, &quot;ordered_children&quot;: {&quot;__rules__&quot;: [2, 5]}}, {&quot;rule_key&quot;: 0, &quot;type&quot;: &quot;rule&quot;, &quot;accepting&quot;: true}, {&quot;type&quot;: &quot;token&quot;, &quot;token&quot;: &quot;a&quot;, &quot;ordered_children&quot;: {&quot;__rules__&quot;: [4]}}, {&quot;rule_key&quot;: 1, &quot;type&quot;: &quot;rule&quot;, &quot;accepting&quot;: true}, {&quot;rule_key&quot;: 2, &quot;type&quot;: &quot;rule&quot;, &quot;accepting&quot;: true}, {&quot;type&quot;: &quot;token&quot;, &quot;token&quot;: &quot; &quot;, &quot;ordered_children&quot;: {&quot;__rules__&quot;: [7]}}, {&quot;rule_key&quot;: 3, &quot;type&quot;: &quot;rule&quot;, &quot;accepting&quot;: true}], &quot;edge_list&quot;: [[0, 1], [0, 3], [0, 6], [1, 2], [1, 5], [3, 4], [6, 7]], &quot;edge&quot;: {&quot;0&quot;: {&quot;1&quot;: {&quot;token&quot;: &quot;b&quot;, &quot;cost&quot;: 0.22239242133644802}, &quot;3&quot;: {&quot;token&quot;: &quot;a&quot;, &quot;cost&quot;: 0.5849625007211562}, &quot;6&quot;: {&quot;token&quot;: &quot; &quot;, &quot;cost&quot;: 0.5849625007211562}}, &quot;1&quot;: {&quot;2&quot;: {&quot;cost&quot;: 0.22239242133644802, &quot;constraints&quot;: {&quot;prev_classes&quot;: [&quot;consonant&quot;], &quot;next_tokens&quot;: [&quot;a&quot;], &quot;prev_tokens&quot;: [&quot;a&quot;], &quot;next_classes&quot;: [&quot;consonant&quot;]}}, &quot;5&quot;: {&quot;cost&quot;: 0.5849625007211562}}, &quot;3&quot;: {&quot;4&quot;: {&quot;cost&quot;: 0.5849625007211562}}, &quot;6&quot;: {&quot;7&quot;: {&quot;cost&quot;: 0.5849625007211562}}}}, &quot;tokenizer_pattern&quot;: &quot;(b|a|\\ )&quot;, &quot;graphtransliterator_version&quot;: &quot;1.2.0&quot;}
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --from bundled Example --compression-level <span class="m">1</span> <span class="c1"># not human readable, with graph</span>
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot;graphtransliterator_version&quot;:&quot;1.2.0&quot;,&quot;compressed_settings&quot;:[[&quot;consonant&quot;,&quot;vowel&quot;,&quot;whitespace&quot;],[&quot; &quot;,&quot;a&quot;,&quot;b&quot;],[[2],[1],[0]],[[&quot;!B!&quot;,[0],[1],[2],[1],[0],-5],[&quot;A&quot;,0,0,[1],0,0,-1],[&quot;B&quot;,0,0,[2],0,0,-1],[&quot; &quot;,0,0,[0],0,0,-1]],[&quot; &quot;,&quot;whitespace&quot;,0],[[[1],[1],&quot;,&quot;]],{&quot;name&quot;:&quot;example&quot;,&quot;version&quot;:&quot;1.0.0&quot;,&quot;description&quot;:&quot;An Example Bundled Transliterator&quot;,&quot;url&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;,&quot;author&quot;:&quot;Author McAuthorson&quot;,&quot;author_email&quot;:&quot;author_mcauthorson@msu.edu&quot;,&quot;license&quot;:&quot;MIT License&quot;,&quot;keywords&quot;:[&quot;example&quot;],&quot;project_urls&quot;:{&quot;Documentation&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;,&quot;Source&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;,&quot;Tracker&quot;:&quot;https://github.com/seanpue/graphtransliterator/issues&quot;}},[[&quot;Start&quot;,&quot;rule&quot;,&quot;token&quot;],[[0,0,{&quot;2&quot;:[1],&quot;1&quot;:[3],&quot;0&quot;:[6]}],[2,0,2,{&quot;-1&quot;:[2,5]}],[1,1,0],[2,0,1,{&quot;-1&quot;:[4]}],[1,1,1],[1,1,2],[2,0,0,{&quot;-1&quot;:[7]}],[1,1,3]],{&quot;0&quot;:{&quot;1&quot;:[0,-5,2],&quot;3&quot;:[0,-1,1],&quot;6&quot;:[0,-1,0]},&quot;1&quot;:{&quot;2&quot;:[[[0],[1],[1],[0]],-5,-1],&quot;5&quot;:[0,-1,-1]},&quot;3&quot;:{&quot;4&quot;:[0,-1,-1]},&quot;6&quot;:{&quot;7&quot;:[0,-1,-1]}}]]}
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump --from bundled Example --compression-level <span class="m">2</span> <span class="c1"># default; not human readable, no graph</span>
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot;graphtransliterator_version&quot;:&quot;1.2.0&quot;,&quot;compressed_settings&quot;:[[&quot;consonant&quot;,&quot;vowel&quot;,&quot;whitespace&quot;],[&quot; &quot;,&quot;a&quot;,&quot;b&quot;],[[2],[1],[0]],[[&quot;!B!&quot;,[0],[1],[2],[1],[0],-5],[&quot;A&quot;,0,0,[1],0,0,-1],[&quot;B&quot;,0,0,[2],0,0,-1],[&quot; &quot;,0,0,[0],0,0,-1]],[&quot; &quot;,&quot;whitespace&quot;,0],[[[1],[1],&quot;,&quot;]],{&quot;name&quot;:&quot;example&quot;,&quot;version&quot;:&quot;1.0.0&quot;,&quot;description&quot;:&quot;An Example Bundled Transliterator&quot;,&quot;url&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample&quot;,&quot;author&quot;:&quot;Author McAuthorson&quot;,&quot;author_email&quot;:&quot;author_mcauthorson@msu.edu&quot;,&quot;license&quot;:&quot;MIT License&quot;,&quot;keywords&quot;:[&quot;example&quot;],&quot;project_urls&quot;:{&quot;Documentation&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example&quot;,&quot;Source&quot;:&quot;https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example&quot;,&quot;Tracker&quot;:&quot;https://github.com/seanpue/graphtransliterator/issues&quot;}},null]}
+
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="dump-tests">
+<h2>Dump Tests<a class="headerlink" href="#dump-tests" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">dump-tests</span></code> command dumps the tests of a bundled transliterator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump-tests --help
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: dump-tests [OPTIONS] BUNDLED
+
+  Dump BUNDLED tests.
+
+Options:
+  -t, --to [json|yaml]  Format (json/yaml) in which to dump  [default: yaml]
+  --help                Show this message and exit.
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>By default, it outputs the original YAML tests file, preserving any comments:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump-tests Example
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span># YAML declaration of tests for bundled Graph Transliterator
+# These are in the form of a dictionary.
+# The key is the source text, and the value is the correct transliteration.
+&#39; &#39;: &#39; &#39;
+a: A
+aa: A,A
+babab: BA!B!AB
+b: B
+
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>To output as JSON, use the <code class="docutils literal notranslate"><span class="pre">--to</span></code> or <code class="docutils literal notranslate"><span class="pre">-t</span></code> flag:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator dump-tests --to json Example
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&quot; &quot;: &quot; &quot;, &quot;a&quot;: &quot;A&quot;, &quot;aa&quot;: &quot;A,A&quot;, &quot;babab&quot;: &quot;BA!B!AB&quot;, &quot;b&quot;: &quot;B&quot;}
+
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="generate-tests">
+<h2>Generate Tests<a class="headerlink" href="#generate-tests" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">generate-tests</span></code> command generates YAML tests keyed from input to desired output
+covering the entire internal graph. This command can be used to view the output of the
+transliterator in Unicode. It can also be used to generate starter tests for bundled
+transliterators:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator generate-tests --help
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: generate-tests [OPTIONS]
+
+  Generate tests as YAML.
+
+Options:
+  -f, --from &lt;CHOICE TEXT&gt;...     Format (bundled/json/json_file/yaml_file) and
+                                  source (name, JSON, or filename) of
+                                  transliterator  [required]
+
+  -ca, --check-ambiguity / -nca, --no-check-ambiguity
+                                  Check for ambiguity.  [default: False]
+  --help                          Show this message and exit.
+</pre></div>
+</div>
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>It also require a <code class="docutils literal notranslate"><span class="pre">--from</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code> option with two arguments. The first argument
+specifies the format of the transliterator (<cite>bundled</cite>, <cite>json</cite>, <cite>json_file</cite>, <cite>yaml_file</cite>),
+and the second a parameter for that format (the name of the bundled transliterator, the
+actual JSON, or the name of a YAML file). Ambiguity checking can be turned on using
+<code class="docutils literal notranslate"><span class="pre">--check_ambiguity</span></code> or <code class="docutils literal notranslate"><span class="pre">-ca</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator generate-tests --from bundled Example
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>&#39; &#39;: &#39; &#39;
+a: A
+aa: A,A
+b: B
+babab: BA!B!AB
+
+
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="list-bundled-transliterators">
+<h2>List Bundled Transliterators<a class="headerlink" href="#list-bundled-transliterators" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">list-bundled</span></code> command provides a list of bundled transliterators:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator <span class="nb">test</span> --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-json-of-bundled-transliterator-s">
+<h2>Make JSON of Bundled Transliterator(s)<a class="headerlink" href="#make-json-of-bundled-transliterator-s" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">make-json</span></code> command makes new JSON files of bundled transliterators:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator make-json --help
+</pre></div>
+</div>
+<p>It also allows regular-expression matching using the <code class="docutils literal notranslate"><span class="pre">--reg-ex</span></code> or <code class="docutils literal notranslate"><span class="pre">-re</span></code> flag.
+Matching starts at the start of the string. This command is for people creating
+new bundled transliterators.</p>
+</div>
+<div class="section" id="test">
+<h2>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">test</span></code> command tests a bundled transliterator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator <span class="nb">test</span> --help
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: test [OPTIONS] BUNDLED
+
+  Test BUNDLED transliterator.
+
+Options:
+  -ca, --check-ambiguity / -nca, --no-check-ambiguity
+                                  Check for ambiguity.  [default: False]
+  --help                          Show this message and exit.
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>It can only be used with bundled transliterators, so it only needs the name of the
+transliterator as its argument. This feature is useful when developing a transliterator.
+You can write the tests first and then begin developing the transliterator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator <span class="nb">test</span> Example
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="transliterate">
+<h2>Transliterate<a class="headerlink" href="#transliterate" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">transliterate</span></code> command will transliterate any following arguments:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate --help
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>Usage: transliterate [OPTIONS] [INPUT]...
+
+  Transliterate INPUT.
+
+Options:
+  -f, --from &lt;CHOICE TEXT&gt;...     Format (bundled/json/json_file/yaml_file) and
+                                  source (name, JSON, or filename) of
+                                  transliterator  [required]
+
+  -t, --to [json|python]          Format in which to output  [default: python]
+  -ca, --check-ambiguity / -nca, --no-check-ambiguity
+                                  Check for ambiguity.  [default: False]
+  -ie, -nie, --ignore-errors / --no-ignore-errors
+                                  Ignore errors.  [default: False]
+  --help                          Show this message and exit.
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>It also requires a <code class="docutils literal notranslate"><span class="pre">--from</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code> option with two arguments. The first argument
+specifies the format of the transliterator (<cite>bundled</cite>, <cite>json</cite>, <cite>json_file</cite>,
+<cite>yaml_file</cite>), and the second a parameter for that format (the name of the bundled
+transliterator, the actual JSON, or the name of a YAML file).</p>
+<p>The <cite>transliterate</cite> command will transliterate every argument that follows. If there is
+only one input string, it will return a string:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate --from bundled Example a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>A
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate -f json_file ../graphtransliterator/transliterators/example/example.json a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>A
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate -f yaml_file ../graphtransliterator/transliterators/example/example.yaml a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>A
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>Otherwise, it will return a list:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate -f bundled Example a a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;A&#39;, &#39;A&#39;]
+
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <cite>transliterate</cite> command also an optional <code class="docutils literal notranslate"><span class="pre">--to</span></code> or <code class="docutils literal notranslate"><span class="pre">-t</span></code> command that specifies
+the output format, a <code class="docutils literal notranslate"><span class="pre">`python</span></code> string (default) or a <code class="docutils literal notranslate"><span class="pre">json</span></code> string:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate --from bundled Example a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>A
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate --from bundled Example --to json a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>&quot;A&quot;
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate --from bundled Example --to python a a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;A&#39;, &#39;A&#39;]
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> graphtransliterator transliterate --from bundled Example --to json a a
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>[&quot;A&quot;, &quot;A&quot;]
+
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial: Using GraphTransliterator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="bundled.html" class="btn btn-neutral float-left" title="Bundled Transliterators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Michigan State University
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
