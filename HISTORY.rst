@@ -19,6 +19,7 @@ History
 
 1.2.2 (2021-08-11)
 ------------------
+* shifted to github CI 
 * updated dependencies
 * fixed tox.ini
 * updated schema.py error message
