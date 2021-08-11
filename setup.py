@@ -46,6 +46,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/seanpue/graphtransliterator",
-    version="1.2.0",
+    version="version="1.2.0"",
     zip_safe=False,
 )
