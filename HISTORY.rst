@@ -4,12 +4,10 @@ History
 
 [Unreleased - Maybe]
 --------------------
-* updated CONTRIBUTING.rst for new Python versions
-* added github actions to publish to pypi and testpypi
 * save match location in tokenize using token_details
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
-* add translated messages using Transifex
+* add translated messages
 * add precommit to run black
 * add static typing with mypy
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
@@ -21,6 +19,9 @@ History
 
 1.2.2 (2021-08-11)
 ------------------
+
+* updated CONTRIBUTING.rst for new Python versions
+* added github actions to publish to pypi and testpypi
 * shifted to github CI 
 * updated dependencies
 * fixed tox.ini
