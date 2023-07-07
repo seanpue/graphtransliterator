@@ -1,4 +1,4 @@
-bash_kernel==0.7.2
+bash_kernel==0.9.1
 bumpversion==0.6.0
 Click==8.0.1
 coverage==5.5
