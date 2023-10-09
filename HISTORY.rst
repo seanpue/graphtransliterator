@@ -18,7 +18,7 @@ History
 * Add on/off switch characters
 * fix coverage
 
-1.2.* (2023-10-09)
+1.2.3 (2023-10-09)
 ------------------
 * added python 3.10, 3.11, removed <=3.8
 * updated dependencies (used pur)

@@ -163,3 +163,12 @@ def test_list_bundled():
     test_result = runner.invoke(cli.main, ["list-bundled"])
     assert "Bundled transliterators:" in test_result.output
     assert "Example" in test_result.output
+
+def test_dump_tests():
+    runner = CliRunner()
+    test_result = runner.invoke(cli.main, ["dump-tests", "Example"]) # yaml
+    assert "a: A" in test_result.output
+    test_result = runner.invoke(cli.main, ["dump-tests", "--to", "json", "Example"]) # json
+    assert '"a": "A"' in test_result.output, test_result.output
+    test_result = runner.invoke(cli.main, ["dump-tests", "--to", "yaml", "Example"]) # json
+    assert "a: A" in test_result.output
