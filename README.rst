@@ -6,10 +6,6 @@ Graph Transliterator
       :target: https://pypi.python.org/pypi/graphtransliterator
       :alt: PyPi Version
 
-.. image:: https://img.shields.io/travis/seanpue/graphtransliterator.svg
-      :target: https://travis-ci.org/seanpue/graphtransliterator
-      :alt: Travis status
-
 .. image:: https://readthedocs.org/projects/graphtransliterator/badge/?version=latest
       :target: https://graphtransliterator.readthedocs.io/en/latest/?badge=latest
       :alt: Documentation Status

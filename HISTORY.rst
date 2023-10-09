@@ -16,6 +16,7 @@ History
 [To do]
 -------
 * Add on/off switch characters
+* fix coverage
 
 1.2.* (2023-10-09)
 ------------------
@@ -25,6 +26,7 @@ History
 * reformatted with black
 * adjusted flake8 line length
 * removed collect_ignore for pytest
+* updated Github actions
 
 1.2.2 (2021-08-11)
 ------------------
