@@ -13,7 +13,7 @@ Tutorial: Using GraphTransliterator
 
 .. note::
 
-  Python code on this page: :jupyter-download:script:`tutorial` Jupyter Notebook: :jupyter-download:notebook:`tutorial`
+  Python code on this page: :jupyter-download-script:`tutorial` Jupyter Notebook: :jupyter-download-notebook:`tutorial`
 
 Graph Transliterator is designed to allow you to quickly develop rules for
 transliterating between languages and scripts. In this tutorial you will use a

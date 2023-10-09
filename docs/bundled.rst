@@ -14,7 +14,7 @@ Bundled Transliterators
 
 .. note::
 
-  Python code on this page: :jupyter-download:script:`bundled` Jupyter Notebook: :jupyter-download:notebook:`bundled`
+  Python code on this page: :jupyter-download-script:`bundled` Jupyter Notebook: :jupyter-download-notebook:`bundled`
 
 Graph Transliterator includes bundled transliterators in a :class:`Bundled` subclass of
 :class:`GraphTransliterator` that can be used as follows:

@@ -15,7 +15,7 @@ Usage
 
 .. note:
 
-  Python code on this page: :jupyter-download:script:`usage` Jupyter Notebook: :jupyter-download:notebook:`usage`
+  Python code on this page: :jupyter-download-script:`usage` Jupyter Notebook: :jupyter-download-notebook:`usage`
 
 To use Graph Transliterator in a project:
 

@@ -191,8 +191,7 @@ class GraphTransliterator:
     from_dict : Constructor from dictionary of settings
     from_easyreading_dict : Constructor from  dictionary in "easy reading" format
     from_yaml : Constructor from YAML string in "easy reading" format
-    from_yaml_file : Constructor from YAML file in "easy reading" format
-"""  # noqa
+    from_yaml_file : Constructor from YAML file in "easy reading" format"""  # noqa
 
     # ---------- initialize ----------
 
@@ -564,8 +563,7 @@ class GraphTransliterator:
         dumps : Dump Graph Transliterator configuration to JSON string
         load : Load Graph Transliteration from configuration in Python data types
         loads : Load Graph Transliteration from configuration as a JSON string
-
-"""  # noqa
+        """  # noqa
         if compression_level == 0:
             return GraphTransliteratorSchema().dump(self)
         elif compression_level not in range(1, HIGHEST_COMPRESSION_LEVEL + 1):
@@ -718,7 +716,6 @@ class GraphTransliterator:
                 if children:
                     # reordered high to low for stack:
                     for child_key in reversed(children):
-
                         stack.appendleft((child_key, node_key, token_i))
                 else:
                     rules_keys = ordered_children.get("__rules__")  # leafs

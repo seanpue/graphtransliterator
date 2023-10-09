@@ -100,10 +100,9 @@ def compress_config(config, compression_level=1):
         return config
 
     def compressed_cost(x):
-        return -1 * round((1 / (2 ** x - 1) - 1))  # convert to -int
+        return -1 * round((1 / (2**x - 1) - 1))  # convert to -int
 
     def compress_edge_data(data):
-
         constraints = data.get("constraints")
 
         def _class_ids_of(constraint_attr):
@@ -264,7 +263,7 @@ def _strip_empty(d):
     return {
         k: v
         for k, v in d.items()
-        if v or (type(v) == int and v == 0) or (type(v) == str and v == "")
+        if v or (type(v) is int and v == 0) or (type(v) is str and v == "")
     }
 
 
@@ -305,7 +304,6 @@ def decompress_config(compressed_config):
         return _strip_empty(new_node)
 
     def decompress_edge_data(data):
-
         [_constraints, _cost, _token] = data
 
         out = {}

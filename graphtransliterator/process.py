@@ -102,7 +102,6 @@ def _process_onmatch_rules(easyreading_onmatch_rules):
     processed_onmatch_rules = []
 
     for item in easyreading_onmatch_rules:
-
         assert len(item) == 1, "onmatch_rule has too many values: %s" % item
 
         (rule_easyreading, _production) = list(item.items())[0]

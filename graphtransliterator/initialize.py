@@ -65,7 +65,7 @@ def _cost_of(rule):
 
 
 def _onmatch_rule_of(onmatch_rule):
-    """ Converts onmatch_rule into OnMatchRule. """
+    """Converts onmatch_rule into OnMatchRule."""
 
     return OnMatchRule(
         prev_classes=onmatch_rule["prev_classes"],
@@ -75,7 +75,7 @@ def _onmatch_rule_of(onmatch_rule):
 
 
 def _onmatch_rules_lookup(tokens, onmatch_rules):
-    """ Creates a dict lookup from current to previous token.
+    """Creates a dict lookup from current to previous token.
 
     Returns
     -------
@@ -111,7 +111,7 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
 
 
 def _whitespace_rules_of(whitespace):
-    """ Converts whitespace into WhiteSpace """
+    """Converts whitespace into WhiteSpace"""
     return WhitespaceRules(
         default=whitespace["default"],
         token_class=whitespace["token_class"],
@@ -123,7 +123,7 @@ def _whitespace_rules_of(whitespace):
 
 
 def _tokenizer_pattern_from(tokens):
-    """ Generates regular expression tokenizer pattern from token list.
+    """Generates regular expression tokenizer pattern from token list.
 
     Sorts by length and then tokens.
     """

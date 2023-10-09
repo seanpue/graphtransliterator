@@ -224,12 +224,12 @@ class NodeDataSchema(Schema):
     @pre_dump
     def strip_empty(self, data, **kwargs):
         """Remove keys with empty values, allowing zero."""
-        _data = {k: v for k, v in data.items() if v or (type(v) == int and v == 0)}
+        _data = {k: v for k, v in data.items() if v or (type(v) is int and v == 0)}
         return _data
 
 
 class DirectedGraphSchema(Schema):
-    """ Schema for :class:`DirectedGraph`.
+    """Schema for :class:`DirectedGraph`.
 
     Validates graph somewhat rigorously.
     """

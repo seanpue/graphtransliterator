@@ -80,7 +80,7 @@ def check_for_ambiguity(transliterator):
         matrix += [row]
 
     def full_intersection(i, j):
-        """ Intersection of  matrix[i] and matrix[j], else None."""
+        """Intersection of  matrix[i] and matrix[j], else None."""
 
         intersections = []
         for k in range(width):
@@ -105,7 +105,6 @@ def check_for_ambiguity(transliterator):
     for _group_val, group_iter in itertools.groupby(
         enumerate(transliterator._rules), key=lambda x: x[1].cost
     ):
-
         group = list(group_iter)
         if len(group) == 1:
             continue

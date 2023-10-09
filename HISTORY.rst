@@ -17,12 +17,21 @@ History
 -------
 * Add on/off switch characters
 
+1.2.* (2023-10-09)
+------------------
+* added python 3.10
+* updated dependencies (used pur)
+* updated jupyter-download syntax
+* reformatted with black
+* adjusted flake8 line length
+* removed collect_ignore for pytest
+
 1.2.2 (2021-08-11)
 ------------------
 
 * updated CONTRIBUTING.rst for new Python versions
 * added github actions to publish to pypi and testpypi
-* shifted to github CI 
+* shifted to github CI
 * updated dependencies
 * fixed tox.ini
 * updated schema.py error message

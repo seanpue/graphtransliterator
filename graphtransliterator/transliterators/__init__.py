@@ -12,7 +12,7 @@ from .schemas import MetadataSchema  # noqa
 import inspect
 import pkgutil
 
-__all__ = ['Bundled', 'MetadataSchema', 'iter_names', 'iter_transliterators']
+__all__ = ["Bundled", "MetadataSchema", "iter_names", "iter_transliterators"]
 
 _transliterators = []
 
