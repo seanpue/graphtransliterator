@@ -16,7 +16,7 @@ History
 [To do]
 -------
 * Add on/off switch characters
-* fix coverage
+* Update module publication
 
 1.2.3 (2023-10-09)
 ------------------
