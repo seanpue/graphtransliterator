@@ -20,7 +20,7 @@ History
 
 1.2.* (2023-10-09)
 ------------------
-* added python 3.10
+* added python 3.10, removed >=3.8
 * updated dependencies (used pur)
 * updated jupyter-download syntax
 * reformatted with black
