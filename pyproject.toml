@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "graphtransliterator"
+version = "1.2.3"
+description = "A graph-based transliteration tool"
+authors = ["A. Sean Pue <seanpue@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.rst"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+click = "^8.1.7"
+marshmallow = "^3.20.1"
+PyYAML = "^6.0.1"
+
+[tool.poetry.group.dev.dependencies]
+bash_kernel = "^0.9.1"
+click = "^8.1.7"
+coverage = "^7.3.2"
+flake8 = "^6.1.0"
+jupyter-sphinx = "^0.4.0"
+marshmallow = "^3.20.1"
+pytest = "^7.4.2"
+PyYAML = "^6.0.1"
+sphinx-issues = "^3.0.1"
+tox = "^4.11.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
