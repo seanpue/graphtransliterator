@@ -412,7 +412,7 @@ def test_serialization():
                 assert GraphTransliterator.load(settings)
     # test IncorrectVersionException
     _ = gt.dump()
-    _['graphtransliterator_version'] += "1"  # add 1 e.g. 1.0.11
+    _["graphtransliterator_version"] += "1"  # add 1 e.g. 1.0.11
     with pytest.raises(IncorrectVersionException):
         assert GraphTransliterator.load(_)
 

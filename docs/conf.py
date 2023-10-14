@@ -69,9 +69,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Graph Transliterator"
-copyright = u"2020, Michigan State University"
-author = u"A. Sean Pue"
+project = "Graph Transliterator"
+copyright = "2020, Michigan State University"
+author = "A. Sean Pue"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -150,8 +150,8 @@ latex_documents = [
     (
         master_doc,
         "graphtransliterator.tex",
-        u"Graph Transliterator Documentation",
-        u"A. Sean Pue",
+        "Graph Transliterator Documentation",
+        "A. Sean Pue",
         "manual",
     )
 ]
@@ -165,7 +165,7 @@ man_pages = [
     (
         master_doc,
         "graphtransliterator",
-        u"Graph-based Transliterator Documentation",
+        "Graph-based Transliterator Documentation",
         [author],
         1,
     )
@@ -181,7 +181,7 @@ texinfo_documents = [
     (
         master_doc,
         "graphtransliterator",
-        u"Graph Transliterator Documentation",
+        "Graph Transliterator Documentation",
         author,
         "graphtransliterator",
         "A graph-based transliteration tool.",

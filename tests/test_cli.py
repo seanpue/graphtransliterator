@@ -14,6 +14,7 @@ import os
 import yaml
 import click
 
+
 def test_command_line_interface():
     """Test the CLI."""
     runner = CliRunner()
@@ -157,19 +158,23 @@ def test_list_bundled():
     assert "Bundled transliterators:" in test_result.output
     assert "Example" in test_result.output
 
+
 def test_dump_tests():
     runner = CliRunner()
-    test_result = runner.invoke(cli.main, ["dump-tests", "Example"]) # yaml
+    test_result = runner.invoke(cli.main, ["dump-tests", "Example"])  # yaml
     assert "a: A" in test_result.output
-    test_result = runner.invoke(cli.main, ["dump-tests", "--to", "json", "Example"]) # json
+    test_result = runner.invoke(
+        cli.main, ["dump-tests", "--to", "json", "Example"]
+    )  # json
     assert '"a": "A"' in test_result.output, test_result.output
-    test_result = runner.invoke(cli.main, ["dump-tests", "--to", "yaml", "Example"]) # json
+    test_result = runner.invoke(
+        cli.main, ["dump-tests", "--to", "yaml", "Example"]
+    )  # json
     assert "a: A" in test_result.output
+
 
 def test_command_line_version():
     """Test CLI version."""
     runner = CliRunner()
     version_result = runner.invoke(cli.main, ["--version"])
     assert f"{version}" in version_result.output
-
-

@@ -6,14 +6,15 @@ Tests for ambiguity checking and reporting.
 
 from graphtransliterator import (
     AmbiguousTransliterationRulesException,
-    GraphTransliterator, TransliterationRule
+    GraphTransliterator,
+    TransliterationRule,
 )
 from graphtransliterator.ambiguity import _easyreading_rule
 import pytest
 
 
 def test_GraphParser_check_ambiguity():
-    """ Test for rules that can both match the same thing."""
+    """Test for rules that can both match the same thing."""
 
     yaml_for_test = r"""
         tokens:
