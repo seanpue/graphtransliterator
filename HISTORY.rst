@@ -12,6 +12,7 @@ History
 * add static typing with mypy
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 * Adjust CSS for CLI output in docs
+* add doc making test to commit
 
 [To do]
 -------

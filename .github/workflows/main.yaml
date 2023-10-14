@@ -17,19 +17,13 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cache/pre-commit
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          key: {% raw %}pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}{% endraw %}
 
       - name: Set up the environment
         uses: ./.github/actions/setup-poetry-env
 
-      - name: Run pre-commit
-        run: poetry run pre-commit run -a --show-diff-on-failure
-
-      - name: Inspect dependencies
-        run: poetry run deptry .
-
-      - name: Check Poetry lock file consistency
-        run: poetry lock --check
+      - name: Run checks
+        run: make check
 
   tox:
     runs-on: ubuntu-latest
@@ -62,9 +56,19 @@ jobs:
 
       - name: Test with tox
         run: tox
-
+      
       - name: Upload coverage reports to Codecov with GitHub Action on Python 3.11
         uses: codecov/codecov-action@v3
-        if: ${{ matrix.python-version == '3.11' }}
+        if: {{ matrix.python-version == '3.11' }}
 
-  
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-poetry-env
+
+      - name: Check if documentation can be built
+        run: poetry run make -C docs html
