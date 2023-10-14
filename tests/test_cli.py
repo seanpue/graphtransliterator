@@ -12,7 +12,7 @@ from io import StringIO
 import json
 import os
 import yaml
-
+import click
 
 def test_command_line_interface():
     """Test the CLI."""
@@ -23,13 +23,6 @@ def test_command_line_interface():
     help_result = runner.invoke(cli.main, ["--help"])
     assert help_result.exit_code == 0
     assert "Show this message and exit." in help_result.output
-
-
-def test_command_line_version():
-    """Test CLI version."""
-    runner = CliRunner()
-    version_result = runner.invoke(cli.main, ["--version"])
-    assert f"{version}" in version_result.output
 
 
 test_yaml = """
@@ -172,3 +165,11 @@ def test_dump_tests():
     assert '"a": "A"' in test_result.output, test_result.output
     test_result = runner.invoke(cli.main, ["dump-tests", "--to", "yaml", "Example"]) # json
     assert "a: A" in test_result.output
+
+def test_command_line_version():
+    """Test CLI version."""
+    runner = CliRunner()
+    version_result = runner.invoke(cli.main, ["--version"])
+    assert f"{version}" in version_result.output
+
+

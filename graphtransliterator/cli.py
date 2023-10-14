@@ -12,10 +12,10 @@ import json
 import os
 import re
 import sys
-
+from graphtransliterator import __version__
 
 @click.group()
-@click.version_option()
+@click.version_option(__version__)
 def main():
     pass
 
