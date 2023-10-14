@@ -23,6 +23,7 @@ pytest = "^7.4.2"
 PyYAML = "^6.0.1"
 sphinx-issues = "^3.0.1"
 tox = "^4.11.3"
+deptry = "^0.12.0"
 
 [build-system]
 requires = ["poetry-core"]
