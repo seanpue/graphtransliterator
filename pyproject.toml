@@ -5,6 +5,11 @@ description = "A graph-based transliteration tool"
 authors = ["A. Sean Pue <seanpue@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.rst"
+repository = "https://github.com/seanpue/graphtransliterator"
+documentation = "https://graphtransliterator.readthedocs.org"
+packages = [
+  {include = "graphtransliterator"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
