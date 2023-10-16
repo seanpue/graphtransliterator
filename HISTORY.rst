@@ -19,6 +19,12 @@ History
 * Add on/off switch characters
 * Update module publication
 
+1.x.x (2023-10-15)
+------------------
+* switched to poetry for module publishing, based on cookiecutter-poetry
+* fixed click version command
+* added code coverage
+
 1.2.3 (2023-10-09)
 ------------------
 * added python 3.10, 3.11, removed <=3.8
