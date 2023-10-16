@@ -51,16 +51,12 @@ def test_compression():
     decompressed_config = compression.decompress_config(compressed_config)
     gt_from_decompressed = GraphTransliterator.load(decompressed_config)
     # Compare JSON dumps with sorted keys.
-    assert json.dumps(gt.dump(), sort_keys=True) == json.dumps(
-        gt_from_decompressed.dump(), sort_keys=True
-    )
+    assert json.dumps(gt.dump(), sort_keys=True) == json.dumps(gt_from_decompressed.dump(), sort_keys=True)
     # Test bad compression level
     with pytest.raises(ValueError):
         gt.dump(compression_level=graphtransliterator.HIGHEST_COMPRESSION_LEVEL + 1)
     # Test compression at level 0 (should likely not be called)
-    assert "compressed_settings" not in compression.compress_config(
-        gt.dump(), compression_level=0
-    )
+    assert "compressed_settings" not in compression.compress_config(gt.dump(), compression_level=0)
     # Test compression levels
     assert '"tokens": ' in gt.dumps(compression_level=0)
     assert '"compressed_settings"' in gt.dumps(compression_level=1)

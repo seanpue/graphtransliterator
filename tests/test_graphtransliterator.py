@@ -200,14 +200,8 @@ def test_graphtransliterator_process():
 
     assert process._process_rules({"a": "A"})[0]["tokens"] == ["a"]
     assert process._process_rules({"a": "A"})[0]["production"] == "A"
-    assert (
-        process._process_onmatch_rules(data["onmatch_rules"])[0]["prev_classes"][0]
-        == "class1"
-    )
-    assert (
-        process._process_onmatch_rules(data["onmatch_rules"])[0]["next_classes"][0]
-        == "class2"
-    )
+    assert process._process_onmatch_rules(data["onmatch_rules"])[0]["prev_classes"][0] == "class1"
+    assert process._process_onmatch_rules(data["onmatch_rules"])[0]["next_classes"][0] == "class2"
 
 
 def test_graphtransliterator_models():
@@ -403,9 +397,7 @@ def test_serialization():
             settings = gt.dump()
             for _ in to_drop:
                 settings.pop(_)
-            if settings.get("onmatch_rules_lookup") and not settings.get(
-                "onmatch_rules"
-            ):
+            if settings.get("onmatch_rules_lookup") and not settings.get("onmatch_rules"):
                 with pytest.raises(ValidationError):
                     assert GraphTransliterator.load(settings)
             else:
@@ -493,9 +485,7 @@ def test_GraphTransliterator(tmpdir):
     assert len(set(GraphTransliterator.from_easyreading_dict(input_dict).tokens)) == 4
 
     assert GraphTransliterator.from_yaml(yaml_str).transliterate("ab") == "A,B"
-    assert (
-        GraphTransliterator.from_yaml_file(yaml_filename).transliterate("ab") == "A,B"
-    )
+    assert GraphTransliterator.from_yaml_file(yaml_filename).transliterate("ab") == "A,B"
     assert (
         GraphTransliterator.from_easyreading_dict(
             {
@@ -530,10 +520,7 @@ def test_GraphTransliterator_ignore_errors():
            token_class: wb
            """
     # check that ignore_errors works
-    assert (
-        GraphTransliterator.from_yaml(yaml_str, ignore_errors=True).transliterate("a")
-        == ""
-    )
+    assert GraphTransliterator.from_yaml(yaml_str, ignore_errors=True).transliterate("a") == ""
 
     with pytest.raises(NoMatchingTransliterationRuleException):
         gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
@@ -597,9 +584,7 @@ def test_GraphTransliterator_productions():
     whitespace = {"default": " ", "token_class": "wb", "consolidate": True}
     rules = {"ab": "AB", " ": "_"}
     settings = {"tokens": tokens, "rules": rules, "whitespace": whitespace}
-    assert set(GraphTransliterator.from_easyreading_dict(settings).productions) == set(
-        ["AB", "_"]
-    )
+    assert set(GraphTransliterator.from_easyreading_dict(settings).productions) == set(["AB", "_"])
 
 
 def test_GraphTransliterator_pruned_of():

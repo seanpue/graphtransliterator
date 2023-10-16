@@ -15,9 +15,7 @@ def _test_bundled_transliterator(transliterator):
             self._module_name = transliterator._module_name
             self._init_from(method, check_ambiguity=True, coverage=True)
 
-        class_name = "Test{}From{}".format(
-            type(transliterator).__name__, method.upper()
-        )
+        class_name = "Test{}From{}".format(type(transliterator).__name__, method.upper())
         SuperClass = transliterator.__class__
         TestClass = type(class_name, (SuperClass,), {"__init__": init_test_class})
         # Confirm it is a subclass of super class
@@ -57,11 +55,7 @@ def test_iter_names():
 
 def test_iter_transliterators():
     """Test transliterators.iter_transliterators()."""
-    example = [
-        _
-        for _ in transliterators.iter_transliterators()
-        if type(_).__name__ == "Example"
-    ].pop()
+    example = [_ for _ in transliterators.iter_transliterators() if type(_).__name__ == "Example"].pop()
     assert example.transliterate("a") == "A"
 
 

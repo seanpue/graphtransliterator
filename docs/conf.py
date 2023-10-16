@@ -21,9 +21,7 @@
 import os
 import sys
 
-sys.path.insert(
-    0, os.path.abspath("..")
-)  # necessary to import graphtransilterator here
+sys.path.insert(0, os.path.abspath(".."))  # necessary to import graphtransilterator here
 
 package_path = os.path.abspath("..")  # this may work for jupyter-sphinx?
 os.environ["PYTHONPATH"] = ":".join((package_path, os.environ.get("PYTHONPATH", "")))
