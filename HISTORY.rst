@@ -8,7 +8,6 @@ History
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
 * add translated messages
-* add precommit to run black
 * add static typing with mypy
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 * Adjust CSS for CLI output in docs
@@ -19,7 +18,7 @@ History
 * Add on/off switch characters
 * Update module publication
 
-1.x.x (2023-10-15)
+1.2.4 (2023-10-15)
 ------------------
 * switched to poetry for module publishing, based on cookiecutter-poetry
 * fixed click version command

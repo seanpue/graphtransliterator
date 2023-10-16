@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "graphtransliterator"
-version = "1.2.3"
+version = "1.2.4"
 description = "A graph-based transliteration tool"
 authors = ["A. Sean Pue <seanpue@users.noreply.github.com>"]
 license = "MIT"
