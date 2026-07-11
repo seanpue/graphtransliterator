@@ -17,6 +17,10 @@ History
 -------
 * Add on/off switch characters
 
+1.3.1 (2026-07-11)
+------------------
+* minor updates to pyproject.toml
+
 1.3.0 (2026-07-11)
 ------------------
 * Add transliterate_with_details() function returning tuple with string and matched rules
