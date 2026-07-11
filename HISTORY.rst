@@ -17,13 +17,15 @@ History
 -------
 * Add on/off switch characters
 
-?.?.? (2026-07-11)
+1.3.0 (2026-07-11)
 ------------------
-* added details option to transliterate, storing in transliterator object
+* Add transliterate_with_details() function returning tuple with string and matched rules
 * modernized dynamic imports (importlib.util)
-* removed Marshmallow warnings
-* Add transliterate_with_details() function returning tuple
+* removed Marshmallow warning
+* added -d/--details option to CLI transliterate
 * switched to ruff
+* updated CONTRIBUTING.rst for poetry, etc.
+* added to docs about transliterate_with_details
 
 1.2.4 (2023-10-15)
 ------------------
