@@ -158,7 +158,7 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
 Then run::
 
-$ poetry run bumpversion patch # possible: major / minor / patch
+$ poetry run bump_my_version patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 
