@@ -1,19 +1,26 @@
-[tool.poetry]
+[project]
 name = "graphtransliterator"
-version = "1.2.4"
+version = "1.3.0"
 description = "A graph-based transliteration tool"
-authors = ["A. Sean Pue <seanpue@users.noreply.github.com>"]
+authors = [{ name = "A. Sean Pue", email = "seanpue@users.noreply.github.com" }]
 license = "MIT"
 readme = "README.rst"
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "click (>=8.1.7,<9.0.0)",
+    "marshmallow (>=3.20.1,<4.0.0)",
+    "PyYAML (>=6.0.1,<7.0.0)",
+]
+
+[project.urls]
 repository = "https://github.com/seanpue/graphtransliterator"
 documentation = "https://graphtransliterator.readthedocs.org"
-packages = [{ include = "graphtransliterator" }]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-click = "^8.1.7"
-marshmallow = "^3.20.1"
-PyYAML = "^6.0.1"
+[project.scripts]
+graphtransliterator = "graphtransliterator.cli:main"
+
+[tool.poetry]
+packages = [{ include = "graphtransliterator" }]
 
 [tool.poetry.group.dev.dependencies]
 bash_kernel = "^0.9.1"
@@ -36,7 +43,6 @@ ruff = "^0.15.21"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.mypy]
 files = ["graphtransliterator"]
 disallow_untyped_defs = "True"
@@ -50,6 +56,7 @@ show_error_codes = "True"
 [tool.ruff]
 target-version = "py39"
 line-length = 120
+
 [tool.ruff.format]
 # Matches Black's behavior by default
 quote-style = "double"
@@ -61,6 +68,3 @@ skip_empty = true
 [tool.coverage.run]
 branch = true
 source = ["graphtransliterator"]
-
-[tool.poetry.scripts]
-graphtransliterator = "graphtransliterator.cli:main"

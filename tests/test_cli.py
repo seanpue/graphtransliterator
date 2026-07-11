@@ -18,7 +18,9 @@ import yaml
 def test_command_line_interface():
     """Test the CLI."""
     runner = CliRunner()
-    result = runner.invoke(cli.main, ["--help"])  # <-- Add this if it just checks registration
+    result = runner.invoke(
+        cli.main, ["--help"]
+    )  # <-- Add this if it just checks registration
     assert result.exit_code == 0
 
 
@@ -45,12 +47,16 @@ def test_cli_transliterate_tests(tmpdir):
     runner = CliRunner()
 
     # test bundled
-    bundled_result = runner.invoke(cli.main, ["transliterate", "--from", "bundled", "Example", "a"])
+    bundled_result = runner.invoke(
+        cli.main, ["transliterate", "--from", "bundled", "Example", "a"]
+    )
     assert bundled_result.exit_code == 0
     assert bundled_result.output.strip() == "A"
 
     # test multiple inputs with python output
-    bundled_multiple_result = runner.invoke(cli.main, ["transliterate", "--from", "bundled", "Example", "a", "a"])
+    bundled_multiple_result = runner.invoke(
+        cli.main, ["transliterate", "--from", "bundled", "Example", "a", "a"]
+    )
     assert bundled_multiple_result.exit_code == 0
     assert bundled_multiple_result.output.strip() == str(["A", "A"])
 
@@ -64,21 +70,27 @@ def test_cli_transliterate_tests(tmpdir):
 
     # test transliterate from JSON
     json_ = transliterator.dumps()
-    json_result = runner.invoke(cli.main, ["transliterate", "--from", "json", json_, "a"])
+    json_result = runner.invoke(
+        cli.main, ["transliterate", "--from", "json", json_, "a"]
+    )
     assert json_result.exit_code == 0
     assert json_result.output.strip() == "A"
 
     # test transliterate from json file
     json_file = tmpdir.mkdir("sub").join("test.json")
     json_file.write(json_)
-    json_file_result = runner.invoke(cli.main, ["transliterate", "--from", "json_file", json_file.strpath, "a"])
+    json_file_result = runner.invoke(
+        cli.main, ["transliterate", "--from", "json_file", json_file.strpath, "a"]
+    )
     assert json_file_result.exit_code == 0
     assert json_file_result.output.strip() == "A"
 
     # test transliterate from yaml file
     yaml_file = tmpdir.join("test.yaml")
     yaml_file.write(test_yaml)
-    yaml_file_result = runner.invoke(cli.main, ["transliterate", "--from", "yaml_file", yaml_file.strpath, "a"])
+    yaml_file_result = runner.invoke(
+        cli.main, ["transliterate", "--from", "yaml_file", yaml_file.strpath, "a"]
+    )
     assert yaml_file_result.exit_code == 0
     assert yaml_file_result.output.strip() == "A"
 
@@ -86,7 +98,9 @@ def test_cli_transliterate_tests(tmpdir):
 def test_cli_generate_tests():
     """Test tests command."""
     runner = CliRunner()
-    gen_tests_result = runner.invoke(cli.main, ["generate-tests", "--from", "bundled", "Example"])
+    gen_tests_result = runner.invoke(
+        cli.main, ["generate-tests", "--from", "bundled", "Example"]
+    )
     assert gen_tests_result.exit_code == 0
     yaml_ = yaml.safe_load(StringIO(gen_tests_result.output))
     assert len(yaml_) == 5 and type(yaml_) is dict
@@ -148,9 +162,13 @@ def test_dump_tests():
     runner = CliRunner()
     test_result = runner.invoke(cli.main, ["dump-tests", "Example"])  # yaml
     assert "a: A" in test_result.output
-    test_result = runner.invoke(cli.main, ["dump-tests", "--to", "json", "Example"])  # json
+    test_result = runner.invoke(
+        cli.main, ["dump-tests", "--to", "json", "Example"]
+    )  # json
     assert '"a": "A"' in test_result.output, test_result.output
-    test_result = runner.invoke(cli.main, ["dump-tests", "--to", "yaml", "Example"])  # json
+    test_result = runner.invoke(
+        cli.main, ["dump-tests", "--to", "yaml", "Example"]
+    )  # json
     assert "a: A" in test_result.output
 
 

@@ -83,7 +83,7 @@ def load_transliterator(source, **kwargs):
 def transliterate(from_, to, input, check_ambiguity, ignore_errors, details):
     """Transliterate INPUT."""
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity, ignore_errors=ignore_errors)
-    
+
     # Select the target function based on the details flag
     trans_method = transliterator.transliterate_with_details if details else transliterator.transliterate
 
@@ -91,7 +91,7 @@ def transliterate(from_, to, input, check_ambiguity, ignore_errors, details):
         output = trans_method(input[0])
     else:
         output = [trans_method(_) for _ in input]
-        
+
     if to == "json":
         click.echo(json.dumps(output, ensure_ascii=False))
     else:
