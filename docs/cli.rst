@@ -204,7 +204,7 @@ The ``list-bundled`` command provides a list of bundled transliterators:
 
 .. code-block:: console
 
-  $ graphtransliterator test --help
+  $ graphtransliterator list-bundled --help
 
 
 Make JSON of Bundled Transliterator(s)

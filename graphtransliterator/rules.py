@@ -47,9 +47,7 @@ class TransliterationRule(
     __slots__ = ()
 
 
-class OnMatchRule(
-    namedtuple("OnMatchRule", ["prev_classes", "next_classes", "production"])
-):
+class OnMatchRule(namedtuple("OnMatchRule", ["prev_classes", "next_classes", "production"])):
     """
     Rules about adding text between certain combinations of matched rules.
 
@@ -70,9 +68,7 @@ class OnMatchRule(
     __slots__ = ()
 
 
-class WhitespaceRules(
-    namedtuple("Whitespace", ["default", "token_class", "consolidate"])
-):
+class WhitespaceRules(namedtuple("Whitespace", ["default", "token_class", "consolidate"])):
     """
     Whitespace rules of GraphTransliterator.
 

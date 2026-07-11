@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Tests for compression/decompression."""
+
 import graphtransliterator
 import graphtransliterator.compression as compression
 from graphtransliterator import GraphTransliterator

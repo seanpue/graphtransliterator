@@ -27,9 +27,9 @@ def _test_bundled_transliterator(transliterator):
         # Load transliteration tests (in tests/test_NAME.yaml)
         transliteration_tests = test_class.load_yaml_tests()
         # Check that bundled tests are in valid format dict {str:str}
-        assert type(transliteration_tests) == dict
+        assert type(transliteration_tests) is dict
         for k, v in transliteration_tests.items():
-            assert type(k) == str and type(v) == str
+            assert type(k) is str and type(v) is str
         assert len(transliteration_tests) > 0
         # Run yaml tests, calls run_tests()
         test_class.run_yaml_tests()

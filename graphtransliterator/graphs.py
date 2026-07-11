@@ -42,11 +42,7 @@ class DirectedGraph:
         self.edge = edge if edge else {}
         if edge:
             if not edge_list:
-                edge_list = [
-                    tuple([head_key, tail_key])
-                    for head_key, _ in edge.items()
-                    for tail_key in _.keys()
-                ]
+                edge_list = [tuple([head_key, tail_key]) for head_key, _ in edge.items() for tail_key in _.keys()]
             self.edge_list = sorted(edge_list)  # sorts for string comparison
         else:
             self.edge_list = []
@@ -241,9 +237,7 @@ class VisitLoggingDirectedGraph(DirectedGraph):
                 errors = True
                 missed_nodes.append(node_id)
                 node_data = self.node.data[node_id]  # access data so not set to visited
-                logger.warning(
-                    "Node {} [{}] has not been visited.".format(node_id, node_data)
-                )
+                logger.warning("Node {} [{}] has not been visited.".format(node_id, node_data))
         # Check edge coverage
         missed_edges = []
         for head in self.edge.keys():
@@ -253,9 +247,7 @@ class VisitLoggingDirectedGraph(DirectedGraph):
                     missed_edges.append((head, tail))
 
                     logger.warning(
-                        "Edge ({},{}) [{}] has not been visited.".format(
-                            head, tail, self.edge.data[head].data[tail]
-                        )
+                        "Edge ({},{}) [{}] has not been visited.".format(head, tail, self.edge.data[head].data[tail])
                     )
 
         # Add a comprehensives error message.

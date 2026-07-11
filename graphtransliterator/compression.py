@@ -2,6 +2,7 @@
 """
 Functions used to compress and decompress a GraphTransliterator.
 """
+
 import math
 
 
@@ -168,28 +169,18 @@ def compress_config(config, compression_level=1):
 
     class_list = tuple(sorted(set().union(*config["tokens"].values())))
     _class_id = {_: i for i, _ in enumerate(class_list)}
-    tokens = tuple(
-        tuple(_class_id[_] for _ in config["tokens"][tkn]) for tkn in token_list
-    )
+    tokens = tuple(tuple(_class_id[_] for _ in config["tokens"][tkn]) for tkn in token_list)
     nodetype_list = tuple(sorted(set([_["type"] for _ in config["graph"]["node"]])))
     _nodetype_id = {_: i for i, _ in enumerate(nodetype_list)}
 
     rules = tuple(
         (
             r["production"],
-            tuple(_class_id[_] for _ in r.get("prev_classes"))
-            if r.get("prev_classes")
-            else 0,
-            tuple(_token_id[_] for _ in r.get("prev_tokens"))
-            if r.get("prev_tokens")
-            else 0,
+            tuple(_class_id[_] for _ in r.get("prev_classes")) if r.get("prev_classes") else 0,
+            tuple(_token_id[_] for _ in r.get("prev_tokens")) if r.get("prev_tokens") else 0,
             tuple(_token_id[_] for _ in r.get("tokens")),
-            tuple(_token_id[_] for _ in r.get("next_tokens"))
-            if r.get("next_tokens")
-            else 0,
-            tuple(_class_id[_] for _ in r.get("next_classes"))
-            if r.get("next_classes")
-            else 0,
+            tuple(_token_id[_] for _ in r.get("next_tokens")) if r.get("next_tokens") else 0,
+            tuple(_class_id[_] for _ in r.get("next_classes")) if r.get("next_classes") else 0,
             compressed_cost(r["cost"]),
         )
         for r in config["rules"]
@@ -223,10 +214,7 @@ def compress_config(config, compression_level=1):
         node = tuple(compress_node(_) for _ in _graph["node"])
         _edge = _graph["edge"]
         edge = {
-            int(head_id): {
-                int(tail_id): compress_edge_data(edge_data)
-                for tail_id, edge_data in tail.items()
-            }
+            int(head_id): {int(tail_id): compress_edge_data(edge_data) for tail_id, edge_data in tail.items()}
             for head_id, tail in _edge.items()
         }
 
@@ -260,11 +248,7 @@ def compress_config(config, compression_level=1):
 
 def _strip_empty(d):
     """Strips entries of dict with no value, but allow zero."""
-    return {
-        k: v
-        for k, v in d.items()
-        if v or (type(v) is int and v == 0) or (type(v) is str and v == "")
-    }
+    return {k: v for k, v in d.items() if v or (type(v) is int and v == 0) or (type(v) is str and v == "")}
 
 
 def decompress_config(compressed_config):
@@ -353,9 +337,7 @@ def decompress_config(compressed_config):
     _token_from_id = {i: _ for i, _ in enumerate(_token_list)}
     _class_list = list(_class_list)
     _class_from_id = {i: _ for i, _ in enumerate(_class_list)}
-    tokens = {
-        tkn: [_class_list[_] for _ in _tokens[i]] for i, tkn in enumerate(_token_list)
-    }
+    tokens = {tkn: [_class_list[_] for _ in _tokens[i]] for i, tkn in enumerate(_token_list)}
     rules = [
         _strip_empty(
             {
@@ -394,10 +376,7 @@ def decompress_config(compressed_config):
         _nodetype_from_id = {i: _ for i, _ in enumerate(_nodetype_list)}
         node = [decompress_node(_) for _ in _nodes]
         edge = {
-            int(head_id): {
-                int(tail_id): decompress_edge_data(edge_data)
-                for tail_id, edge_data in tail.items()
-            }
+            int(head_id): {int(tail_id): decompress_edge_data(edge_data) for tail_id, edge_data in tail.items()}
             for head_id, tail in _edges.items()
         }
         graph = {"node": node, "edge": edge}

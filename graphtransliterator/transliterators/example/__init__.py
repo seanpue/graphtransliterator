@@ -11,9 +11,7 @@ class Example(Bundled):
 
         # While testing, initialize from YAML and check ambiguity:
 
-        self.from_YAML(
-            **kwargs
-        )  # defaults to check_ambiguity=True, check_coverage=True
+        self.from_YAML(**kwargs)  # defaults to check_ambiguity=True, check_coverage=True
 
         # When ready, remove the previous lines and initialize more quickly from JSON:
         # self.from_JSON(**kwargs) # check_ambiguity=False, check_coverage=False

@@ -3,6 +3,7 @@
 """
 GraphTransliterator ambiguity-checking functions.
 """
+
 from .exceptions import AmbiguousTransliterationRulesException
 import itertools
 import logging
@@ -92,19 +93,15 @@ def check_for_ambiguity(transliterator):
 
     def covered_by(intersection, row):
         """Check if intersection is covered by row."""
-        for i in range(len(intersection)):
-            diff = intersection[i].difference(row[i])
-            if diff:
-                return False
-        return True
+
+        # Using all() with a generator expression is faster and cleaner
+        return all(not intersection[k].difference(row[k]) for k in range(len(intersection)))
 
     # Iterate through rules based on cost (number of tokens). If there are
     # ambiguities, then see if a less costly rule would match the rule. If it does
     # not, there is ambiguity.
 
-    for _group_val, group_iter in itertools.groupby(
-        enumerate(transliterator._rules), key=lambda x: x[1].cost
-    ):
+    for _group_val, group_iter in itertools.groupby(enumerate(transliterator._rules), key=lambda x: x[1].cost):
         group = list(group_iter)
         if len(group) == 1:
             continue
@@ -114,7 +111,7 @@ def check_for_ambiguity(transliterator):
                 j_index = group[j][0]
                 intersection = full_intersection(i_index, j_index)
                 if not intersection:
-                    break
+                    continue
 
                 # Check if a less costly rule matches intersection
 
@@ -131,9 +128,7 @@ def check_for_ambiguity(transliterator):
 
                 if not covered_by_less_costly():
                     logging.warning(
-                        "The pattern {} can be matched by both:\n"
-                        "  {}\n"
-                        "  {}\n".format(
+                        "The pattern {} can be matched by both:\n  {}\n  {}\n".format(
                             intersection,
                             _easyreading_rule(rules[i_index]),
                             _easyreading_rule(rules[j_index]),
@@ -155,9 +150,7 @@ def _easyreading_rule(rule):
 
     out = ""
     if rule.prev_classes and rule.prev_tokens:
-        out = "({} {}) ".format(
-            _class_str(rule.prev_classes), _token_str(rule.prev_tokens)
-        )
+        out = "({} {}) ".format(_class_str(rule.prev_classes), _token_str(rule.prev_tokens))
     elif rule.prev_classes:
         out = "{} ".format(_class_str(rule.prev_classes))
     elif rule.prev_tokens:
@@ -166,9 +159,7 @@ def _easyreading_rule(rule):
     out += _token_str(rule.tokens)
 
     if rule.next_tokens and rule.next_classes:
-        out += " ({} {})".format(
-            _token_str(rule.next_tokens), _class_str(rule.next_classes)
-        )
+        out += " ({} {})".format(_token_str(rule.next_tokens), _class_str(rule.next_classes))
     elif rule.next_tokens:
         out += " ({})".format(_token_str(rule.next_tokens))
     elif rule.next_classes:
@@ -191,9 +182,7 @@ def _count_of_curr_and_next(rule):
 def _prev_tokens_possible(rule, tokens_by_class):
     """`list` of set of possible preceding tokens for a rule."""
 
-    return [tokens_by_class[_] for _ in rule.prev_classes or []] + [
-        set([_]) for _ in rule.prev_tokens or []
-    ]
+    return [tokens_by_class[_] for _ in rule.prev_classes or []] + [set([_]) for _ in rule.prev_tokens or []]
 
 
 def _curr_and_next_tokens_possible(rule, tokens_by_class):
@@ -209,6 +198,4 @@ def _curr_and_next_tokens_possible(rule, tokens_by_class):
 def _tokens_possible(row, tokens_by_class):
     """`list` of sets of possible tokens matched for a rule."""
 
-    return _prev_tokens_possible(row, tokens_by_class) + _curr_and_next_tokens_possible(
-        row, tokens_by_class
-    )
+    return _prev_tokens_possible(row, tokens_by_class) + _curr_and_next_tokens_possible(row, tokens_by_class)

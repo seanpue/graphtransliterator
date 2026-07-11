@@ -39,9 +39,7 @@ class EasyReadingSettingsSchema(Schema):
     Provides initial validation based on easy reading format.
     """
 
-    tokens = fields.Dict(
-        keys=fields.Str(), values=fields.List(fields.Str()), required=True
-    )
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
     rules = fields.Dict(
         keys=fields.Str(validate=validate.Regexp(RULE_RE)),
         values=fields.Str(),
@@ -82,7 +80,6 @@ class TransliterationRuleSchema(Schema):
             "next_tokens",
             "cost",
         )
-        ordered = True
 
     @pre_dump
     def remove_nulls(self, data, **kwargs):
@@ -104,7 +101,6 @@ class OnMatchRuleSchema(Schema):
 
     class Meta:
         fields = ("prev_classes", "next_classes", "production")
-        ordered = True
 
     @post_load
     def make_onmatch_rule(self, data, **kwargs):
@@ -117,13 +113,12 @@ class SettingsSchema(Schema):
     Performs validation.
     """
 
-    tokens = fields.Dict(
-        keys=fields.Str(), values=fields.List(fields.Str()), required=True
-    )
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
     metadata = fields.Dict(
-        keys=fields.Str(), required=False  # no restriction on values
+        keys=fields.Str(),
+        required=False,  # no restriction on values
     )
     onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
 
@@ -152,20 +147,14 @@ class SettingsSchema(Schema):
                         continue
                     for _ in values:
                         if _ not in token_classes:
-                            errors[rule_type].append(
-                                'Invalid token class "{}" in {} of {}'.format(
-                                    _, property, rule
-                                )
-                            )
+                            errors[rule_type].append('Invalid token class "{}" in {} of {}'.format(_, property, rule))
 
         # Validate whitespace token_class
         whitespace = data["whitespace"]
         whitespace_token_class = whitespace.token_class
         if whitespace_token_class not in token_classes:
             errors["whitespace"].append(
-                'Invalid token class "{}" in whitespace "{}".'.format(
-                    whitespace_token_class, whitespace
-                )
+                'Invalid token class "{}" in whitespace "{}".'.format(whitespace_token_class, whitespace)
             )
         if errors:
             raise ValidationError(dict(errors))
@@ -179,9 +168,7 @@ class SettingsSchema(Schema):
         whitespace = data["whitespace"]
         default_whitespace = whitespace.default
         if default_whitespace not in token_types:
-            errors["whitespace"].append(
-                'Invalid default token "{}" in whitespace.'.format(default_whitespace)
-            )
+            errors["whitespace"].append('Invalid default token "{}" in whitespace.'.format(default_whitespace))
 
         # Validate rules
         rules = data["rules"]
@@ -192,11 +179,7 @@ class SettingsSchema(Schema):
                     continue
                 for _ in values:
                     if _ not in token_types:
-                        errors["rules"].append(
-                            'Invalid token "{}" in {} of rule {}'.format(
-                                _, property, rule
-                            )
-                        )
+                        errors["rules"].append('Invalid token "{}" in {} of rule {}'.format(_, property, rule))
         if errors:
             raise ValidationError(dict(errors))
 

@@ -633,6 +633,34 @@ the token index will be advanced. Otherwise, there will be a
   gt.ignore_errors = True
   gt.transliterate("ab")
 
+Transliterating with Details
+============================
+
+It is also possible to get details about a transliteration by running :meth:`transliterate_with_details`:
+
+
+
+.. jupyter-execute::
+  :raises: AmbiguousTransliterationRulesException
+  :stderr:
+  :linenos:
+
+  GraphTransliterator.from_yaml(
+  '''
+  tokens:
+    a: []
+    ' ': [wb]
+  rules:
+    a: A
+    ' ': '_'
+  whitespace:
+    default: ' '
+    consolidate: True
+    token_class: wb
+  ''').transliterate_with_details("a a")
+
+That returns a tuple of the transliteration output and a list of :obj:`TransliterationRule`.
+
 Additional Methods
 ==================
 

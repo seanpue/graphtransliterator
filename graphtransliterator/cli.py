@@ -14,6 +14,7 @@ import re
 import sys
 from graphtransliterator import __version__
 
+
 @click.group()
 @click.version_option(__version__)
 def main():
@@ -43,10 +44,7 @@ def load_transliterator(source, **kwargs):
     "-f",
     "from_",
     type=(click.Choice(["bundled", "json", "json_file", "yaml_file"]), str),
-    help=(
-        "Format (bundled/json/json_file/yaml_file) and "
-        "source (name, JSON, or filename) of transliterator"
-    ),
+    help=("Format (bundled/json/json_file/yaml_file) and source (name, JSON, or filename) of transliterator"),
     nargs=2,
     required=True,
 )
@@ -75,18 +73,27 @@ def load_transliterator(source, **kwargs):
     show_default=True,
     default=False,
 )
+@click.option(
+    "--details",
+    "-d",
+    is_flag=True,
+    help="Show itemized transliteration details and structural graph execution steps.",
+)
 @click.argument("input", nargs=-1)
-def transliterate(from_, to, input, check_ambiguity, ignore_errors):
+def transliterate(from_, to, input, check_ambiguity, ignore_errors, details):
     """Transliterate INPUT."""
-    transliterator = load_transliterator(
-        from_, check_ambiguity=check_ambiguity, ignore_errors=ignore_errors
-    )
+    transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity, ignore_errors=ignore_errors)
+    
+    # Select the target function based on the details flag
+    trans_method = transliterator.transliterate_with_details if details else transliterator.transliterate
+
     if len(input) == 1:
-        output = transliterator.transliterate(input[0])
+        output = trans_method(input[0])
     else:
-        output = [transliterator.transliterate(_) for _ in input]
+        output = [trans_method(_) for _ in input]
+        
     if to == "json":
-        click.echo(json.dumps(output))
+        click.echo(json.dumps(output, ensure_ascii=False))
     else:
         click.echo(output)
 
@@ -149,10 +156,7 @@ def dump_tests(bundled, to):
     "-f",
     "from_",
     type=(click.Choice(["bundled", "json", "json_file", "yaml_file"]), str),
-    help=(
-        "Format (bundled/json/json_file/yaml_file) and "
-        "source (name, JSON, or filename) of transliterator"
-    ),
+    help=("Format (bundled/json/json_file/yaml_file) and source (name, JSON, or filename) of transliterator"),
     nargs=2,
     required=True,
 )
@@ -168,9 +172,7 @@ def generate_tests(from_, check_ambiguity):
     import graphtransliterator.transliterators  # pragma: no cover
 
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity)
-    yaml_tests = graphtransliterator.transliterators.Bundled.generate_yaml_tests(
-        transliterator
-    )
+    yaml_tests = graphtransliterator.transliterators.Bundled.generate_yaml_tests(transliterator)
     click.echo(yaml_tests)
 
 
@@ -185,9 +187,7 @@ def generate_tests(from_, check_ambiguity):
 @click.argument("bundled")
 def test(bundled, check_ambiguity):
     """Test BUNDLED transliterator."""
-    transliterator = load_transliterator(
-        ["bundled", bundled], check_ambiguity=check_ambiguity
-    )
+    transliterator = load_transliterator(["bundled", bundled], check_ambiguity=check_ambiguity)
     click.echo(transliterator.run_yaml_tests())
 
 
@@ -223,9 +223,7 @@ def make_json(bundled, regex):
     for _ in to_dump:
         transliterator_class = getattr(transliterators, _)
         transliterator = transliterator_class.new(method="yaml")
-        json_filename = os.path.join(
-            transliterator.directory, transliterator.name + ".json"
-        )
+        json_filename = os.path.join(transliterator.directory, transliterator.name + ".json")
         with open(json_filename, "w") as f:
             f.write(transliterator.dumps())
         click.echo(f"Made JSON of {_}.")

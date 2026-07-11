@@ -3,6 +3,7 @@
 """
 GraphTransliterator core classes.
 """
+
 from .ambiguity import check_for_ambiguity
 from .compression import compress_config, decompress_config
 from .exceptions import (
@@ -53,34 +54,22 @@ HIGHEST_COMPRESSION_LEVEL = 2
 class GraphTransliteratorSchema(Schema):
     """Schema for Graph Transliterator."""
 
-    tokens = fields.Dict(
-        keys=fields.Str(), values=fields.List(fields.Str()), required=True
-    )
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
-    onmatch_rules = fields.Nested(
-        OnMatchRuleSchema, many=True, required=False, allow_none=True
-    )
+    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False, allow_none=True)
     metadata = fields.Dict(
-        keys=fields.Str(), required=False  # No restriction on values
+        keys=fields.Str(),
+        required=False,  # No restriction on values
     )
     ignore_errors = fields.Bool(required=False)
     onmatch_rules_lookup = fields.Dict(required=False, allow_none=True)
-    tokens_by_class = fields.Dict(
-        keys=fields.Str(), values=fields.List(fields.Str), required=False
-    )
-    graph = fields.Nested(
-        DirectedGraphSchema, many=False, allow_none=True, required=False
-    )
+    tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=False)
+    graph = fields.Nested(DirectedGraphSchema, many=False, allow_none=True, required=False)
     tokenizer_pattern = fields.Str(required=False)
     graphtransliterator_version = fields.Str(required=False)
     check_ambiguity = fields.Bool(required=False)
-    # field for coverage
     coverage = fields.Bool(required=False)
-    # compressed_settings = fields.Tuple(required=False)
-
-    class Meta:
-        ordered = True
 
     @pre_load
     def check_version_and_compression(self, data, **kwargs):
@@ -108,9 +97,7 @@ class GraphTransliteratorSchema(Schema):
     def validate_onmatch_rules_lookup(self, data, **kwargs):
         """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
         if data.get("onmatch_rules_lookup") and not data.get("onmatch_rules"):
-            raise ValidationError(
-                "Contains onmatch_rules_lookup but not onmatch_rules."
-            )
+            raise ValidationError("Contains onmatch_rules_lookup but not onmatch_rules.")
 
 
 class GraphTransliterator:
@@ -224,9 +211,7 @@ class GraphTransliterator:
             if onmatch_rules_lookup:
                 self._onmatch_rules_lookup = onmatch_rules_lookup
             else:
-                self._onmatch_rules_lookup = _onmatch_rules_lookup(
-                    tokens, onmatch_rules
-                )
+                self._onmatch_rules_lookup = _onmatch_rules_lookup(tokens, onmatch_rules)
         else:
             self._onmatch_rules = None
             self._onmatch_rules_lookup = None
@@ -237,7 +222,7 @@ class GraphTransliterator:
         if not tokenizer_pattern:
             tokenizer_pattern = _tokenizer_pattern_from(list(tokens.keys()))
         self._tokenizer_pattern = tokenizer_pattern
-        self._tokenizer = re.compile(tokenizer_pattern, re.S)
+        self._tokenizer = re.compile(tokenizer_pattern, flags=re.S)
 
         if not graph:
             graph = _graph_from(rules)
@@ -367,7 +352,7 @@ class GraphTransliterator:
             return False
         for i in range(0, len(constraint_values)):
             if by_class:
-                if not constraint_values[i] in self._tokens[tokens[start_i + i]]:
+                if constraint_values[i] not in self._tokens[tokens[start_i + i]]:
                     return False
             elif tokens[start_i + i] != constraint_values[i]:
                 return False
@@ -567,9 +552,7 @@ class GraphTransliterator:
         if compression_level == 0:
             return GraphTransliteratorSchema().dump(self)
         elif compression_level not in range(1, HIGHEST_COMPRESSION_LEVEL + 1):
-            raise ValueError(
-                f"Compression level must be between 0 and {HIGHEST_COMPRESSION_LEVEL}"
-            )
+            raise ValueError(f"Compression level must be between 0 and {HIGHEST_COMPRESSION_LEVEL}")
         return {
             "graphtransliterator_version": __version__,
             "compressed_settings": compress_config(
@@ -736,9 +719,7 @@ class GraphTransliterator:
             # But edge is accessed regardless to test coverage
             incident_edge = graph_edge[parent_key][node_key]
             # Pass edge, curr_node, token index, and tokens to check constraints
-            if curr_node.get("accepting") and self._match_constraints(
-                incident_edge, curr_node, token_i, tokens
-            ):
+            if curr_node.get("accepting") and self._match_constraints(incident_edge, curr_node, token_i, tokens):
                 if match_all:
                     matches.append(curr_node["rule_key"])
                     continue
@@ -809,7 +790,7 @@ class GraphTransliterator:
             check_ambiguity=self._check_ambiguity,
         )
 
-    def tokenize(self, input):
+    def tokenize(self, input_):
         """
         Tokenizes an input string.
 
@@ -853,8 +834,8 @@ class GraphTransliterator:
         prev_whitespace = True
 
         match_at = 0
-        while match_at < len(input):
-            match = self._tokenizer.match(input, match_at)
+        while match_at < len(input_):
+            match = self._tokenizer.match(input_, match_at)
             if match:
                 match_at = match.end()  # advance match_at
                 token = match.group(0)
@@ -869,10 +850,7 @@ class GraphTransliterator:
                     prev_whitespace = False
                 tokens.append(token)
             else:
-                logger.warning(
-                    "Unrecognizable token %s at pos %s of %s"
-                    % (input[match_at], match_at, input)
-                )
+                logger.warning("Unrecognizable token %s at pos %s of %s" % (input_[match_at], match_at, input_))
                 if not self.ignore_errors:
                     raise UnrecognizableInputTokenException
                 else:
@@ -886,13 +864,13 @@ class GraphTransliterator:
 
         return tokens
 
-    def transliterate(self, input):
+    def transliterate(self, input_: str) -> str:
         """
         Transliterate an input string into an output string.
 
         Parameters
         ----------
-        input : `str`
+        input_ : `str`
             Input string to transliterate
 
         Returns
@@ -902,8 +880,10 @@ class GraphTransliterator:
 
         Raises
         ------
-        ValueError
-            Cannot parse input
+        NoMatchingTransliterationRuleException
+            If a token cannot be matched and `ignore_errors` is False.
+        UnrecognizableInputTokenException
+            If tokenization fails and `ignore_errors` is False.
 
         Note
         ----
@@ -912,7 +892,6 @@ class GraphTransliterator:
 
         Example
         -------
-
         .. jupyter-execute::
 
           GraphTransliterator.from_yaml(
@@ -928,21 +907,52 @@ class GraphTransliterator:
             consolidate: True
             token_class: wb
           ''').transliterate("a a")
-
         """
-        tokens = self.tokenize(input)  # Adds initial+final whitespace
+        output, _ = self._transliterate_core(input_)
+        return output
+
+    def transliterate_with_details(self, input_: str) -> tuple:
+        """
+        Transliterate an input string and return both the output string and
+        the sequence of transliteration rules that were matched.
+
+        Parameters
+        ----------
+        input_ : `str`
+            Input string to transliterate
+
+        Returns
+        -------
+        `tuple` of (`str`, `list` of `TransliterationRule`)
+            A tuple where the first element is the output string and the second
+            element is a list of the transliteration rules matched in order.
+
+        Raises
+        ------
+        NoMatchingTransliterationRuleException
+            If a token cannot be matched and `ignore_errors` is False.
+        UnrecognizableInputTokenException
+            If tokenization fails and `ignore_errors` is False.
+        """
+        return self._transliterate_core(input_)
+
+    def _transliterate_core(self, input_: str) -> tuple:
+        """
+        Internal core logic for the transliteration loop.
+
+        Returns a tuple of (output_string, list_of_matched_rules).
+        """
+        tokens = self.tokenize(input_)  # Adds initial+final whitespace
         self._input_tokens = tokens  # Tokens are saved here
-        self._rule_keys = []  # Matched ule keys are saved here
+        self._rule_keys = []  # Matched rule keys are saved here
         output = ""
         token_i = 1  # Adjust for initial whitespace
+        matches = []
 
         while token_i < len(tokens) - 1:  # Adjust for final whitespace
             rule_key = self.match_at(token_i, tokens)
             if rule_key is None:
-                logger.warning(
-                    "No matching transliteration rule at token pos %s of %s"
-                    % (token_i, tokens)
-                )
+                logger.warning("No matching transliteration rule at token pos %s of %s" % (token_i, tokens))
                 # No parsing rule was found at this location
                 if self.ignore_errors:
                     # Move along if ignoring errors
@@ -951,7 +961,9 @@ class GraphTransliterator:
                 else:
                     raise NoMatchingTransliterationRuleException
             self._rule_keys.append(rule_key)
+
             rule = self.rules[rule_key]
+            matches.append(rule)
             tokens_matched = rule.tokens
             if self._onmatch_rules:
                 curr_match_rules = None
@@ -986,7 +998,8 @@ class GraphTransliterator:
                             break  # Only match best onmatch rule
             output += rule.production
             token_i += len(tokens_matched)
-        return output
+
+        return output, matches
 
     # ---------- static methods ----------
 
@@ -1353,11 +1366,7 @@ class CoverageTransliterator(GraphTransliterator):
         onmatch_rules = self._onmatch_rules
         for i, onmatch_rule in enumerate(onmatch_rules.data):  # data to avoid visited
             if i not in onmatch_rules.visited:
-                logger.warning(
-                    "On Match Rule {} [{}] has not been visited.".format(
-                        i, onmatch_rule
-                    )
-                )
+                logger.warning("On Match Rule {} [{}] has not been visited.".format(i, onmatch_rule))
                 errors.append(i)
         if errors and raise_exception:
             error_msg = "Missed OnMatchRules: " + ",".join([str(i) for i in errors])
@@ -1369,6 +1378,6 @@ class CoverageTransliterator(GraphTransliterator):
 
         First checks graph coverage, then checks onmatch rules."""
 
-        return self._graph.check_coverage(
+        return self._graph.check_coverage(raise_exception=raise_exception) and self.check_onmatchrules_coverage(
             raise_exception=raise_exception
-        ) and self.check_onmatchrules_coverage(raise_exception=raise_exception)
+        )

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """Tests for `graphtransliterator` package."""
+
 # from click.testing import CliRunner
 from graphtransliterator import process
 from graphtransliterator.core import GraphTransliterator
@@ -337,6 +338,61 @@ def test_GraphTransliterator_transliterate(tmpdir):
     # test last_matched_rules
     assert len(gt.last_matched_rules) == 4
 
+    # test details
+    assert gt.transliterate("a ") == "A" and gt.rules
+
+
+def test_GraphTransliterator_transliterate_with_details():
+    """Test GraphTransliterator transliterate_with_detials."""
+    YAML = r"""
+    tokens:
+        a: [class_a]
+        b: [class_b]
+        c: [class_c]
+        " ": [wb]
+        d: []
+        Aa: [contrained_rule]
+    rules:
+        a: A
+        b: B
+        <class_c> <class_c> a: A(AFTER_CLASS_C_AND_CLASS_C)
+        (<class_c> b) a: A(AFTER_B_AND_CLASS_C)
+        (<class_c> b b) a a: AA(AFTER_BB_AND_CLASS_C)
+        a <class_c>: A(BEFORE_CLASS_C)
+        a b (c <class_b>): AB(BEFORE_C_AND_CLASS_B)
+        c: C
+        c c: C*2
+        a (b b b): A(BEFORE_B_B_B)
+        d (c <class_a>): D(BEFORE_C_AND_CLASS_A)
+        (b b) a: A(AFTER_B_B)
+        <wb> Aa: A(ONLY_A_CONSTRAINED_RULE)
+    onmatch_rules:
+        -
+            <class_a> <class_b> + <class_a> <class_b>: "!"
+        -
+            <class_a> + <class_b>: ","
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    gt = GraphTransliterator.from_yaml(YAML)
+
+    assert gt.transliterate_with_details("a") == (
+        "A",
+        [
+            TransliterationRule(
+                production="A",
+                prev_classes=None,
+                prev_tokens=None,
+                tokens=["a"],
+                next_tokens=None,
+                next_classes=None,
+                cost=0.5849625007211562,
+            )
+        ],
+    )
+
 
 def test_serialization():
     """Test serialization of graphtransliterator"""
@@ -381,14 +437,14 @@ def test_serialization():
     # test dumps
     x = gt.dumps()
     assert "graph" in gt.dumps()
-    assert type(x) == str
+    assert type(x) is str
     # test loads
     new_gt = GraphTransliterator.loads(x)
     assert GraphTransliterator.loads(gt.dumps()).dumps()
-    assert type(new_gt) == GraphTransliterator
+    assert isinstance(new_gt, GraphTransliterator)
     # test load
     settings = gt.dump()
-    assert type(GraphTransliterator.load(settings)) == GraphTransliterator
+    assert isinstance(GraphTransliterator.load(settings),GraphTransliterator)
     # confirm settings not affected by load
     assert settings == settings
     # confirm compacting (dropping) optional settings works
@@ -473,7 +529,7 @@ def test_GraphTransliterator(tmpdir):
     assert gt.whitespace.token_class
     assert gt.whitespace.consolidate
     assert gt.metadata["author"] == "Author"
-    assert type(gt.graph) == DirectedGraph
+    assert isinstance(gt.graph,DirectedGraph)
     yaml_file = tmpdir.join("yaml_test.yaml")
     yaml_filename = str(yaml_file)
     yaml_file.write(yaml_str)

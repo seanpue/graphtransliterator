@@ -7,10 +7,14 @@ Bundled transliterators are loaded by explicitly importing
 :mod:`graphtransliterator.transliterators`. Each is an instance of
 :mod:`graphtransliterator.bundled.Bundled`.
 """
-from .bundled import Bundled  # noqa
-from .schemas import MetadataSchema  # noqa
+
+import importlib.util
 import inspect
 import pkgutil
+import sys
+
+from .bundled import Bundled  # noqa
+from .schemas import MetadataSchema  # noqa
 
 __all__ = ["Bundled", "MetadataSchema", "iter_names", "iter_transliterators"]
 
@@ -41,7 +45,22 @@ def add_transliterators(path=__path__):
         # if it is not a submodule, skip it.
         if not is_pkg:
             continue
-        _module = loader.find_module(module_name).load_module(module_name)
+
+        # --- FIX: Modern importlib implementation ---
+        # 1. Get the module's specification using the modern finder API
+        spec = loader.find_spec(module_name)
+        if spec is None:
+            continue
+
+        # 2. Create the module object from the specification
+        _module = importlib.util.module_from_spec(spec)
+
+        # 3. Cache it in sys.modules (best practice for standard behavior)
+        sys.modules[module_name] = _module
+
+        # 4. Execute the module to fully load its contents
+        spec.loader.exec_module(_module)
+        # ---------------------------------------------
 
         for name, _obj in inspect.getmembers(_module, inspect.isclass):
             # Skip Bundled, as it is already loaded
@@ -49,9 +68,7 @@ def add_transliterators(path=__path__):
             if _skip_class_name(name):
                 continue
             if name in __all__:
-                raise ValueError(
-                    'A transliterator named "{}" already exists'.format(name)
-                )
+                raise ValueError('A transliterator named "{}" already exists'.format(name))
             # import module and add class to globals, so that it will show up as
             # graphtransliterator.transliterators.TRANSLITERATORNAME
             assert len(_module.__path__) == 1  # There should be only one path
@@ -70,6 +87,7 @@ def iter_names():
 
 
 def iter_transliterators(**kwds):
-    """Iterate through instances of bundled transliterators."""
-    for _ in iter_names():
-        yield (eval(_ + "()"))
+    for name in iter_names():
+        cls = globals().get(name)
+        if cls:
+            yield cls(**kwds)

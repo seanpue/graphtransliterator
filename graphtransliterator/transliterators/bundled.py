@@ -32,7 +32,8 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         """Initialize from easy-reading YAML or from JSON."""
 
         filename = os.path.join(
-            self.directory, self.name + "." + method  # error if None
+            self.directory,
+            self.name + "." + method,  # error if None
         )
         # Create GraphTransliterator using factory
         if method == "yaml":
@@ -72,9 +73,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         coverage: `bool`
             Should test coverage be checked. Default is `True`.
         """
-        self._init_from(
-            method="yaml", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs
-        )
+        self._init_from(method="yaml", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs)
         return self
 
     def from_JSON(self, check_ambiguity=False, coverage=False, **kwargs):
@@ -86,9 +85,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             Should ambiguity be checked. Default is `False.`
         coverage: `bool`
             Should test coverage be checked. Default is `False`."""
-        self._init_from(
-            method="json", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs
-        )
+        self._init_from(method="json", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs)
 
     @classmethod
     def new(cls, method="json", **kwargs):
@@ -109,7 +106,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
     @property
     def yaml_tests_filen(self):
         """
-        `dict`: Metadata of transliterator
+        `str`: Absolute path to the bundled YAML test file.
         """
         return os.path.join(self.directory, "tests", "{}_tests.yaml".format(self.name))
 
@@ -135,9 +132,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             source = str(source)
             target = str(target)
             result = self.transliterate(source)
-            assert (
-                self.transliterate(source) == target
-            ), 'Transliteration error: "{}" -> "{}"; should -> "{}"'.format(
+            assert self.transliterate(source) == target, 'Transliteration error: "{}" -> "{}"; should -> "{}"'.format(
                 source, result, target
             )
 

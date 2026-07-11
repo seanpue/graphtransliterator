@@ -100,13 +100,10 @@ development.
 
     $ git clone git@github.com:your_name_here/graphtransliterator.git
 
-3. Install your local copy into a virtualenv. Assuming you have
-   virtualenvwrapper installed, this is how you set up your fork for local
-   development::
+3. Install your local copy and its dependencies using Poetry::
 
-    $ mkvirtualenv graphtransliterator
     $ cd graphtransliterator/
-    $ python setup.py develop
+    $ poetry install
 
 4. Create a branch for local development::
 
@@ -114,17 +111,12 @@ development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, format your code using the Black code
-   formatter. (You can do that in your editor, as well). Then check that your
-   changes pass flake8 and the tests, including testing other Python versions
-   with tox::
+5. When you're done making changes, format and lint your code using Ruff, and run the test suite::
 
-    $ black graphtransliterator
-    $ flake8 graphtransliterator tests
-    $ python setup.py test or py.test
-    $ tox
-
-   To get black, flake8, and tox, just pip install them into your virtualenv.
+    $ poetry run ruff format graphtransliterator tests
+    $ poetry run ruff check graphtransliterator tests
+    $ poetry run pytest
+    $ poetry run tox
 
    You should also test your coverage using make:
 
@@ -147,16 +139,16 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.7 and 3.8 for PyPy. Check
-   https://travis-ci.org/seanpue/graphtransliterator/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+3. The pull request should work for Python 3.9 and above. Check the GitHub 
+   Actions continuous integration status to ensure that the tests pass for all 
+   supported Python versions.
 
 Tips
 ----
 
 To run a subset of tests::
 
-$ py.test tests.test_graphtransliterator
+$ poetry run pytest tests/test_graphtransliterator.py
 
 
 Deploying
@@ -170,4 +162,4 @@ $ bumpversion patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 
-The module uses Github Actions to deploy to TestPyPI and to PyPI.
+The module uses GitHub Actions to deploy to TestPyPI and to PyPI.

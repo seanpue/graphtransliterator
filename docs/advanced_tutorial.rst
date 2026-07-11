@@ -209,7 +209,7 @@ __init__.py
 The `__init__.py` will create the bundled transliterator, which is a subclass of
 `GraphTransliterator` named `Bundled`.
 
-Following convention, uou need to name your transliterator's class is CamelCase. For
+Following convention, you need to name your transliterator's class is CamelCase. For
 this example, it would be ``AToB``:
 
 .. code::
@@ -257,7 +257,7 @@ Tests can be generated using the command line interface:
 .. code-block:: bash
 
     mkdir tests
-    graphtransliterator generate-tests --from bundled [name_of_your_transliterator] > tests/[name_of_your_transliterator]
+    graphtransliterator graphtransliterator generate-tests --from bundled [name] > tests/[name]_tests.yaml
 
 Testing the Transliterator
 ==========================

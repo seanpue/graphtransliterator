@@ -3,6 +3,7 @@
 """
 Functions used to initialize a GraphTransliterator.
 """
+
 from .graphs import DirectedGraph
 from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
 from collections import defaultdict
@@ -174,18 +175,11 @@ def _graph_from(rules):
         parent_node = graph.node[parent_key]
         rule_children = parent_node.get("rule_children", [])
         rule_children.append(rule_node_key)
-        parent_node["rule_children"] = sorted(
-            rule_children, key=lambda x: rules[graph.node[x]["rule_key"]].cost
-        )
+        parent_node["rule_children"] = sorted(rule_children, key=lambda x: rules[graph.node[x]["rule_key"]].cost)
 
         edge_to_rule = graph.add_edge(parent_key, rule_node_key, {"cost": rule.cost})
 
-        has_constraints = (
-            rule.prev_classes
-            or rule.prev_tokens
-            or rule.next_tokens
-            or rule.next_classes
-        )
+        has_constraints = rule.prev_classes or rule.prev_tokens or rule.next_tokens or rule.next_classes
         if has_constraints:
             constraints = {}
             if rule.prev_classes:
@@ -222,9 +216,7 @@ def _graph_from(rules):
                     ordered_children[token] += rule_children_keys
 
                 # Sort both by cost
-                ordered_children[token].sort(
-                    key=lambda _new_tkn_key: graph.edge[node_key][_new_tkn_key]["cost"]
-                )
+                ordered_children[token].sort(key=lambda _new_tkn_key: graph.edge[node_key][_new_tkn_key]["cost"])
             # Remove token_children
             node.pop("token_children")
         node["ordered_children"] = ordered_children

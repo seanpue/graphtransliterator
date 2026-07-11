@@ -14,9 +14,8 @@ Graph Transliterator
      :target: https://pyup.io/repos/github/seanpue/graphtransliterator/
      :alt: PyUp Updates
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-     :target: https://github.com/ambv/black
-     :alt: Code Style: Black
+.. image:: https://img.shields.io/badge/Linter-Ruff-brightgreen?style=flat-square
+     :target: https://github.com/charliermarsh/ruff
 
 .. image:: https://img.shields.io/pypi/pyversions/graphtransliterator
      :alt: PyPI - Python Version

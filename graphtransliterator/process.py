@@ -86,9 +86,7 @@ def _process_rules(easyreading_rules):
 # ----------- process onmatch_rules -----------
 
 
-ONMATCH_RE = re.compile(
-    r"^(" r"(?:<[^+< \s]+>\s*)+" r")" r"\+" r"(" r"(?:\s*<[^+<]+>)+)\s*$"
-)
+ONMATCH_RE = re.compile(r"^(" r"(?:<[^+< \s]+>\s*)+" r")" r"\+" r"(" r"(?:\s*<[^+<]+>)+)\s*$")
 
 ONMATCH_CLASS_RE = re.compile(r"(?<=<)[^+< \s]+(?=>)")
 
