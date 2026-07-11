@@ -22,8 +22,8 @@ jobs:
 
             - name: Build and publish
               run: |
-                  source .venv/bin/activate
-                  make build-and-publish
+                  poetry build
+                  poetry publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
               env:
                   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
                   # Some build steps can utilize this directly if your Makefile accepts it:
