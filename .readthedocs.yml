@@ -8,17 +8,19 @@ build:
     tools:
         python: "3.11"
     commands:
-        # 1. Manually create the virtual environment since RTD skips it for custom commands
+        # 1. Manually create the virtual environment
         - python -m virtualenv $READTHEDOCS_VIRTUALENV_PATH
 
-        # 2. Install poetry using the newly created environment's pip
-        - $READTHEDOCS_VIRTUALENV_PATH/bin/pip install "poetry>=2.0.0,<3.0.0"
+        # 2. Upgrade pip and install poetry + sphinx into the environment core
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/pip install --upgrade pip setuptools
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/pip install "poetry>=2.0.0,<3.0.0" sphinx
 
-        # 3. Tell poetry NOT to create its own virtualenv (forces it to install right here)
+        # 3. Tell poetry NOT to create its own virtualenv
         - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry config virtualenvs.create false
 
-        # 4. Install all your project dependencies (like marshmallow) into the RTD environment
-        - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install
+        # 4. Install all your project dependencies (forces marshmallow and extensions)
+        # Adding --with docs ensures your documentation group packages are included
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install --with docs
 
-        # 5. Manually trigger the Sphinx build using the RTD environment python
+        # 5. Manually trigger the Sphinx build
         - $READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
