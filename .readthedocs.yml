@@ -18,10 +18,10 @@ build:
         python: "3.11"
     jobs:
         post_create_environment:
-            # Install a specific, stable version of poetry into the RTD virtual environment
+            # Install poetry directly into the Read the Docs virtual environment
             - $READTHEDOCS_VIRTUALENV_PATH/bin/pip install "poetry>=2.0.0,<3.0.0"
-            # Explicitly tell poetry to point to the Read the Docs virtual environment
-            - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry env use $READTHEDOCS_VIRTUALENV_PATH/bin/python
+            # FORCE poetry to install globally inside this specific environment context
+            - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry config virtualenvs.create false
         post_install:
-            # Install dependencies cleanly into that exact environment
+            # Install dependencies cleanly into the RTD environment
             - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install
