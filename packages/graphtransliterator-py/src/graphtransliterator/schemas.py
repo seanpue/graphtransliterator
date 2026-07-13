@@ -15,17 +15,18 @@ from typing import Any, Union, cast
 from typing_extensions import TypedDict  # Clear import for TypedDict
 from .graphs import DirectedGraph
 from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
-from .types import Token, TokenClass, NodeData, EdgeData, LoadedGraphDict
+from .types import NodeData, LoadedGraphDict
 from .initialize import (
-    _onmatch_rule_of, 
-    _transliteration_rule_of, 
+    _onmatch_rule_of,
+    _transliteration_rule_of,
     _whitespace_rules_of,
     RawRuleDict,
     RawOnMatchDict,
-    RawWhitespaceDict
+    RawWhitespaceDict,
 )
 from .process import RULE_RE, ONMATCH_RE
 import copy
+
 
 # Defined here to prevent circular loops in types.py
 class LoadedSettingsDict(TypedDict):
@@ -167,7 +168,9 @@ class SettingsSchema(Schema):
                         continue
                     for _ in values:
                         if _ not in token_classes:
-                            class_errors[rule_type].append('Invalid token class "{}" in {} of {}'.format(_, property_name, rule))
+                            class_errors[rule_type].append(
+                                'Invalid token class "{}" in {} of {}'.format(_, property_name, rule)
+                            )
 
         whitespace = data["whitespace"]
         whitespace_token_class = whitespace.token_class
@@ -197,7 +200,9 @@ class SettingsSchema(Schema):
                         continue
                     for _ in values:
                         if _ not in token_types:
-                            token_errors["rules"].append('Invalid token "{}" in {} of rule {}'.format(_, property_name, rule))
+                            token_errors["rules"].append(
+                                'Invalid token "{}" in {} of rule {}'.format(_, property_name, rule)
+                            )
         if token_errors:
             raise ValidationError(dict(token_errors))
 
@@ -231,6 +236,7 @@ class NodeDataSchema(Schema):
 
 class DirectedGraphSchema(Schema):
     """Schema for :class:`DirectedGraph`."""
+
     edge = fields.Dict(
         keys=fields.Int(),
         values=fields.Dict(keys=fields.Int, values=fields.Nested(EdgeDataSchema)),
@@ -247,20 +253,21 @@ class DirectedGraphSchema(Schema):
         return DirectedGraph(
             node=_data.get("node", []),
             edge=_data.get("edge", {}),
-            edge_list=_data.get("edge_list")
+            edge_list=_data.get("edge_list"),
         )
 
-    @pre_dump(pass_many=False)
+    @pre_dump
     def sort_edge_list(self, data: DirectedGraph, **kwargs: Any) -> dict[str, Any]:
         """Sort edge list to make dumps consistent."""
         return {
             "node": data.node,
             "edge": data.edge,
-            "edge_list": sorted(data.edge_list)
+            "edge_list": sorted(data.edge_list),
         }
 
 
 class GraphTransliteratorSchema(Schema):
     """Schema for GraphTransliterator."""
+
     settings = fields.Nested(SettingsSchema, required=True)
     graph = fields.Nested(DirectedGraphSchema, required=True)

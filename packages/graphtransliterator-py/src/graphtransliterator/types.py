@@ -10,9 +10,11 @@ from typing_extensions import TypeAlias, TypedDict, NotRequired
 Token: TypeAlias = str
 TokenClass: TypeAlias = str
 
+
 # Raw Configuration Formats
 class RawRuleDict(TypedDict, total=False):
     """Shape of a raw dictionary representing a transliteration rule."""
+
     production: str
     prev_classes: list[TokenClass] | None
     prev_tokens: list[Token] | None
@@ -24,6 +26,7 @@ class RawRuleDict(TypedDict, total=False):
 
 class RawOnMatchDict(TypedDict):
     """Shape of a raw dictionary representing an on-match rule."""
+
     prev_classes: list[TokenClass]
     next_classes: list[TokenClass]
     production: str
@@ -31,6 +34,7 @@ class RawOnMatchDict(TypedDict):
 
 class RawWhitespaceDict(TypedDict):
     """Shape of a raw dictionary representing whitespace rules."""
+
     default: Token
     token_class: TokenClass
     consolidate: bool

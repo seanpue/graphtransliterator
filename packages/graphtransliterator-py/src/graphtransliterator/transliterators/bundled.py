@@ -3,11 +3,11 @@
 from collections import OrderedDict
 import os
 import sys
-from typing import Any, Dict, Iterator, Optional, Type, Union, cast, TYPE_CHECKING
+from typing import Any, Dict, Optional, Type, Union, cast
 import yaml
 
 from graphtransliterator.core import GraphTransliterator, CoverageTransliterator
-from graphtransliterator.compression import DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL
+
 
 class Bundled(CoverageTransliterator, GraphTransliterator):
     """
@@ -44,7 +44,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             self.directory,
             self.name + "." + method,
         )
-        
+
         # Create GraphTransliterator using factory
         if method == "yaml":
             gt = GraphTransliterator.from_yaml_file(filename, **kwargs)
@@ -58,7 +58,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         _super: Type[Union[CoverageTransliterator, GraphTransliterator]] = (
             CoverageTransliterator if kwargs.get("coverage") else GraphTransliterator
         )
-        
+
         _super.__init__(
             self,
             gt._tokens,

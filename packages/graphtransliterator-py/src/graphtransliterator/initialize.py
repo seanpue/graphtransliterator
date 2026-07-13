@@ -12,7 +12,7 @@ from .types import (
     RawRuleDict,
     RawOnMatchDict,
     RawWhitespaceDict,
-    ConstraintDict
+    ConstraintDict,
 )
 from collections import defaultdict
 import math
@@ -55,7 +55,7 @@ def _num_tokens_of(rule: RawRuleDict) -> int:
     """Calculate the total number of tokens in a rule."""
     tokens_field = rule.get("tokens")
     total = len(tokens_field) if tokens_field else 0
-    
+
     # Check each optional list field directly to avoid loop type-checking conflicts
     for val in (
         rule.get("prev_classes"),
@@ -91,8 +91,8 @@ def _onmatch_rule_of(onmatch_rule: RawOnMatchDict) -> OnMatchRule:
 
 
 def _onmatch_rules_lookup(
-    tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]], 
-    onmatch_rules: list[OnMatchRule]
+    tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]],
+    onmatch_rules: list[OnMatchRule],
 ) -> dict[Token, dict[Token, list[int]]]:
     """Creates a dict lookup from current to previous token.
 
@@ -159,7 +159,7 @@ def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph:
     """Generates a parsing graph from the given rules."""
 
     graph = DirectedGraph(node=[], edge={})
-    
+
     # Use standard dict operations for internal assembly modifications safely
     nodes = cast(list[dict[str, Any]], graph.node)
     edges = cast(dict[int, dict[int, dict[str, Any]]], graph.edge)
@@ -172,7 +172,7 @@ def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph:
             parent_node = nodes[parent_key]
             token_children = parent_node.setdefault("token_children", {})
             token_node_key = token_children.get(token)
-            
+
             if token_node_key is None:
                 token_node_key = len(nodes)
                 nodes.append({"type": "token", "token": token})
@@ -188,7 +188,7 @@ def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph:
 
         rule_node_key = len(nodes)
         nodes.append({"type": "rule", "rule_key": rule_key, "accepting": True})
-        
+
         parent_node = nodes[parent_key]
         rule_children = parent_node.setdefault("rule_children", [])
         rule_children.append(rule_node_key)
@@ -217,7 +217,8 @@ def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph:
         # Add rule children to ordered_children dict under '__rules__'
         if rule_children_keys:
             ordered_children["__rules__"] = sorted(
-                rule_children_keys, key=lambda x: rules[cast(int, nodes[x]["rule_key"])].cost
+                rule_children_keys,
+                key=lambda x: rules[cast(int, nodes[x]["rule_key"])].cost,
             )
             node.pop("rule_children", None)
 

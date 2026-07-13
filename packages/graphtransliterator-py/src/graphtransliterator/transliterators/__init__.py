@@ -49,7 +49,7 @@ def add_transliterators(path: Union[List[str], Any] = None) -> None:
                     continue
                 if name in __all__:
                     raise ValueError('A transliterator named "{}" already exists'.format(name))
-                
+
                 assert len(cast(Any, _module).__path__) == 1
                 globals()[name] = getattr(_module, name)
                 __all__.append(name)

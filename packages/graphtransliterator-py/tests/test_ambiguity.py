@@ -59,24 +59,15 @@ def test_GraphParser_check_ambiguity():
 
 def test_GraphTransliterator_easy_reading():
     assert (
-        _easyreading_rule(
-            TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0)
-        )
+        _easyreading_rule(TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0))
         == "<class_a> a <class_a>"
     )
     assert (
-        _easyreading_rule(
-            TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0)
-        )
+        _easyreading_rule(TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0))
         == "<class_a> a <class_a>"
     )
+    assert _easyreading_rule(TransliterationRule("", [], ["b"], ["a"], ["b"], [], 0)) == "(b) a (b)"
     assert (
-        _easyreading_rule(TransliterationRule("", [], ["b"], ["a"], ["b"], [], 0))
-        == "(b) a (b)"
-    )
-    assert (
-        _easyreading_rule(
-            TransliterationRule("", ["class_a"], ["b"], ["a"], ["b"], ["class_a"], 0)
-        )
+        _easyreading_rule(TransliterationRule("", ["class_a"], ["b"], ["a"], ["b"], ["class_a"], 0))
         == "(<class_a> b) a (b <class_a>)"
     )

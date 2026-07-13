@@ -6,10 +6,11 @@ GraphTransliterator ambiguity-checking functions.
 
 import itertools
 import logging
-from typing import Any, Protocol, Union
+from typing import Any, Protocol
 
 from .exceptions import AmbiguousTransliterationRulesException
 from .rules import TransliterationRule
+
 
 # A structural Protocol matching the internal requirements of the Transliterator instance
 class TransliteratorLike(Protocol):
@@ -70,7 +71,7 @@ def check_for_ambiguity(transliterator: TransliteratorLike) -> bool:
         """Check if intersection is covered by row."""
         return all(not intersection[k].difference(row[k]) for k in range(len(intersection)))
 
-    # Iterate through rules based on cost. If there are ambiguities, 
+    # Iterate through rules based on cost. If there are ambiguities,
     # check if a less costly rule would match the intersection sequence.
     for _group_val, group_iter in itertools.groupby(enumerate(transliterator._rules), key=lambda x: x[1].cost):
         group = list(group_iter)
@@ -107,7 +108,7 @@ def check_for_ambiguity(transliterator: TransliteratorLike) -> bool:
                         )
                     )
                     ambiguity = True
-                    
+
     if ambiguity:
         raise AmbiguousTransliterationRulesException
     return True

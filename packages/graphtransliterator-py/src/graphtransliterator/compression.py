@@ -4,10 +4,11 @@ Functions used to compress and decompress a GraphTransliterator.
 """
 
 import math
-from typing import Any, cast, Union
+from typing import Any, Union
 
 DEFAULT_COMPRESSION_LEVEL = 2
 HIGHEST_COMPRESSION_LEVEL = 2
+
 
 def compress_config(config: dict[str, Any], compression_level: int = 1) -> Any:
     """
@@ -297,7 +298,7 @@ def decompress_config(compressed_config: tuple[Any, ...]) -> dict[str, Any]:
         if _onmatch_rules
         else None
     )
-    
+
     graph: dict[str, Any] | None = None
     if _graph:
         [_nodetype_list, _nodes, _edges] = _graph

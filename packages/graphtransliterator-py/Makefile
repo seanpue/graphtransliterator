@@ -47,6 +47,17 @@ clean-build: ## Clean build artifacts
 clean-docs: ## Clean documentation build artifacts
 	rm -rf docs/_build
 
+.PHONY: clean
+clean: clean-build clean-docs ## Clean build, docs, and test artifacts locally
+	rm -rf .pytest_cache/
+	rm -rf .mypy_cache/
+	rm -rf .coverage
+	rm -f coverage.xml
+	rm -rf htmlcov/
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type f -name "*.py[co]" -delete
+	@echo "✨ Inner directory is clean!"
+
 .PHONY: publish
 publish: ## Publish a release to PyPI
 	@echo "🚀 Publishing: Dry run."
@@ -68,5 +79,5 @@ docs: clean-docs ## Build and serve the documentation
 	$(BROWSER) docs/_build/html/index.html
 
 .PHONY: servedocs
-servedocs: docs ## Compile the docs watching for changes
-	poetry run watchmedo shell-command -p '*.py;*.rst;*ipynb;*md' -c 'poetry run sphinx-build -b html docs docs/_build/html' -R -D .
+servedocs: docs ## Compile the docs and watch for changes live
+	poetry run watchmedo shell-command -p '*.py;*.rst;*.ipynb;*.md' -c 'poetry run sphinx-build -b html docs docs/_build/html' -R -D .

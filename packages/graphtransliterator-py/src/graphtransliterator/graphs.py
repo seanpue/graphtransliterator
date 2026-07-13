@@ -6,7 +6,7 @@ Graph classes for GraphTransliterator.
 
 from collections import UserList
 import logging
-from typing import Any, overload, TypeVar, Union, cast, SupportsIndex, Iterator
+from typing import Any, TypeVar, Union, cast
 from .types import NodeData, EdgeData
 
 logger = logging.getLogger("graphtransliterator")
@@ -33,7 +33,7 @@ class DirectedGraph:
 
         if source < 0 or source >= len(self.node) or target < 0 or target >= len(self.node):
             raise ValueError(f"Source node {source} or target node {target} not found in graph.")
-            
+
         if edge_data is not None and not isinstance(edge_data, dict):
             raise ValueError("Edge data must be a dictionary or None.")
 
@@ -46,7 +46,7 @@ class DirectedGraph:
         """Append a node to the graph and return its index."""
         if node_data is not None and not isinstance(node_data, dict):
             raise ValueError("Node data must be a dictionary or None.")
-            
+
         data = node_data if node_data is not None else cast(NodeData, {})
         self.node.append(data)
         return len(self.node) - 1
@@ -54,20 +54,12 @@ class DirectedGraph:
     @property
     def edge_list(self) -> list[tuple[int, int]]:
         """Return a list of all edges as (source, target) pairs."""
-        return [
-            (int(source), int(target))
-            for source, targets in self.edge.items()
-            for target in targets
-        ]
+        return [(int(source), int(target)) for source, targets in self.edge.items() for target in targets]
 
     @property
     def edges(self) -> list[tuple[int, int]]:
         """Return a list of all edges as (source, target) pairs."""
-        return [
-            (int(source), int(target))
-            for source, targets in self.edge.items()
-            for target in targets
-        ]
+        return [(int(source), int(target)) for source, targets in self.edge.items() for target in targets]
 
 
 class OnMatchRuleProxy:
@@ -88,7 +80,10 @@ class OnMatchRuleProxy:
 
     def __getitem__(self, item: Any) -> Any:
         val = object.__getattribute__(self, "_obj")[item]
-        if hasattr(object.__getattribute__(self, "_obj"), "production") and val == object.__getattribute__(self, "_obj").production:
+        if (
+            hasattr(object.__getattribute__(self, "_obj"), "production")
+            and val == object.__getattribute__(self, "_obj").production
+        ):
             object.__getattribute__(self, "_visited_set").add(object.__getattribute__(self, "_idx"))
         return val
 
@@ -113,7 +108,7 @@ class VisitLoggingList(UserList[_T]):
         else:
             super().__init__(initlist)
             self.visited = set()
-        
+
         # Wrap each rule inside a proxy to log the visit on successful match
         self.data = [cast(_T, OnMatchRuleProxy(item, i, self.visited)) for i, item in enumerate(self.data)]
 
@@ -121,10 +116,16 @@ class VisitLoggingList(UserList[_T]):
         """Reset the visited log tracking."""
         self.visited.clear()
 
+
 class VisitLoggingDict(dict[Any, Any]):
     """A dictionary wrapper that tracks visited keys across nested lookups."""
 
-    def __init__(self, data: dict[Any, Any], visited_edges: set[tuple[int, int]], parent_key: int | None = None) -> None:
+    def __init__(
+        self,
+        data: dict[Any, Any],
+        visited_edges: set[tuple[int, int]],
+        parent_key: int | None = None,
+    ) -> None:
         super().__init__(data)
         self._visited_edges = visited_edges
         self._parent_key = parent_key
@@ -162,10 +163,11 @@ class VisitLoggingDirectedGraph(DirectedGraph):
             if (u, v) not in self.visited_edges:
                 logger.warning(f"Edge ({u} -> {v}) was never visited during runtime.")
                 missing_edges.append((u, v))
-        
+
         if missing_edges and raise_exception:
             from .exceptions import IncompleteGraphCoverageException
+
             edge_str = ", ".join(f"{u}->{v}" for u, v in missing_edges)
             raise IncompleteGraphCoverageException(f"Incomplete graph edge coverage: {edge_str}")
-        
+
         return len(missing_edges) == 0

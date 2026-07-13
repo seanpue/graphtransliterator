@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import graphtransliterator.transliterators as transliterators
 
-def test_example()-> None:
+
+def test_example() -> None:
     """Example tests for transliterator."""
     # Generate a Visit-Logging Transliterator`
     transliterator = transliterators.Example(coverage=True)  # type: ignore[attr-defined]

@@ -15,7 +15,10 @@ __version__ = "1.2.4"
 from .core import CoverageTransliterator, GraphTransliterator
 
 # Constants
-from .compression import DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL  #  Correct!
+from .compression import (
+    DEFAULT_COMPRESSION_LEVEL,
+    HIGHEST_COMPRESSION_LEVEL,
+)  #  Correct!
 
 # Exceptions
 from .exceptions import (

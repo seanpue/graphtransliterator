@@ -9,16 +9,28 @@ from .initialize import RawRuleDict, RawOnMatchDict, RawWhitespaceDict
 # Descriptive Type Aliases & TypedDicts for Structural Processing Outputs
 # ==============================================================================
 
+
 class ProcessedSettingsDict(TypedDict, total=False):
     """The fully processed and structural shape generated from easy reading."""
+
     tokens: dict[str, list[str]]
     rules: list[RawRuleDict]
     onmatch_rules: list[RawOnMatchDict]
     whitespace: RawWhitespaceDict
     metadata: dict[str, Union[str, int, float, bool]]
 
+
 # Helper definition for the dynamic input config blocks
-EasyReadingInput: TypeAlias = dict[str, Union[dict[str, str], list[dict[str, str]], RawWhitespaceDict, dict[str, list[str]], dict[str, Union[str, int, float, bool]]]]
+EasyReadingInput: TypeAlias = dict[
+    str,
+    Union[
+        dict[str, str],
+        list[dict[str, str]],
+        RawWhitespaceDict,
+        dict[str, list[str]],
+        dict[str, Union[str, int, float, bool]],
+    ],
+]
 
 
 # ----------- process settings (main method) ----------
@@ -97,16 +109,12 @@ def _process_rules(easyreading_rules: dict[str, str]) -> list[RawRuleDict]:
 # ----------- process onmatch_rules -----------
 
 
-ONMATCH_RE = re.compile(
-    r"^(" r"(?:<[^+< \s]+>\s*)+" r")" r"\+" r"(" r"(?:\s*<[^+<]+>)+)\s*$"
-)
+ONMATCH_RE = re.compile(r"^(" r"(?:<[^+< \s]+>\s*)+" r")" r"\+" r"(" r"(?:\s*<[^+<]+>)+)\s*$")
 
 ONMATCH_CLASS_RE = re.compile(r"(?<=<)[^+< \s]+(?=>)")
 
 
-def _process_onmatch_rules(
-    easyreading_onmatch_rules: list[dict[str, str]] | None
-) -> list[RawOnMatchDict]:
+def _process_onmatch_rules(easyreading_onmatch_rules: list[dict[str, str]] | None) -> list[RawOnMatchDict]:
     """Process "easyreading" onmatch_rules (list of dict) into list of dict."""
 
     if not easyreading_onmatch_rules:

@@ -44,7 +44,7 @@ from marshmallow import (
     ValidationError,
 )
 import re
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast, Mapping, Iterable
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast, Mapping
 import yaml
 
 logger = logging.getLogger("graphtransliterator")
@@ -135,7 +135,7 @@ class GraphTransliterator:
     ) -> None:
         self._tokens = {k: set(v) for k, v in tokens.items()}
         self._rules = rules
-        
+
         self._tokens_by_class = tokens_by_class or _tokens_by_class_of(
             cast(Dict[str, Union[List[str], Set[str]]], self._tokens)
         )
@@ -152,7 +152,7 @@ class GraphTransliterator:
                 raw_onmatch = onmatch_rules.data if isinstance(onmatch_rules, VisitLoggingList) else onmatch_rules
                 self._onmatch_rules_lookup = _onmatch_rules_lookup(
                     cast(Dict[str, Union[List[str], Set[str]]], self._tokens),
-                    cast(List[OnMatchRule], raw_onmatch)
+                    cast(List[OnMatchRule], raw_onmatch),
                 )
         else:
             self._onmatch_rules = None
@@ -177,40 +177,46 @@ class GraphTransliterator:
             graphtransliterator_version = __version__
         self._graphtransliterator_version = graphtransliterator_version
 
-    
     def __new__(cls, *args: Any, **kwargs: Any) -> Any:
         """Intercept subclass instantiation to filter out CLI parameters like ignore_errors."""
         if not hasattr(cls, "_init_wrapped"):
             orig_init = cls.__init__
-            
+
             import inspect
+
             def safe_init(self: Any, *inner_args: Any, **inner_kwargs: Any) -> None:
                 sig = inspect.signature(orig_init)
                 has_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values())
-                
+
                 filtered_kwargs = {}
                 for k, v in inner_kwargs.items():
                     if has_kwargs or k in sig.parameters or k == "self":
                         filtered_kwargs[k] = v
                     elif k == "ignore_errors":
                         setattr(self, "ignore_errors", v)
-                        
+
                 orig_init(self, *inner_args, **filtered_kwargs)
-                
+
             setattr(cls, "__init__", safe_init)
             cls._init_wrapped = True
-            
+
         return super().__new__(cls)
 
-    def _match_constraints(self, target_edge: EdgeData, curr_node: Dict[str, Any], token_i: int, tokens: List[str]) -> bool:
+    def _match_constraints(
+        self,
+        target_edge: EdgeData,
+        curr_node: Dict[str, Any],
+        token_i: int,
+        tokens: List[str],
+    ) -> bool:
         constraints = target_edge.get("constraints")
         rules = self.rules
         if not constraints:
             return True
-            
+
         for c_type, raw_values in constraints.items():
             c_values = cast(List[str], raw_values)
-            
+
             if c_type == "prev_tokens":
                 num_tokens = len(rules[curr_node["rule_key"]].tokens)
                 start_at = token_i
@@ -406,7 +412,7 @@ class GraphTransliterator:
             node_key, parent_key, t_idx = stack.popleft()
             curr_node = graph_node[node_key]
             incident_edge = cast(EdgeData, graph_edge[parent_key][node_key])
-            
+
             if curr_node.get("accepting") and self._match_constraints(incident_edge, curr_node, t_idx, tokens):
                 if match_all:
                     matches.append(curr_node["rule_key"])
@@ -417,7 +423,7 @@ class GraphTransliterator:
                 if t_idx < len(tokens) - 1:
                     t_idx += 1
                 _append_children(node_key, t_idx)
-                
+
         return cast(Union[Optional[int], List[int]], matches if match_all else None)
 
     def pruned_of(self, productions: Union[str, List[str]]) -> "GraphTransliterator":
@@ -440,7 +446,7 @@ class GraphTransliterator:
         tokens = [self.whitespace.default]
         prev_whitespace = True
         match_at = 0
-        
+
         while match_at < len(input_):
             match = self._tokenizer.match(input_, match_at)
             if match:
@@ -569,7 +575,10 @@ class GraphTransliterator:
 
     @staticmethod
     def load(settings: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
-        return cast("GraphTransliterator", GraphTransliteratorSchema().load(dict(settings, **kwargs)))
+        return cast(
+            "GraphTransliterator",
+            GraphTransliteratorSchema().load(dict(settings, **kwargs)),
+        )
 
     @staticmethod
     def loads(settings: str, **kwargs: Any) -> "GraphTransliterator":
@@ -619,12 +628,13 @@ class CoverageTransliterator(GraphTransliterator):
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         orig_init = cls.__init__
-        
+
         import inspect
+
         def safe_init(self: Any, *args: Any, **inner_kwargs: Any) -> None:
             sig = inspect.signature(orig_init)
             has_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values())
-            
+
             filtered_kwargs = {}
             extra_kwargs = {}
             for k, v in inner_kwargs.items():
@@ -632,9 +642,9 @@ class CoverageTransliterator(GraphTransliterator):
                     filtered_kwargs[k] = v
                 else:
                     extra_kwargs[k] = v
-            
+
             orig_init(self, *args, **filtered_kwargs)
             if "ignore_errors" in extra_kwargs:
                 self.ignore_errors = extra_kwargs["ignore_errors"]
-                
+
         setattr(cls, "__init__", safe_init)
