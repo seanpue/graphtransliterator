@@ -17,6 +17,10 @@ History
 -------
 * Add on/off switch characters
 
+?.?.? (2026-)
+------------------
+* updated readthedocs config
+
 1.3.1 (2026-07-11)
 ------------------
 * minor updates to pyproject.toml
