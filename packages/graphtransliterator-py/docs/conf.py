@@ -37,7 +37,7 @@ root_doc = "index"
 
 # General information about the project.
 project = "Graph Transliterator"
-copyright = "2020, Michigan State University"
+copyright = "2026, University of Maryland"
 author = "A. Sean Pue"
 
 # Dynamic versions pulled safely from package initialization
