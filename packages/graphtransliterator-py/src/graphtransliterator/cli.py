@@ -12,30 +12,32 @@ import json
 import os
 import re
 import sys
+from typing import Any, Tuple
 from graphtransliterator import __version__
 
 
 @click.group()
 @click.version_option(__version__)
-def main():
+def main() -> None:
     pass
 
 
-def load_transliterator(source, **kwargs):
+def load_transliterator(source: Tuple[str, str], **kwargs: Any) -> Any:
     """Loads transliterator (format, parameter)."""
-    format, parameter = source
-    if format == "bundled":
-        mod = __import__("graphtransliterator.transliterators")
-        transliterators_mod = mod.transliterators
+    format_type, parameter = source
+    if format_type == "bundled":
+        mod = __import__("graphtransliterator.transliterators", fromlist=["transliterators"])
+        transliterators_mod = mod
         transliterator_class = getattr(transliterators_mod, parameter)
         return transliterator_class(**kwargs)
-    elif format == "json":
+    elif format_type == "json":
         return GraphTransliterator.loads(parameter, **kwargs)
-    elif format == "json_file":
-        with open(parameter, "r") as f:
+    elif format_type == "json_file":
+        with open(parameter, "r", encoding="utf-8") as f:
             return GraphTransliterator.loads(f.read(), **kwargs)
-    elif format == "yaml_file":
+    elif format_type == "yaml_file":
         return GraphTransliterator.from_yaml_file(parameter, **kwargs)
+    return None
 
 
 @click.command()
@@ -80,7 +82,14 @@ def load_transliterator(source, **kwargs):
     help="Show itemized transliteration details and structural graph execution steps.",
 )
 @click.argument("input", nargs=-1)
-def transliterate(from_, to, input, check_ambiguity, ignore_errors, details):
+def transliterate(
+    from_: Tuple[str, str],
+    to: str,
+    input: Tuple[str, ...],
+    check_ambiguity: bool,
+    ignore_errors: bool,
+    details: bool,
+) -> None:
     """Transliterate INPUT."""
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity, ignore_errors=ignore_errors)
 
@@ -88,7 +97,7 @@ def transliterate(from_, to, input, check_ambiguity, ignore_errors, details):
     trans_method = transliterator.transliterate_with_details if details else transliterator.transliterate
 
     if len(input) == 1:
-        output = trans_method(input[0])
+        output: Any = trans_method(input[0])
     else:
         output = [trans_method(_) for _ in input]
 
@@ -122,7 +131,7 @@ def transliterate(from_, to, input, check_ambiguity, ignore_errors, details):
     help=f"Compression level, from 0 to {HIGHEST_COMPRESSION_LEVEL}",
     show_default=True,
 )
-def dump(from_, check_ambiguity, compression_level):
+def dump(from_: Tuple[str, str], check_ambiguity: bool, compression_level: int) -> None:
     """Dump transliterator as JSON."""
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity)
     click.echo(transliterator.dumps(compression_level=compression_level))
@@ -134,19 +143,19 @@ def dump(from_, check_ambiguity, compression_level):
     "-t",
     default="yaml",
     help="Format (json/yaml) in which to dump",
-    type=click.Choice(["json", "yaml"], str),
+    type=click.Choice(["json", "yaml"]),
     show_default=True,
 )
 @click.argument("bundled")
-def dump_tests(bundled, to):
+def dump_tests(bundled: str, to: str) -> None:
     """Dump BUNDLED tests."""
-    transliterator = load_transliterator(["bundled", bundled])
+    transliterator = load_transliterator(("bundled", bundled))
 
     if to == "json":
         transliteration_tests = transliterator.load_yaml_tests()
         click.echo(json.dumps(transliteration_tests))
     elif to == "yaml":
-        with open(transliterator.yaml_tests_filen, "r") as f:
+        with open(transliterator.yaml_tests_filen, "r", encoding="utf-8") as f:
             click.echo(f.read())
 
 
@@ -167,7 +176,7 @@ def dump_tests(bundled, to):
     help="Check for ambiguity.",
     show_default=True,
 )
-def generate_tests(from_, check_ambiguity):
+def generate_tests(from_: Tuple[str, str], check_ambiguity: bool) -> None:
     """Generate tests as YAML."""
     import graphtransliterator.transliterators  # pragma: no cover
 
@@ -185,14 +194,14 @@ def generate_tests(from_, check_ambiguity):
     show_default=True,
 )
 @click.argument("bundled")
-def test(bundled, check_ambiguity):
+def test(bundled: str, check_ambiguity: bool) -> None:
     """Test BUNDLED transliterator."""
-    transliterator = load_transliterator(["bundled", bundled], check_ambiguity=check_ambiguity)
+    transliterator = load_transliterator(("bundled", bundled), check_ambiguity=check_ambiguity)
     click.echo(transliterator.run_yaml_tests())
 
 
 @click.command()
-def list_bundled():
+def list_bundled() -> None:
     """List BUNDLED transliterators."""
     import graphtransliterator.transliterators as transliterators
 
@@ -209,22 +218,25 @@ def list_bundled():
     help="Match transliterators using regular expression.",
 )
 @click.command()
-def make_json(bundled, regex):
+def make_json(bundled: str, regex: bool) -> None:
     """Make JSON rules of BUNDLED transliterator(s)."""
     import graphtransliterator.transliterators as transliterators  # pragma: no cover
 
     if not regex:
-        bundled = f"^{bundled}$"
-    to_dump = [_ for _ in transliterators.iter_names() if re.match(bundled, _)]
+        pattern = f"^{bundled}$"
+    else:
+        pattern = bundled
+
+    to_dump = [_ for _ in transliterators.iter_names() if re.match(pattern, _)]
     if not to_dump:
-        click.echo(f"No bundled transliterator found matching /{bundled}/.")
+        click.echo(f"No bundled transliterator found matching /{pattern}/.")
         click.echo('Try "graphtransliterator list-bundled" for a list.')
         return
     for _ in to_dump:
         transliterator_class = getattr(transliterators, _)
         transliterator = transliterator_class.new(method="yaml")
         json_filename = os.path.join(transliterator.directory, transliterator.name + ".json")
-        with open(json_filename, "w") as f:
+        with open(json_filename, "w", encoding="utf-8") as f:
             f.write(transliterator.dumps())
         click.echo(f"Made JSON of {_}.")
 

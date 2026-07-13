@@ -4,121 +4,47 @@ Functions used to compress and decompress a GraphTransliterator.
 """
 
 import math
+from typing import Any, cast, Union
 
+DEFAULT_COMPRESSION_LEVEL = 2
+HIGHEST_COMPRESSION_LEVEL = 2
 
-def compress_config(config, compression_level=1):
+def compress_config(config: dict[str, Any], compression_level: int = 1) -> Any:
     """
     Compress configuration to minimize JSON size.
 
     Compression uses integer lookup for classes, tokens, and graph node types, as well
     as numerous tuples. It contains the graph definition but not easily generatable
     items.
-
-
-    Parameters
-    ----------
-    config : `dict`
-        Configuration of GraphTransliterator, e.g. from `dump` or `loads`.
-
-    Returns
-    -------
-    `tuple`
-        Compressed configuration consisting of:
-
-            Class names : `tuple` of `str`
-                Provides id of classes when compressed to integer index
-
-            Token strings : (`tuple` of `str`)
-                Provides id of tokens when compressed to integer index
-
-            Token classes : (`tuple` of `int`) or 0 (`int`) for None
-
-            Production rules : (`tuple` of `tuple`)
-
-                Production: `str`
-
-                Previous class ids : (`tuple` of `int`) or 0 (`int`) for None
-
-                Previous token ids : (`tuple` of `int`) or 0 (`int`) for None
-
-                Token ids : (`tuple` of `int`)
-
-                Next token ids : (`tuple` of `int`) or 0 (`int`) for None
-
-                Next class ids : (`tuple` of `int`) or 0 (`int`) for None
-
-            Cost : Negative integer cost (`int`)
-
-            Graph : `tuple`
-
-                Node types : `tuple` of `str`
-                    Provides id of node types when compressed to integer index
-
-                Nodes : `tuple` of `tuple`
-                    All node types begin with the following fields:
-
-                        Node type id : `int`
-                        Accepting: 0 or 1 (`int`) for False or True
-
-                    `Start` nodes additionally contain:
-
-                        Ordered Children : `dict` of token to node ids {`int`: `int`}
-                            The rules key (`__rules__`) is -1
-
-                    `rule` nodes additionally contain:
-                        Rule key: `int`
-
-                    `token` nodes additionally contain:
-
-                        Token id: `int`
-
-                        Ordered Children: `dict` of token to node ids {`int`: `int`}
-
-                            The rules key (`__rules__`) is -1
-
-                Edges: `dict` of {`int`: `dict` of {`int`: `tuple`}}
-
-                    Dictionary points from head id to tail id to edge data. The data
-                    consists of the following:
-
-                        Constraints: `tuple` or `0` (`int`) for None
-
-                            Previous classes : class ids (`list` of `int`), or 0 (`int`)
-
-                            Previous tokens : token ids (`list` of `int`), or 0 (`int`)
-
-                            Next tokens: token ids (`list` of `int`), or 0 (`int`)
-
-                            Next classes : class ids (`list` of `int`), or 0 (`int`)
-
-                        Cost : Negative integer cost (`int`)
-
-                        Token: Token id (`int`) or -1 for None
     """
 
     # No compression, human-readable
     if compression_level == 0:
         return config
 
-    def compressed_cost(x):
+    def compressed_cost(x: float) -> int:
         return -1 * round((1 / (2**x - 1) - 1))  # convert to -int
 
-    def compress_edge_data(data):
-        constraints = data.get("constraints")
+    def compress_edge_data(data: dict[str, Any]) -> tuple[Any, int, int]:
+        constraints: dict[str, Any] | None = data.get("constraints")
 
-        def _class_ids_of(constraint_attr):
+        def _class_ids_of(constraint_attr: str) -> Union[list[int], int]:
+            if not constraints:
+                return 0
             v = constraints.get(constraint_attr)
             if not v:
                 return 0
             return [_class_id[_] for _ in v]
 
-        def _token_ids_of(constraint_attr):
+        def _token_ids_of(constraint_attr: str) -> Union[list[int], int]:
+            if not constraints:
+                return 0
             v = constraints.get(constraint_attr)
             if not v:
                 return 0
             return [_token_id[_] for _ in v]
 
-        new_constraints = 0
+        new_constraints: Any = 0
 
         if constraints:
             new_constraints = [
@@ -127,7 +53,7 @@ def compress_config(config, compression_level=1):
                 _token_ids_of("next_tokens"),
                 _class_ids_of("next_classes"),
             ]
-        new_cost = compressed_cost(data.get("cost"))
+        new_cost = compressed_cost(data.get("cost", 0.0))
         new_token = -1
         _token = data.get("token")
         if _token:
@@ -135,9 +61,9 @@ def compress_config(config, compression_level=1):
 
         return tuple([new_constraints, new_cost, new_token])
 
-    def compress_node(_node):
-        def compressed_ordered_children():
-            x = _node.get("ordered_children")
+    def compress_node(_node: dict[str, Any]) -> tuple[Any, ...]:
+        def compressed_ordered_children() -> dict[int, Any]:
+            x = _node.get("ordered_children", {})
             out = {}
             for k, v in x.items():
                 if k == "__rules__":
@@ -150,11 +76,11 @@ def compress_config(config, compression_level=1):
         _accepting = 1 if _node.get("accepting") else 0
 
         if _node["type"] == "Start":
-            new_node = tuple([_type_id, _accepting, compressed_ordered_children()])
+            return tuple([_type_id, _accepting, compressed_ordered_children()])
         elif _node["type"] == "rule":
-            new_node = tuple([_type_id, _accepting, _node["rule_key"]])
+            return tuple([_type_id, _accepting, _node["rule_key"]])
         elif _node["type"] == "token":
-            new_node = tuple(
+            return tuple(
                 [
                     _type_id,
                     _accepting,
@@ -162,7 +88,7 @@ def compress_config(config, compression_level=1):
                     compressed_ordered_children(),
                 ]
             )
-        return new_node
+        return tuple()
 
     token_list = tuple(sorted(config["tokens"].keys()))
     _token_id = {_: i for i, _ in enumerate(token_list)}
@@ -210,9 +136,9 @@ def compress_config(config, compression_level=1):
 
     if compression_level == 1:
         # Compress with generated graph; no information loss.
-        _graph = config.get("graph")
-        node = tuple(compress_node(_) for _ in _graph["node"])
-        _edge = _graph["edge"]
+        _graph = config.get("graph", {})
+        node = tuple(compress_node(_) for _ in _graph.get("node", []))
+        _edge = _graph.get("edge", {})
         edge = {
             int(head_id): {int(tail_id): compress_edge_data(edge_data) for tail_id, edge_data in tail.items()}
             for head_id, tail in _edge.items()
@@ -244,32 +170,34 @@ def compress_config(config, compression_level=1):
                 None,
             ]
         )
+    return tuple()
 
 
-def _strip_empty(d):
+def _strip_empty(d: dict[str, Any]) -> dict[str, Any]:
     """Strips entries of dict with no value, but allow zero."""
     return {k: v for k, v in d.items() if v or (type(v) is int and v == 0) or (type(v) is str and v == "")}
 
 
-def decompress_config(compressed_config):
-    def decompressed_cost(x):
+def decompress_config(compressed_config: tuple[Any, ...]) -> dict[str, Any]:
+    def decompressed_cost(x: float) -> float:
         """x will be negative."""
         return math.log2(1 + 1 / (1 - x))
 
-    def decompress_node(_node):
-        def decompressed_ordered_children(index):
+    def decompress_node(_node: tuple[Any, ...]) -> dict[str, Any]:
+        def decompressed_ordered_children(index: int) -> dict[str, Any]:
             x = _node[index]
             out = {}
             for k, v in x.items():
-                k = int(k)
-                if k == -1:
+                k_int = int(k)
+                if k_int == -1:
                     out["__rules__"] = v
                 else:
-                    out[_token_from_id[k]] = v
+                    out[_token_from_id[k_int]] = v
             return out
 
         node_type = _nodetype_from_id[_node[0]]
         accepting = True if _node[1] else False
+        new_node: dict[str, Any] = {}
         if node_type == "Start":
             new_node = {
                 "type": node_type,
@@ -287,18 +215,18 @@ def decompress_config(compressed_config):
             }
         return _strip_empty(new_node)
 
-    def decompress_edge_data(data):
+    def decompress_edge_data(data: tuple[Any, ...]) -> dict[str, Any]:
         [_constraints, _cost, _token] = data
 
-        out = {}
+        out: dict[str, Any] = {}
 
-        def _class_from_ids_of(index):
+        def _class_from_ids_of(index: int) -> list[str] | None:
             v = _constraints[index]
             if v == 0:
                 return None
             return [_class_from_id[_] for _ in v]
 
-        def _token_from_ids_of(index):
+        def _token_from_ids_of(index: int) -> list[str] | None:
             v = _constraints[index]
             if v == 0:
                 return None
@@ -369,9 +297,9 @@ def decompress_config(compressed_config):
         if _onmatch_rules
         else None
     )
-    if not _graph:  # no graph due to compression
-        graph = None
-    else:
+    
+    graph: dict[str, Any] | None = None
+    if _graph:
         [_nodetype_list, _nodes, _edges] = _graph
         _nodetype_from_id = {i: _ for i, _ in enumerate(_nodetype_list)}
         node = [decompress_node(_) for _ in _nodes]
@@ -380,6 +308,7 @@ def decompress_config(compressed_config):
             for head_id, tail in _edges.items()
         }
         graph = {"node": node, "edge": edge}
+
     return {
         "tokens": tokens,
         "rules": rules,

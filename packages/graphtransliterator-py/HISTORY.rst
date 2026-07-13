@@ -20,6 +20,9 @@ History
 ?.?.? (2026-)
 ------------------
 * updated readthedocs config, Makefile, and docs/conf.py for new poetry integration
+* move to a poly-monorepo setup
+* dropped Python 3.9 support
+* added type annotation
 
 1.3.1 (2026-07-11)
 ------------------

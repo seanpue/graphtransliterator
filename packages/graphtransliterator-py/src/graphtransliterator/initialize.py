@@ -6,19 +6,27 @@ Functions used to initialize a GraphTransliterator.
 
 from .graphs import DirectedGraph
 from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
+from .types import (
+    Token,
+    TokenClass,
+    RawRuleDict,
+    RawOnMatchDict,
+    RawWhitespaceDict,
+    ConstraintDict
+)
 from collections import defaultdict
 import math
 import re
 import unicodedata
-
+from typing import Any, Union, cast
 
 # ---------- initialize tokens ----------
 
 
-def _tokens_by_class_of(tokens):
+def _tokens_by_class_of(tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]]) -> dict[TokenClass, set[Token]]:
     """Generates lookup table of tokens in each class."""
 
-    out = defaultdict(set)
+    out: dict[TokenClass, set[Token]] = defaultdict(set)
     for token, token_classes in tokens.items():
         for token_class in token_classes:
             out[token_class].add(token)
@@ -28,14 +36,14 @@ def _tokens_by_class_of(tokens):
 # ---------- initialize rules ----------
 
 
-def _transliteration_rule_of(rule):
+def _transliteration_rule_of(rule: RawRuleDict) -> TransliterationRule:
     """Converts rule dict into a TransliterationRule."""
 
     transliteration_rule = TransliterationRule(
-        production=rule.get("production"),
+        production=rule.get("production", ""),
         prev_classes=rule.get("prev_classes"),
         prev_tokens=rule.get("prev_tokens"),
-        tokens=rule.get("tokens"),
+        tokens=rule.get("tokens", []),
         next_tokens=rule.get("next_tokens"),
         next_classes=rule.get("next_classes"),
         cost=rule.get("cost", _cost_of(rule)),
@@ -43,17 +51,24 @@ def _transliteration_rule_of(rule):
     return transliteration_rule
 
 
-def _num_tokens_of(rule):
+def _num_tokens_of(rule: RawRuleDict) -> int:
     """Calculate the total number of tokens in a rule."""
-    total = len(rule.get("tokens"))
-    for _ in ("prev_classes", "prev_tokens", "next_tokens", "next_classes"):
-        val = rule.get(_)
+    tokens_field = rule.get("tokens")
+    total = len(tokens_field) if tokens_field else 0
+    
+    # Check each optional list field directly to avoid loop type-checking conflicts
+    for val in (
+        rule.get("prev_classes"),
+        rule.get("prev_tokens"),
+        rule.get("next_tokens"),
+        rule.get("next_classes"),
+    ):
         if val:
             total += len(val)
     return total
 
 
-def _cost_of(rule):
+def _cost_of(rule: RawRuleDict) -> float:
     """Calculate the cost of a rule based on the number of constraints.
 
     Rules requiring more tokens to match are made less costly and tried first.
@@ -65,7 +80,7 @@ def _cost_of(rule):
 # ---------- initialize onmatch rules ----------
 
 
-def _onmatch_rule_of(onmatch_rule):
+def _onmatch_rule_of(onmatch_rule: RawOnMatchDict) -> OnMatchRule:
     """Converts onmatch_rule into OnMatchRule."""
 
     return OnMatchRule(
@@ -75,7 +90,10 @@ def _onmatch_rule_of(onmatch_rule):
     )
 
 
-def _onmatch_rules_lookup(tokens, onmatch_rules):
+def _onmatch_rules_lookup(
+    tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]], 
+    onmatch_rules: list[OnMatchRule]
+) -> dict[Token, dict[Token, list[int]]]:
     """Creates a dict lookup from current to previous token.
 
     Returns
@@ -85,9 +103,9 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
         :class:`OnMatchRule` in order that would apply
     """
 
-    onmatch_lookup = {}
+    onmatch_lookup: dict[Token, dict[Token, list[int]]] = {}
 
-    # Interate through onmatch rules
+    # Iterate through onmatch rules
     for rule_i, rule in enumerate(onmatch_rules):
         # Iterate through all tokens
         for token_key, token_classes in tokens.items():
@@ -111,7 +129,7 @@ def _onmatch_rules_lookup(tokens, onmatch_rules):
 # ---------- initialize whitespace ---------
 
 
-def _whitespace_rules_of(whitespace):
+def _whitespace_rules_of(whitespace: RawWhitespaceDict) -> WhitespaceRules:
     """Converts whitespace into WhiteSpace"""
     return WhitespaceRules(
         default=whitespace["default"],
@@ -123,7 +141,7 @@ def _whitespace_rules_of(whitespace):
 # ---------- initialize tokenizer ----------
 
 
-def _tokenizer_pattern_from(tokens):
+def _tokenizer_pattern_from(tokens: list[Token]) -> str:
     """Generates regular expression tokenizer pattern from token list.
 
     Sorts by length and then tokens.
@@ -137,51 +155,51 @@ def _tokenizer_pattern_from(tokens):
 # ---------- initialize graph ----------
 
 
-def _graph_from(rules):
-    """Generates a parsing graph from the given rules.
+def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph:
+    """Generates a parsing graph from the given rules."""
 
-    The directed graph is a tree, and the rules are its leaves. Each intermediate node
-    represents a token. Before trying to match using a token, the constraints on the
-    preceding edge must be met. These include tokens and, on the edge before a rule,
-    previous and next tokens and token classes. The tree is built top-down. Costs of
-    edges are adjusted to match the lowest cost of leaf nodes, so they are tried
-    first."""
+    graph = DirectedGraph(node=[], edge={})
+    
+    # Use standard dict operations for internal assembly modifications safely
+    nodes = cast(list[dict[str, Any]], graph.node)
+    edges = cast(dict[int, dict[int, dict[str, Any]]], graph.edge)
 
-    graph = DirectedGraph()
-    graph.add_node({"type": "Start"})
+    nodes.append({"type": "Start"})
 
     for rule_key, rule in enumerate(rules):
         parent_key = 0
         for token in rule.tokens:
-            parent_node = graph.node[parent_key]
-            token_children = parent_node.get("token_children") or {}
+            parent_node = nodes[parent_key]
+            token_children = parent_node.setdefault("token_children", {})
             token_node_key = token_children.get(token)
+            
             if token_node_key is None:
-                token_node_key, _ = graph.add_node({"type": "token", "token": token})
-                graph.add_edge(parent_key, token_node_key, {"token": token})
+                token_node_key = len(nodes)
+                nodes.append({"type": "token", "token": token})
+                edges.setdefault(parent_key, {})[token_node_key] = {"token": token}
                 token_children[token] = token_node_key
-                parent_node["token_children"] = token_children
 
-            curr_edge = graph.edge[parent_key][token_node_key]
-            curr_cost = curr_edge.get("cost", 1)
+            curr_edge = edges[parent_key][token_node_key]
+            curr_cost = curr_edge.get("cost", 1.0)
             if curr_cost > rule.cost:
                 curr_edge["cost"] = rule.cost
 
             parent_key = token_node_key
 
-        rule_node_key, _ = graph.add_node(
-            {"type": "rule", "rule_key": rule_key, "accepting": True}  # "rule": rule,
-        )
-        parent_node = graph.node[parent_key]
-        rule_children = parent_node.get("rule_children", [])
+        rule_node_key = len(nodes)
+        nodes.append({"type": "rule", "rule_key": rule_key, "accepting": True})
+        
+        parent_node = nodes[parent_key]
+        rule_children = parent_node.setdefault("rule_children", [])
         rule_children.append(rule_node_key)
-        parent_node["rule_children"] = sorted(rule_children, key=lambda x: rules[graph.node[x]["rule_key"]].cost)
+        rule_children.sort(key=lambda x: rules[cast(int, nodes[x]["rule_key"])].cost)
 
-        edge_to_rule = graph.add_edge(parent_key, rule_node_key, {"cost": rule.cost})
+        edges.setdefault(parent_key, {})[rule_node_key] = {"cost": rule.cost}
+        edge_to_rule = edges[parent_key][rule_node_key]
 
         has_constraints = rule.prev_classes or rule.prev_tokens or rule.next_tokens or rule.next_classes
         if has_constraints:
-            constraints = {}
+            constraints: ConstraintDict = {}
             if rule.prev_classes:
                 constraints["prev_classes"] = rule.prev_classes
             if rule.prev_tokens:
@@ -192,17 +210,16 @@ def _graph_from(rules):
                 constraints["next_classes"] = rule.next_classes
             edge_to_rule["constraints"] = constraints
 
-    for node_key, node in enumerate(graph.node):
-        ordered_children = {}
+    for node_key, node in enumerate(nodes):
+        ordered_children: dict[str, list[int]] = {}
         rule_children_keys = node.get("rule_children")
 
-        # Add rule children to ordered_children dict under '__rules__''
+        # Add rule children to ordered_children dict under '__rules__'
         if rule_children_keys:
             ordered_children["__rules__"] = sorted(
-                rule_children_keys, key=lambda x: rules[graph.node[x]["rule_key"]].cost
+                rule_children_keys, key=lambda x: rules[cast(int, nodes[x]["rule_key"])].cost
             )
-
-            node.pop("rule_children")
+            node.pop("rule_children", None)
 
         token_children = node.get("token_children")
 
@@ -216,45 +233,27 @@ def _graph_from(rules):
                     ordered_children[token] += rule_children_keys
 
                 # Sort both by cost
-                ordered_children[token].sort(key=lambda _new_tkn_key: graph.edge[node_key][_new_tkn_key]["cost"])
+                ordered_children[token].sort(key=lambda _new_tkn_key: edges[node_key][_new_tkn_key]["cost"])
             # Remove token_children
-            node.pop("token_children")
+            node.pop("token_children", None)
         node["ordered_children"] = ordered_children
 
     return graph
 
 
-# ---------- unicode adjustiments during initialization ----------
+# ---------- unicode adjustments during initialization ----------
 
 
-def _unescape_charnames(input_str):
-    r"""
-    Convert \\N{Unicode charname}-escaped str to unicode characters.
+def _unescape_charnames(input_str: str) -> str:
+    r"""Convert \\N{Unicode charname}-escaped str to unicode characters."""
 
-    This is useful for specifying exact character names, and a default
-    escape feature in Python that needs a function to be used for reading
-    from files.
-
-    Parameters
-    ----------
-    input_str : str
-        The unescaped string, with \\N{Unicode charname} converted to
-        the corresponding Unicode characters.
-
-    Examples
-    --------
-
-    .. jupyter-execute::
-
-      GraphTransliterator._unescape_charnames(r"H\N{LATIN SMALL LETTER I}")
-
-    """
-
-    def get_unicode_char(matchobj):
+    def get_unicode_char(matchobj: re.Match[str]) -> str:
         """Get Unicode character value from escaped character sequences."""
         charname = matchobj.group(0)
         match = re.match(r"\\N{([-A-Z ]+)}", charname)
+        if not match:
+            return charname
         char = unicodedata.lookup(match.group(1))  # KeyError if invalid
-        return char
+        return cast(str, char)
 
     return re.sub(r"\\N{[-A-Z ]+}", get_unicode_char, input_str)

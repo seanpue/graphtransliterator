@@ -805,25 +805,6 @@ pycodestyle = ">=2.11.0,<2.12.0"
 pyflakes = ">=3.1.0,<3.2.0"
 
 [[package]]
-name = "graphtransliterator"
-version = "1.3.1"
-description = "A graph-based transliteration tool"
-optional = false
-python-versions = ">=3.9,<4.0"
-groups = ["main"]
-files = []
-develop = true
-
-[package.dependencies]
-click = ">=8.1.7,<9.0.0"
-marshmallow = ">=3.20.1,<4.0.0"
-PyYAML = ">=6.0.1,<7.0.0"
-
-[package.source]
-type = "directory"
-url = "packages/graphtransliterator-py"
-
-[[package]]
 name = "identify"
 version = "2.6.19"
 description = "File identification library for Python"
@@ -2815,4 +2796,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "55dab9c928b1161d5ecc099fa33d4171c938079e0459d82dec2aa851883716f1"
+content-hash = "8093987a3a1b73871c50718673f17808a5d398c484e0b372dcb864e388c38913"

@@ -1,0 +1,77 @@
+[project]
+name = "graphtransliterator"
+version = "1.3.1"
+description = "A graph-based transliteration tool"
+authors = [{ name = "A. Sean Pue", email = "seanpue@users.noreply.github.com" }]
+license = "MIT"
+readme = "README.rst"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "click (>=8.1.7,<9.0.0)",
+    "marshmallow (>=3.20.1,<4.0.0)",
+    "PyYAML (>=6.0.1,<7.0.0)",
+]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+repository = "https://github.com/seanpue/graphtransliterator"
+documentation = "https://graphtransliterator.readthedocs.org"
+
+[project.scripts]
+graphtransliterator = "graphtransliterator.cli:main"
+
+[tool.poetry]
+# Update this line to look inside "src"
+packages = [{ include = "graphtransliterator", from = "src" }]
+
+[tool.poetry.group.dev.dependencies]
+bash_kernel = "^0.9.1"
+coverage = "^7.3.2"
+flake8 = "^6.1.0"
+jupyter-sphinx = "^0.4.0"
+pytest = "^7.4.2"
+sphinx-issues = "^3.0.1"
+tox = "^4.11.3"
+deptry = "^0.12.0"
+pre-commit = "^3.5.0"
+sphinx-rtd-theme = "^1.3.0"
+pytest-cov = "^4.1.0"
+ruff = "^0.15.21"
+types-pyyaml = "^6.0.12.20260518"
+mypy = "^2.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+files = ["src/graphtransliterator"]
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+mypy_path = "src"
+explicit_package_bases = true
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.coverage.report]
+skip_empty = true
+
+[tool.coverage.run]
+branch = true
+source = ["graphtransliterator"]

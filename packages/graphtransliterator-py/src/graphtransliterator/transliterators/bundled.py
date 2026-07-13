@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
+
 from collections import OrderedDict
-from graphtransliterator.core import GraphTransliterator, CoverageTransliterator
 import os
 import sys
+from typing import Any, Dict, Iterator, Optional, Type, Union, cast, TYPE_CHECKING
 import yaml
 
+from graphtransliterator.core import GraphTransliterator, CoverageTransliterator
+from graphtransliterator.compression import DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL
 
 class Bundled(CoverageTransliterator, GraphTransliterator):
     """
@@ -11,41 +15,50 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
     """
 
     @property
-    def directory(self):
+    def directory(self) -> str:
         """Directory of bundled transliterator, used to load settings."""
         return self._module_dir()
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of bundled transliterator, e.g. 'Example'"""
         return self._module_name()
 
-    def _module_dir(self, **kwargs):
+    def _module_dir(self, **kwargs: Any) -> str:
         """Returns directory of module. Overwritten during testing."""
-        return os.path.dirname(sys.modules[self.__module__].__file__)
+        module = sys.modules[self.__module__]
+        if module and hasattr(module, "__file__") and module.__file__:
+            return os.path.dirname(module.__file__)
+        return ""
 
-    def _module_name(self):
+    def _module_name(self) -> str:
         """Returns name of module. Overwritten during testing."""
         return self.__module__
 
-    def _init_from(self, method=None, **kwargs):
+    def _init_from(self, method: Optional[str] = None, **kwargs: Any) -> None:
         """Initialize from easy-reading YAML or from JSON."""
+        if method is None:
+            raise ValueError("Method cannot be None")
 
         filename = os.path.join(
             self.directory,
-            self.name + "." + method,  # error if None
+            self.name + "." + method,
         )
+        
         # Create GraphTransliterator using factory
         if method == "yaml":
             gt = GraphTransliterator.from_yaml_file(filename, **kwargs)
         elif method == "json":
-            with open(filename, "r") as f:
+            with open(filename, "r", encoding="utf-8") as f:
                 gt = GraphTransliterator.loads(f.read(), **kwargs)
-        # Select coverage superclass, if coverage set.
-        if kwargs.get("coverage"):
-            _super = CoverageTransliterator
         else:
-            _super = GraphTransliterator
+            raise ValueError(f"Unknown initialization method: {method}")
+
+        # Select coverage superclass, if coverage set.
+        _super: Type[Union[CoverageTransliterator, GraphTransliterator]] = (
+            CoverageTransliterator if kwargs.get("coverage") else GraphTransliterator
+        )
+        
         _super.__init__(
             self,
             gt._tokens,
@@ -63,40 +76,21 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             coverage=kwargs.get("coverage", True),
         )
 
-    def from_YAML(self, check_ambiguity=True, coverage=True, **kwargs):
-        """Initialize from bundled YAML file (best for development).
-
-        Parameters
-        ----------
-        check_ambiguity: `bool`,
-            Should ambiguity be checked. Default is `True.`
-        coverage: `bool`
-            Should test coverage be checked. Default is `True`.
-        """
+    def from_YAML(self, check_ambiguity: bool = True, coverage: bool = True, **kwargs: Any) -> "Bundled":
+        """Initialize from bundled YAML file (best for development)."""
         self._init_from(method="yaml", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs)
         return self
 
-    def from_JSON(self, check_ambiguity=False, coverage=False, **kwargs):
-        """Initialize from bundled JSON file (best for speed).
-
-        Parameters
-        ----------
-        check_ambiguity: `bool`,
-            Should ambiguity be checked. Default is `False.`
-        coverage: `bool`
-            Should test coverage be checked. Default is `False`."""
+    def from_JSON(self, check_ambiguity: bool = False, coverage: bool = False, **kwargs: Any) -> "Bundled":
+        """Initialize from bundled JSON file (best for speed)."""
         self._init_from(method="json", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs)
+        return self
 
     @classmethod
-    def new(cls, method="json", **kwargs):
-        """Return a new class instance from method (json/yaml).
-
-        Parameters
-        ----------
-        method: `str` (`json` or `yaml`)
-            How to load bundled transliterator, JSON or YAML."""
+    def new(cls, method: str = "json", **kwargs: Any) -> "Bundled":
+        """Return a new class instance from method (json/yaml)."""
         assert method in ("json", "yaml"), "Unknown method."
-        new_ = cls.__new__(cls)
+        new_ = cast("Bundled", cls.__new__(cls))
         if method == "json":
             new_.from_JSON(**kwargs)
         elif method == "yaml":
@@ -104,59 +98,45 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         return new_
 
     @property
-    def yaml_tests_filen(self):
+    def yaml_tests_filen(self) -> str:
         """
         `str`: Absolute path to the bundled YAML test file.
         """
         return os.path.join(self.directory, "tests", "{}_tests.yaml".format(self.name))
 
-    def load_yaml_tests(self):
-        """Iterator for YAML tests.
-
-        Assumes tests are found in subdirectory `tests` of module with name
-        `NAME_tests.yaml, e.g. `source_to_target/tests/source_to_target_tests.yaml`.
-        """
+    def load_yaml_tests(self) -> Dict[str, str]:
+        """Iterator for YAML tests."""
         test_file = self.yaml_tests_filen
-        with open(test_file, "r") as f:
-            return {str(k): str(i) for k, i in yaml.safe_load(f).items()}
+        with open(test_file, "r", encoding="utf-8") as f:
+            parsed_yaml = yaml.safe_load(f)
+            if not parsed_yaml:
+                return {}
+            return {str(k): str(i) for k, i in parsed_yaml.items()}
 
-    def run_tests(self, transliteration_tests):
-        """Run transliteration tests.
-
-        Parameters
-        ----------
-        transliteration_tests: `dict` of {`str`:`str`}
-            Dictionary of test from source -> correct target.
-        """
+    def run_tests(self, transliteration_tests: Dict[str, str]) -> None:
+        """Run transliteration tests."""
         for source, target in transliteration_tests.items():
             source = str(source)
             target = str(target)
             result = self.transliterate(source)
-            assert self.transliterate(source) == target, 'Transliteration error: "{}" -> "{}"; should -> "{}"'.format(
+            assert result == target, 'Transliteration error: "{}" -> "{}"; should -> "{}"'.format(
                 source, result, target
             )
 
-    def run_yaml_tests(self):
+    def run_yaml_tests(self) -> bool:
         """Run YAML tests in MODULE/tests/MODULE_tests.yaml"""
-
         transliteration_tests = self.load_yaml_tests()
         self.run_tests(transliteration_tests)
         return True
 
-    def generate_yaml_tests(self, file=None):
-        """Generates YAML tests with complete coverage.
+    def generate_yaml_tests(self, file: Optional[Any] = None) -> str:
+        """Generates YAML tests with complete coverage."""
+        tests: OrderedDict[str, str] = OrderedDict()
 
-        Uses the first token in a class as a sample. Assumes for onmatch rules that
-        the first sample token in a class has a unique production, which may not be the
-        case. These should be checked and edited."""
-
-        tests = OrderedDict()
-
-        def sample_token(token_class):
+        def sample_token(token_class: str) -> str:
             """Return first token in token class."""
-
             tokens_in_class = self.tokens_by_class[token_class]
-            return list(tokens_in_class)[0]
+            return str(list(tokens_in_class)[0])
 
         for rule in self.rules:
             input_ = ""
@@ -177,14 +157,15 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             tests[input_] = self.transliterate(input_)
 
         if self.onmatch_rules:
-            for rule in self.onmatch_rules:
+            for om_rule in self.onmatch_rules:
                 input_ = ""
-                for _ in rule.prev_classes:
-                    token = sample_token(_)
-                    input_ += token
-                for _ in rule.prev_classes:
-                    token = sample_token(_)
-                    input_ += token
+                if om_rule.prev_classes:
+                    for _ in om_rule.prev_classes:
+                        token = sample_token(_)
+                        input_ += token
+                    for _ in om_rule.prev_classes:
+                        token = sample_token(_)
+                        input_ += token
                 tests[input_] = self.transliterate(input_)
 
-        return yaml.dump(dict(tests), allow_unicode=True)
+        return cast(str, yaml.dump(dict(tests), allow_unicode=True))

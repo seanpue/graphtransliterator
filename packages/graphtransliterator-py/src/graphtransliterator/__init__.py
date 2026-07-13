@@ -5,13 +5,6 @@
 """
 graphtransliterator
 ~~~~~~~~~~~~~~~~~~
-Graph Transliterator is a Python module enabling rule-based transliteration
-of the tokens of an input string to an output string. It can be used to
-transliterate the symbols of one language into those of another, or to
-convert between transliteration systems.
-
-:copyright: © 2019 Michigan State University.
-:license: MIT, see LICENSE.rst for more details.
 """
 
 __author__ = """A. Sean Pue"""
@@ -19,10 +12,10 @@ __email__ = "pue@msu.edu"
 __version__ = "1.2.4"
 
 # Core classes
-from .core import CoverageTransliterator, GraphTransliterator, GraphTransliteratorSchema
+from .core import CoverageTransliterator, GraphTransliterator
 
 # Constants
-from .core import DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL
+from .compression import DEFAULT_COMPRESSION_LEVEL, HIGHEST_COMPRESSION_LEVEL  #  Correct!
 
 # Exceptions
 from .exceptions import (
@@ -52,12 +45,16 @@ from .schemas import (
     TransliterationRuleSchema,
     WhitespaceDictSettingsSchema,
     WhitespaceSettingsSchema,
+    GraphTransliteratorSchema,  # FIX: Import from .schemas
 )
 
 __all__ = [
     # core
     "GraphTransliterator",
     "CoverageTransliterator",
+    # constants
+    "DEFAULT_COMPRESSION_LEVEL",
+    "HIGHEST_COMPRESSION_LEVEL",
     # exceptions
     "AmbiguousTransliterationRulesException",
     "GraphTransliteratorException",
@@ -78,4 +75,5 @@ __all__ = [
     "SettingsSchema",
     "TransliterationRuleSchema",
     "DirectedGraphSchema",
+    "GraphTransliteratorSchema",
 ]

@@ -4,12 +4,21 @@
 GraphTransliterator ambiguity-checking functions.
 """
 
-from .exceptions import AmbiguousTransliterationRulesException
 import itertools
 import logging
+from typing import Any, Protocol, Union
+
+from .exceptions import AmbiguousTransliterationRulesException
+from .rules import TransliterationRule
+
+# A structural Protocol matching the internal requirements of the Transliterator instance
+class TransliteratorLike(Protocol):
+    _tokens: dict[str, Any]
+    _rules: list[TransliterationRule]
+    _tokens_by_class: dict[str, set[str]]
 
 
-def check_for_ambiguity(transliterator):
+def check_for_ambiguity(transliterator: TransliteratorLike) -> bool:
     """
     Check if multiple transliteration rules could match the same tokens.
 
@@ -20,39 +29,10 @@ def check_for_ambiguity(transliterator):
     ambiguity.
 
     Details of all ambiguity are sent in a :func:`logging.warning`.
-
-    Note
-    ----
-    Called during initialization if ``check_ambiguity`` is set.
-
-    Raises
-    ------
-    AmbiguousTransliterationRulesException
-        Multiple transliteration rules could match the same tokens.
-
-    Example
-    -------
-    .. jupyter-execute::
-
-      yaml_filename = '''
-      tokens:
-        a: [class1, class2]
-        ' ': [wb]
-      rules:
-        <class1> a: AW
-        <class2> a: AA # ambiguous rule
-      whitespace:
-        default: ' '
-        consolidate: True
-        token_class: wb
-      '''
-      gt = GraphTransliterator.from_yaml(yaml_, check_ambiguity=False)
-      gt.check_for_ambiguity()
-
     """
     ambiguity = False
 
-    all_tokens = set(transliterator._tokens.keys())
+    all_tokens: set[str] = set(transliterator._tokens.keys())
 
     rules = transliterator._rules
 
@@ -66,24 +46,19 @@ def check_for_ambiguity(transliterator):
 
     # Generate a matrix of rules, where width is the max of
     # any previous tokens/classes + max of current/next tokens/classes.
-    # Each rule's specifications starting from the max of the previous
-    # tokens/classes. Other positions are filled by the set of all possible
-    # tokens.
-
-    matrix = []
+    matrix: list[list[set[str]]] = []
 
     width = global_max_prev + global_max_curr_next
 
     for i, rule in enumerate(rules):
-        row = [all_tokens] * (global_max_prev - max_prev[i])
+        row: list[set[str]] = [all_tokens] * (global_max_prev - max_prev[i])
         row += _tokens_possible(rule, transliterator._tokens_by_class)
         row += [all_tokens] * (width - len(row))
         matrix += [row]
 
-    def full_intersection(i, j):
-        """Intersection of  matrix[i] and matrix[j], else None."""
-
-        intersections = []
+    def full_intersection(i: int, j: int) -> list[set[str]] | None:
+        """Intersection of matrix[i] and matrix[j], else None."""
+        intersections: list[set[str]] = []
         for k in range(width):
             intersection = matrix[i][k].intersection(matrix[j][k])
             if not intersection:
@@ -91,16 +66,12 @@ def check_for_ambiguity(transliterator):
             intersections += [intersection]
         return intersections
 
-    def covered_by(intersection, row):
+    def covered_by(intersection: list[set[str]], row: list[set[str]]) -> bool:
         """Check if intersection is covered by row."""
-
-        # Using all() with a generator expression is faster and cleaner
         return all(not intersection[k].difference(row[k]) for k in range(len(intersection)))
 
-    # Iterate through rules based on cost (number of tokens). If there are
-    # ambiguities, then see if a less costly rule would match the rule. If it does
-    # not, there is ambiguity.
-
+    # Iterate through rules based on cost. If there are ambiguities, 
+    # check if a less costly rule would match the intersection sequence.
     for _group_val, group_iter in itertools.groupby(enumerate(transliterator._rules), key=lambda x: x[1].cost):
         group = list(group_iter)
         if len(group) == 1:
@@ -114,12 +85,13 @@ def check_for_ambiguity(transliterator):
                     continue
 
                 # Check if a less costly rule matches intersection
-
-                def covered_by_less_costly():
-                    for r_i, rule in enumerate(rules):
+                def covered_by_less_costly() -> bool:
+                    if intersection is None:
+                        return False
+                    for r_i, r_rule in enumerate(rules):
                         if r_i in (i_index, j_index):
                             continue
-                        if rule.cost > rules[i_index].cost:
+                        if r_rule.cost > rules[i_index].cost:
                             continue
                         rule_tokens = matrix[r_i]
                         if covered_by(intersection, rule_tokens):
@@ -135,17 +107,19 @@ def check_for_ambiguity(transliterator):
                         )
                     )
                     ambiguity = True
+                    
     if ambiguity:
         raise AmbiguousTransliterationRulesException
+    return True
 
 
-def _easyreading_rule(rule):
+def _easyreading_rule(rule: TransliterationRule) -> str:
     """Get an easy-reading string of a rule."""
 
-    def _token_str(x):
+    def _token_str(x: list[str]) -> str:
         return " ".join(x)
 
-    def _class_str(x):
+    def _class_str(x: list[str]) -> str:
         return " ".join(["<%s>" % _ for _ in x])
 
     out = ""
@@ -167,27 +141,23 @@ def _easyreading_rule(rule):
     return out
 
 
-def _count_of_prev(rule):
+def _count_of_prev(rule: TransliterationRule) -> int:
     """Count previous tokens to be present before a match in a rule."""
-
     return len(rule.prev_classes or []) + len(rule.prev_tokens or [])
 
 
-def _count_of_curr_and_next(rule):
+def _count_of_curr_and_next(rule: TransliterationRule) -> int:
     """Count tokens to be matched and those to follow them in rule."""
-
     return len(rule.tokens) + len(rule.next_tokens or []) + len(rule.next_classes or [])
 
 
-def _prev_tokens_possible(rule, tokens_by_class):
+def _prev_tokens_possible(rule: TransliterationRule, tokens_by_class: dict[str, set[str]]) -> list[set[str]]:
     """`list` of set of possible preceding tokens for a rule."""
-
     return [tokens_by_class[_] for _ in rule.prev_classes or []] + [set([_]) for _ in rule.prev_tokens or []]
 
 
-def _curr_and_next_tokens_possible(rule, tokens_by_class):
+def _curr_and_next_tokens_possible(rule: TransliterationRule, tokens_by_class: dict[str, set[str]]) -> list[set[str]]:
     """`list` of sets of possible current and following tokens for a rule."""
-
     return (
         [set([_]) for _ in rule.tokens]
         + [set([_]) for _ in rule.next_tokens or []]
@@ -195,7 +165,6 @@ def _curr_and_next_tokens_possible(rule, tokens_by_class):
     )
 
 
-def _tokens_possible(row, tokens_by_class):
+def _tokens_possible(row: TransliterationRule, tokens_by_class: dict[str, set[str]]) -> list[set[str]]:
     """`list` of sets of possible tokens matched for a rule."""
-
     return _prev_tokens_possible(row, tokens_by_class) + _curr_and_next_tokens_possible(row, tokens_by_class)

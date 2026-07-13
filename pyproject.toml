@@ -1,33 +1,16 @@
 [project]
-name = "graphtransliterator"
+name = "graphtransliterator-workspace"
 version = "1.3.1"
-description = "A graph-based transliteration tool"
-authors = [{ name = "A. Sean Pue", email = "seanpue@users.noreply.github.com" }]
-license = "MIT"
-readme = "README.rst"
-requires-python = ">=3.9,<4.0"
-dependencies = [
-    "click (>=8.1.7,<9.0.0)",
-    "marshmallow (>=3.20.1,<4.0.0)",
-    "PyYAML (>=6.0.1,<7.0.0)",
-]
-classifiers = [
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-]
-
-[project.urls]
-repository = "https://github.com/seanpue/graphtransliterator"
-documentation = "https://graphtransliterator.readthedocs.org"
-
-[project.scripts]
-graphtransliterator = "graphtransliterator.cli:main"
+description = "Monorepo workspace root environment"
+requires-python = ">=3.10,<4.0"
 
 [tool.poetry]
-packages = [{ include = "graphtransliterator" }]
+package-mode = false  # Crucial: Tells Poetry this directory is an environment orchestrator only
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+# Links your package locally in editable mode
+graphtransliterator = { path = "./packages/graphtransliterator-py", develop = true }
 
 [tool.poetry.group.dev.dependencies]
 bash_kernel = "^0.9.1"
@@ -42,23 +25,27 @@ pre-commit = "^3.5.0"
 sphinx-rtd-theme = "^1.3.0"
 pytest-cov = "^4.1.0"
 ruff = "^0.15.21"
+mypy = "^2.3.0"
+types-pyyaml = "^6.0.12.20260518"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
-files = ["graphtransliterator"]
-disallow_untyped_defs = "True"
-disallow_any_unimported = "True"
-no_implicit_optional = "True"
-check_untyped_defs = "True"
-warn_return_any = "True"
-warn_unused_ignores = "True"
-show_error_codes = "True"
+# Updated path to match the new nested directory structure
+files = ["packages/graphtransliterator-py/src/graphtransliterator"]
+disallow_untyped_defs = true
+disallow_any_unimported = true
+no_implicit_optional = true
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+mypy_path = "packages/graphtransliterator-py/src"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
 
 [tool.ruff.format]
@@ -70,4 +57,4 @@ skip_empty = true
 
 [tool.coverage.run]
 branch = true
-source = ["graphtransliterator"]
+source = ["packages/graphtransliterator-py/src/graphtransliterator"]
