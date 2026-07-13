@@ -1,0 +1,2 @@
+/* Custom style for fake shell commands */
+div.highlight-console + div.docutils { margin-bottom: 0 px}

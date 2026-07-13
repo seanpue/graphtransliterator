@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; Graph Transliterator 1.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=928db92d"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bundled Transliterators" href="bundled.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Graph Transliterator
+          </a>
+              <div class="version">
+                1.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-tokens-and-token-class-settings">Input Tokens and Token Class Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transliteration-rules">Transliteration Rules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#match-settings">Match Settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#automatic-ordering-of-transliteration-rules">Automatic Ordering of Transliteration Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#whitespace-settings">Whitespace Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-match-rules">On Match Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata">Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unicode-support">Unicode Support</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-directly">Configuring Directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ambiguity-checking">Ambiguity Checking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setup-validation">Setup Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#transliteration-and-its-exceptions">Transliteration and Its Exceptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#unrecognizable-input-token">Unrecognizable Input Token</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#no-matching-transliteration-rule">No Matching Transliteration Rule</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#transliterating-with-details">Transliterating with Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-methods">Additional Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#serialization-and-deserialization">Serialization and Deserialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#matching-at-an-index">Matching at an Index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#details-of-matches">Details of Matches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pruning-of-rules">Pruning of Rules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#internal-graph">Internal Graph</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#directedgraph">DirectedGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nodes">Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edges">Edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#search-and-preprocessing">Search and Preprocessing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bundled.html">Bundled Transliterators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial: Using GraphTransliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_tutorial.html">Advanced Tutorial: Bundling a Transliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kudos.html">Kudos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Graph Transliterator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/usage.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h1>
+<p>To use Graph Transliterator in a project:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">graphtransliterator</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphTransliterator</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Graph Transliterator requires that you first configure a <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphTransliterator</span></code>.
+Then you can transliterate an input string using <code class="xref py py-meth docutils literal notranslate"><span class="pre">transliterate()</span></code>. There are a few
+additional methods that can be used to extract information for specific use cases, such
+as details about which rules were matched.</p>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>Graph Transliterator takes the following parameters:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>The acceptable types of <strong>tokens</strong> in the input string as well as any
+associated <strong>token classes</strong>.</p></li>
+<li><p>The <strong>transliteration rules</strong> for the transformation of the input string.</p></li>
+<li><p>Rules for dealing with <strong>whitespace</strong>.</p></li>
+<li><p><strong>“On match” rules</strong> for strings to be inserted in particular contexts
+right before a transliteration rule’s output is added (optional).</p></li>
+<li><p><strong>Metadata</strong> settings for the transliterator (optional).</p></li>
+</ol>
+</div></blockquote>
+<section id="initialization">
+<h3>Initialization<a class="headerlink" href="#initialization" title="Link to this heading"></a></h3>
+<p>Defining the rules for transliteration can be difficult, especially when dealing with
+complex scripts. That is why Graph Transliterator uses an “easy reading” format that
+allows you to enter the transliteration rules in the popular <a class="reference external" href="https://yaml.org/">YAML</a>
+format, either from a string (using <code class="xref py py-func docutils literal notranslate"><span class="pre">from_yaml()</span></code>) or by reading
+from a file or stream (<code class="xref py py-func docutils literal notranslate"><span class="pre">GraphTransliterator.from_yaml_file()</span></code>). You can also
+initialize from the loaded contents of YAML
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">GraphTransliterator.from_easyreading_dict()</span></code>).</p>
+<p>Here is a quick sample that parameterizes <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphTransliterator</span></code> using an easy
+reading YAML string (with comments):</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 2</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos"> 3</span><span class="s2">  tokens:</span>
+<span class="linenos"> 4</span><span class="s2">    a: [vowel]               # type of token (&quot;a&quot;) and its class (vowel)</span>
+<span class="linenos"> 5</span><span class="s2">    bb: [consonant, b_class] # type of token (&quot;bb&quot;) and its classes (consonant, b_class)</span>
+<span class="linenos"> 6</span><span class="s2">    &#39; &#39;: [wb]                # type of token (&quot; &quot;) and its class (&quot;wb&quot;, for wordbreak)</span>
+<span class="linenos"> 7</span><span class="s2">  rules:</span>
+<span class="linenos"> 8</span><span class="s2">    a: A       # transliterate &quot;a&quot; to &quot;A&quot;</span>
+<span class="linenos"> 9</span><span class="s2">    bb: B      # transliterate &quot;bb&quot; to &quot;B&quot;</span>
+<span class="linenos">10</span><span class="s2">    a a: &lt;2AS&gt; # transliterate (&quot;a&quot;, &quot;a&quot;) to &quot;&lt;2AS&gt;&quot;</span>
+<span class="linenos">11</span><span class="s2">    &#39; &#39;: &#39; &#39;   # transliterate &#39; &#39; to &#39; &#39;</span>
+<span class="linenos">12</span><span class="s2">  whitespace:</span>
+<span class="linenos">13</span><span class="s2">    default: &quot; &quot;        # default whitespace token</span>
+<span class="linenos">14</span><span class="s2">    consolidate: false  # whitespace should not be consolidated</span>
+<span class="linenos">15</span><span class="s2">    token_class: wb     # whitespace token class</span>
+<span class="linenos">16</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">17</span><span class="n">gt_one</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">18</span><span class="n">gt_one</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;A&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">19</span><span class="n">gt_one</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;bb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;B&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">20</span><span class="n">gt_one</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;aabb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;2AS&gt;B&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>The example above shows a very simple transliterator that replaces the input token “a”
+with “A”, “bb” with “B”, ” ” with ” “, and two “a” in a row with “&lt;2AS&gt;”. It does not
+consolidate whitespace, and treats ” ” as its default whitespace token. Tokens contain
+strings of one or more characters.</p>
+</section>
+<section id="input-tokens-and-token-class-settings">
+<h3>Input Tokens and Token Class Settings<a class="headerlink" href="#input-tokens-and-token-class-settings" title="Link to this heading"></a></h3>
+<p>During transliteration, Graph Transliterator first attempts to convert the input string
+into a list of tokens. This is done internally using
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.tokenize()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">21</span><span class="n">gt_one</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="s1">&#39;abba&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39; &#39;, &#39;a&#39;, &#39;bb&#39;, &#39;a&#39;, &#39; &#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note that the default whitespace  token is added to the start and end of the input
+tokens.</p>
+<p>Tokens can be more than one character, and longer tokens are matched first:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">22</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">23</span><span class="s2">  tokens:</span>
+<span class="linenos">24</span><span class="s2">    a: []      # &quot;a&quot; token with no classes</span>
+<span class="linenos">25</span><span class="s2">    aa: []     # &quot;aa&quot; token with no classes</span>
+<span class="linenos">26</span><span class="s2">    &#39; &#39;: [wb]  # &quot; &quot; token and its class (&quot;wb&quot;, for wordbreak)</span>
+<span class="linenos">27</span><span class="s2">  rules:</span>
+<span class="linenos">28</span><span class="s2">    aa: &lt;DOUBLE_A&gt;  # transliterate &quot;aa&quot; to &quot;&lt;DOUBLE_A&gt;&quot;</span>
+<span class="linenos">29</span><span class="s2">    a: &lt;SINGLE_A&gt;   # transliterate &quot;a&quot; to &quot;&lt;SINGLE_A&gt;&quot;</span>
+<span class="linenos">30</span><span class="s2">  whitespace:</span>
+<span class="linenos">31</span><span class="s2">    default: &quot; &quot;        # default whitespace token</span>
+<span class="linenos">32</span><span class="s2">    consolidate: false  # whitespace should not be consolidated</span>
+<span class="linenos">33</span><span class="s2">    token_class: wb     # whitespace token class</span>
+<span class="linenos">34</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">35</span><span class="n">gt_two</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">36</span><span class="n">gt_two</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;SINGLE_A&gt;&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">37</span><span class="n">gt_two</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;aa&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;DOUBLE_A&gt;&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">38</span><span class="n">gt_two</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;aaa&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;DOUBLE_A&gt;&lt;SINGLE_A&gt;&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here the input “aaa” is transliterated as “&lt;DOUBLE_A&gt;&lt;SINGLE_A&gt;”, as the longer token
+“aa” is matched before “a”.</p>
+<p>Tokens can be assigned zero or more classes. Each class is a string of your choice.
+These classes are used in transliteration rules. In YAML they are defined as a
+dictionary, but internally the rules are stored as a dictionary of token strings keyed
+to a set of token classes. They can be accessed using
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.tokens</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">39</span><span class="n">gt_two</span><span class="o">.</span><span class="n">tokens</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;a&#39;: set(), &#39;aa&#39;: set(), &#39; &#39;: {&#39;wb&#39;}}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="transliteration-rules">
+<h3>Transliteration Rules<a class="headerlink" href="#transliteration-rules" title="Link to this heading"></a></h3>
+<p>Graph Transliterator can handle a variety of transliteration tasks. To do so, it uses
+transliteration rules that contain <strong>match settings</strong> for particular tokens in specific
+contexts and also a resulting <strong>production</strong>, or string to be appended to the output
+string.</p>
+<section id="match-settings">
+<h4>Match Settings<a class="headerlink" href="#match-settings" title="Link to this heading"></a></h4>
+<p>Transliteration rules contain the following parameters (ordered by where they would
+appear in a list of tokens):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>previous token classes</strong> : a list of token classes (optional)</p></li>
+<li><p><strong>previous tokens</strong> : a list of tokens (optional)</p></li>
+<li><p><strong>tokens</strong> : a list of tokens</p></li>
+<li><p><strong>next tokens</strong> : a list of tokens (optional)</p></li>
+<li><p><strong>next token classes</strong> : a list of token classes (optional)</p></li>
+</ul>
+</div></blockquote>
+<p>One or more (<strong>tokens</strong>) must be matched in a particular location. However, specific
+tokens can be required before (<strong>previous tokens</strong>) or behind (<strong>next tokens</strong>) those
+tokens. Additionally, particular token classes can be required before (<strong>previous token
+classes</strong>) and behind (<strong>next token classes</strong>) all of the specific tokens required
+(previous tokens, tokens, next tokens).</p>
+<p>Depending on their complexity, these match conditions can be entered using the “easy
+reading” format in the following ways.</p>
+<p>If there are no required lookahead or lookbehind tokens, the rule can be as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">a a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aa</span><span class="w">  </span><span class="c1"># two tokens (a,a), with production &quot;production_aa&quot;</span>
+</pre></div>
+</div>
+<p>If, in an addition to tokens, there are specific previous or following tokens that must
+be matched, the rule can be entered as:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tokens</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">c</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">d</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">rules</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">a (b)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_before_b</span><span class="w">  </span><span class="c1"># matches  token &#39;a&#39; with the next token &#39;b&#39;</span>
+<span class="w">   </span><span class="nt">(c) a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_after_c</span><span class="w">   </span><span class="c1"># matches token &#39;a&#39; when the previous token is &#39;c&#39;</span>
+<span class="w">   </span><span class="nt">a (b c)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_before_b_and_c</span><span class="w"> </span><span class="c1"># matches token &#39;a&#39; when next tokens are &#39;b&#39; then &#39;c&#39;</span>
+<span class="w">   </span><span class="nt">(d) a (b c)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_after_d_and_before_b,c</span><span class="w">  </span><span class="c1"># matches the token &#39;a&#39; after &#39;d&#39; and before &#39;b&#39; and &#39;c&#39;</span>
+</pre></div>
+</div>
+<p>Token class names are indicated between angular brackets (“&lt;classname&gt;”). If preceding
+and following tokens are not required but classes are, these can be entered as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tokens</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">class_b</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">c</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">wb</span><span class="p p-Indicator">]</span>
+<span class="nt">rules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">c &lt;class_b&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c_after _class_b</span><span class="w">  </span><span class="c1"># match token &#39;c&#39; before a token of class &#39;class_b`</span>
+<span class="w">  </span><span class="nt">&lt;class_b&gt; a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_before_class_b</span><span class="w">  </span><span class="c1"># match token &#39;a&#39; after a token of class `class_b`</span>
+<span class="w">  </span><span class="nt">&lt;class_b&gt; a &lt;class_b&gt;</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_between_class_b</span><span class="w"> </span><span class="c1">#  match token &#39;a&#39; between tokens of class &#39;class_b&#39;</span>
+</pre></div>
+</div>
+<p>If token classes must precede or follow specific tokens, these can be entered as:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tokens</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">c</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">class_c</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">d</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">class_d</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">wb</span><span class="p p-Indicator">]</span>
+<span class="nt">rules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">d (b &lt;class_c&gt;)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_before_b_and_class_c</span><span class="w"> </span><span class="c1"># match token &#39;d&#39; before &#39;b&#39; and a token of class &#39;class_c&#39;</span>
+<span class="w">  </span><span class="nt">(&lt;class_c&gt; b) a</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a_after_b_and_class_c</span><span class="w">  </span><span class="c1"># match token &#39;a&#39; after &#39;b&#39; and a token of class &#39;class_c&#39;</span>
+<span class="w">  </span><span class="nt">(&lt;class_c&gt; d) a (b &lt;class_c&gt; &lt;class_d&gt;)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x</span><span class="w"> </span><span class="c1"># match &#39;a&#39; after token of &#39;class_c&#39; and &#39;d&#39; and before a token of &#39;class_c&#39; and of &#39;class_d&#39;</span>
+<span class="nt">whitespace</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span>
+<span class="w">  </span><span class="nt">token_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wb</span>
+<span class="w">  </span><span class="nt">consolidate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+</section>
+<section id="automatic-ordering-of-transliteration-rules">
+<h4>Automatic Ordering of Transliteration Rules<a class="headerlink" href="#automatic-ordering-of-transliteration-rules" title="Link to this heading"></a></h4>
+<p>Graph Transliterator automatically orders the transliteration rules based on the number
+of tokens required by the rule. It <em>picks the rule requiring the longest match in a
+given context</em>. It does so by assigning a cost to each transliteration rule that
+decreases depending on the number of tokens required by the rule. More tokens decreases
+the cost of a rule causing it to be matched first:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">40</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">41</span><span class="s2">  tokens:</span>
+<span class="linenos">42</span><span class="s2">    a: []</span>
+<span class="linenos">43</span><span class="s2">    b: []</span>
+<span class="linenos">44</span><span class="s2">    c: [class_of_c]</span>
+<span class="linenos">45</span><span class="s2">    &#39; &#39;: [wb]</span>
+<span class="linenos">46</span><span class="s2">  rules:</span>
+<span class="linenos">47</span><span class="s2">    a: &lt;&lt;A&gt;&gt;</span>
+<span class="linenos">48</span><span class="s2">    a b: &lt;&lt;AB&gt;&gt;</span>
+<span class="linenos">49</span><span class="s2">    b: &lt;&lt;B&gt;&gt;</span>
+<span class="linenos">50</span><span class="s2">    c: &lt;&lt;C&gt;&gt;</span>
+<span class="linenos">51</span><span class="s2">    &#39; &#39;: _</span>
+<span class="linenos">52</span><span class="s2">    &lt;class_of_c&gt; a b: &lt;&lt;AB_after_C&gt;&gt;</span>
+<span class="linenos">53</span><span class="s2">  whitespace:</span>
+<span class="linenos">54</span><span class="s2">    default: &quot; &quot;</span>
+<span class="linenos">55</span><span class="s2">    consolidate: false</span>
+<span class="linenos">56</span><span class="s2">    token_class: wb</span>
+<span class="linenos">57</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">58</span><span class="n">gt_three</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">59</span><span class="n">gt_three</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span>  <span class="c1"># should match rule &quot;a b&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;&lt;AB&gt;&gt;&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">60</span><span class="n">gt_three</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;cab&quot;</span><span class="p">)</span> <span class="c1"># should match rules: &quot;c&quot;, and &quot;&lt;class_of_c&gt; a b&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;&lt;C&gt;&gt;&lt;&lt;AB_after_C&gt;&gt;&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Internally, Graph Transliterator uses a special <code class="xref py py-class docutils literal notranslate"><span class="pre">TransliterationRule</span></code> class.
+These can be accessed using <code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.rules</span></code>. Rules are sorted by cost,
+lowest to highest:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">61</span><span class="n">gt_three</span><span class="o">.</span><span class="n">rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[TransliterationRule(production=&#39;&lt;&lt;AB_after_C&gt;&gt;&#39;, prev_classes=[&#39;class_of_c&#39;], prev_tokens=None, tokens=[&#39;a&#39;, &#39;b&#39;], next_tokens=None, next_classes=None, cost=0.32192809488736235),
+ TransliterationRule(production=&#39;&lt;&lt;AB&gt;&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;, &#39;b&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;&lt;&lt;A&gt;&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;&lt;&lt;B&gt;&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;b&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;&lt;&lt;C&gt;&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;c&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;_&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="whitespace-settings">
+<h3>Whitespace Settings<a class="headerlink" href="#whitespace-settings" title="Link to this heading"></a></h3>
+<p>Whitespace is often very important in transliteration tasks, as the form of many letters
+may change at the start or end of words, as in the right-to-left Perso-Arabic and
+left-to-right Indic scripts. Therefore, Graph Transliterator requires the following
+<strong>whitespace settings</strong>:</p>
+<ul class="simple">
+<li><p>the <strong>default</strong> whitespace token</p></li>
+<li><p>the whitespace <strong>token class</strong></p></li>
+<li><p>whether or not to <strong>consolidate</strong> whitespace</p></li>
+</ul>
+<p><em>A whitespace token and token class must be defined for any Graph Transliterator</em>. A
+whitespace character is added temporarily to the start and end of the input tokens
+during the transliteration process.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">consolidate</span></code> option may be useful in particular transliteration tasks. It
+replaces any sequential whitespace tokens in the input string with the default
+whitespace character. At the start and end of input, it removes any whitespace:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">62</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">63</span><span class="s2">  tokens:</span>
+<span class="linenos">64</span><span class="s2">    a: []</span>
+<span class="linenos">65</span><span class="s2">    &#39; &#39;: [wb]</span>
+<span class="linenos">66</span><span class="s2">  rules:</span>
+<span class="linenos">67</span><span class="s2">    &lt;wb&gt; a: _A</span>
+<span class="linenos">68</span><span class="s2">    a &lt;wb&gt;: A_</span>
+<span class="linenos">69</span><span class="s2">    &lt;wb&gt; a &lt;wb&gt;: _A_</span>
+<span class="linenos">70</span><span class="s2">    a: a</span>
+<span class="linenos">71</span><span class="s2">    &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">72</span><span class="s2">  whitespace:</span>
+<span class="linenos">73</span><span class="s2">    default: &quot; &quot;        # default whitespace token</span>
+<span class="linenos">74</span><span class="s2">    consolidate: true   # whitespace should be consolidated</span>
+<span class="linenos">75</span><span class="s2">    token_class: wb     # whitespace token class</span>
+<span class="linenos">76</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">77</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">78</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>   <span class="c1"># whitespace present at start of string</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;_A_&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">79</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;aa&#39;</span><span class="p">)</span>  <span class="c1"># whitespace present at start and end of string</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;_AA_&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">80</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39; a&#39;</span><span class="p">)</span>  <span class="c1"># consolidate removes whitespace at start of string</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;_A_&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">81</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;a &#39;</span><span class="p">)</span>  <span class="c1"># consolidate removes whitespace at end of string</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;_A_&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Whitespace settings are stored internally as <code class="xref py py-class docutils literal notranslate"><span class="pre">WhitespaceRules</span></code> and can be
+accessed using <code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.whitespace</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">82</span><span class="n">gt</span><span class="o">.</span><span class="n">whitespace</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>WhitespaceRules(default=&#39; &#39;, token_class=&#39;wb&#39;, consolidate=True)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="on-match-rules">
+<h3>On Match Rules<a class="headerlink" href="#on-match-rules" title="Link to this heading"></a></h3>
+<p>Graph Transliterator allows strings to be inserted right
+before the productions of transliteration rules. These take as parameters:</p>
+<ul class="simple">
+<li><p>a list of <strong>previous token classes</strong>, preceding the location of the transliteration
+rule match</p></li>
+<li><p>a list of <strong>next token classes</strong>, from the index of the transliteration rule match</p></li>
+<li><p>a <strong>production</strong> string to insert</p></li>
+</ul>
+<p>In the easy reading YAML format, the <code class="xref py py-obj docutils literal notranslate"><span class="pre">onmatch_rules</span></code> are a list of dictionaries.
+The key consists of the token class names in angular brackets (“&lt;classname&gt;”), and the
+previous classes to match are separated from the following classes by a “+”. The
+production is the value of the dictionary:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">83</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">84</span><span class="s2">  tokens:</span>
+<span class="linenos">85</span><span class="s2">    a: [vowel]</span>
+<span class="linenos">86</span><span class="s2">    &#39; &#39;: [wb]</span>
+<span class="linenos">87</span><span class="s2">  rules:</span>
+<span class="linenos">88</span><span class="s2">    a: A</span>
+<span class="linenos">89</span><span class="s2">    &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">90</span><span class="s2">  whitespace:</span>
+<span class="linenos">91</span><span class="s2">    default: &quot; &quot;</span>
+<span class="linenos">92</span><span class="s2">    consolidate: false</span>
+<span class="linenos">93</span><span class="s2">    token_class: wb</span>
+<span class="linenos">94</span><span class="s2">  onmatch_rules:</span>
+<span class="linenos">95</span><span class="s2">    - &lt;vowel&gt; + &lt;vowel&gt;: &#39;,&#39; # add a comma between vowels</span>
+<span class="linenos">96</span><span class="s2"> &quot;&quot;&quot;</span>
+<span class="linenos">97</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">98</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;aa&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;A,A&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>On Match rules are stored internally as a <code class="xref py py-class docutils literal notranslate"><span class="pre">OnMatchRule</span></code> and can be accessed using
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.onmatch_rules</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">99</span><span class="n">gt</span><span class="o">.</span><span class="n">onmatch_rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[OnMatchRule(prev_classes=[&#39;vowel&#39;], next_classes=[&#39;vowel&#39;], production=&#39;,&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="metadata">
+<h3>Metadata<a class="headerlink" href="#metadata" title="Link to this heading"></a></h3>
+<p>Graph Transliterator allows for the storage of metadata as another input parameter,
+<code class="docutils literal notranslate"><span class="pre">metadata</span></code>. It is a dictionary, and fields can be added to it:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">100</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">101</span><span class="s2">  tokens:</span>
+<span class="linenos">102</span><span class="s2">    a: []</span>
+<span class="linenos">103</span><span class="s2">    &#39; &#39;: [wb]</span>
+<span class="linenos">104</span><span class="s2">  rules:</span>
+<span class="linenos">105</span><span class="s2">    a: A</span>
+<span class="linenos">106</span><span class="s2">    &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">107</span><span class="s2">  whitespace:</span>
+<span class="linenos">108</span><span class="s2">    default: &quot; &quot;</span>
+<span class="linenos">109</span><span class="s2">    consolidate: false</span>
+<span class="linenos">110</span><span class="s2">    token_class: wb</span>
+<span class="linenos">111</span><span class="s2">  metadata:</span>
+<span class="linenos">112</span><span class="s2">    author: Author McAuthorson</span>
+<span class="linenos">113</span><span class="s2">    version: 0.1.1</span>
+<span class="linenos">114</span><span class="s2">    description: A sample Graph Transliterator</span>
+<span class="linenos">115</span><span class="s2">  &quot;&quot;&quot;</span>
+<span class="linenos">116</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">117</span><span class="n">gt</span><span class="o">.</span><span class="n">metadata</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;author&#39;: &#39;Author McAuthorson&#39;,
+ &#39;version&#39;: &#39;0.1.1&#39;,
+ &#39;description&#39;: &#39;A sample Graph Transliterator&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="unicode-support">
+<h3>Unicode Support<a class="headerlink" href="#unicode-support" title="Link to this heading"></a></h3>
+<p>Graph Transliterator allows Unicode characters to be specified by name, including in
+YAML files, using the format “\N{UNICODE CHARACTER NAME}” or “\u{####}” (where #### is
+the hexadecimal character code):</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">118</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">119</span><span class="s2">  tokens:</span>
+<span class="linenos">120</span><span class="s2">    b: []</span>
+<span class="linenos">121</span><span class="s2">    c: []</span>
+<span class="linenos">122</span><span class="s2">    &#39; &#39;: [wb]</span>
+<span class="linenos">123</span><span class="s2">  rules:</span>
+<span class="linenos">124</span><span class="s2">    b: </span><span class="se">\N{LATIN CAPITAL LETTER B}</span>
+<span class="linenos">125</span><span class="s2">    c: </span><span class="se">\u0043</span><span class="s2">    # hexadecimal Unicode character code for &#39;C&#39;</span>
+<span class="linenos">126</span><span class="s2">    &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">127</span><span class="s2">  whitespace:</span>
+<span class="linenos">128</span><span class="s2">    default: &quot; &quot;</span>
+<span class="linenos">129</span><span class="s2">    consolidate: false</span>
+<span class="linenos">130</span><span class="s2">    token_class: wb</span>
+<span class="linenos">131</span><span class="s2">  &quot;&quot;&quot;</span>
+<span class="linenos">132</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">133</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;B&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">134</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;C&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configuring-directly">
+<h3>Configuring Directly<a class="headerlink" href="#configuring-directly" title="Link to this heading"></a></h3>
+<p>In addition to using <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTansliterator.from_yaml()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.from_yaml_file()</span></code>, Graph Transliterator can also be configured
+and initialized directly using basic Python types passed as dictionary to
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.from_dict()</span></code></p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">135</span><span class="n">settings</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">136</span>  <span class="s1">&#39;tokens&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;vowel&#39;</span><span class="p">],</span>
+<span class="linenos">137</span>             <span class="s1">&#39; &#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;wb&#39;</span><span class="p">]},</span>
+<span class="linenos">138</span>  <span class="s1">&#39;rules&#39;</span><span class="p">:</span> <span class="p">[</span>
+<span class="linenos">139</span>      <span class="p">{</span><span class="s1">&#39;production&#39;</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]},</span>
+<span class="linenos">140</span>      <span class="p">{</span><span class="s1">&#39;production&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="p">]}],</span>
+<span class="linenos">141</span>  <span class="s1">&#39;onmatch_rules&#39;</span><span class="p">:</span> <span class="p">[</span>
+<span class="linenos">142</span>      <span class="p">{</span><span class="s1">&#39;prev_classes&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;vowel&#39;</span><span class="p">],</span>
+<span class="linenos">143</span>       <span class="s1">&#39;next_classes&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;vowel&#39;</span><span class="p">],</span>
+<span class="linenos">144</span>       <span class="s1">&#39;production&#39;</span><span class="p">:</span> <span class="s1">&#39;,&#39;</span><span class="p">}],</span>
+<span class="linenos">145</span>  <span class="s1">&#39;whitespace&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">146</span>      <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
+<span class="linenos">147</span>      <span class="s1">&#39;consolidate&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="linenos">148</span>      <span class="s1">&#39;token_class&#39;</span><span class="p">:</span> <span class="s1">&#39;wb&#39;</span><span class="p">},</span>
+<span class="linenos">149</span>  <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="linenos">150</span>      <span class="s1">&#39;author&#39;</span><span class="p">:</span> <span class="s1">&#39;Author McAuthorson&#39;</span><span class="p">}</span>
+<span class="linenos">151</span><span class="p">}</span>
+<span class="linenos">152</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span>
+<span class="linenos">153</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;A&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>This feature can be useful if generating a Graph Transliterator using code as opposed to
+a configuration file.</p>
+</section>
+<section id="ambiguity-checking">
+<h3>Ambiguity Checking<a class="headerlink" href="#ambiguity-checking" title="Link to this heading"></a></h3>
+<p>Graph Transliterator, by default, will check for ambiguity in its transliteration rules.
+If two rules of the same cost would match the same string(s) and those strings would not
+be matched by a less costly rule, an <code class="xref py py-exc docutils literal notranslate"><span class="pre">AmbiguousTransliterationRulesException</span></code>
+occurs. Details of all exceptions will be reported as a <code class="xref py py-meth docutils literal notranslate"><span class="pre">logging.warning()</span></code>:</p>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">155</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">156</span><span class="s2">tokens:</span>
+<span class="linenos">157</span><span class="s2">  a: [class1, class2]</span>
+<span class="linenos">158</span><span class="s2">  b: []</span>
+<span class="linenos">159</span><span class="s2">  &#39; &#39;: [wb]</span>
+<span class="linenos">160</span><span class="s2">rules:</span>
+<span class="linenos">161</span><span class="s2">  &lt;class1&gt; a: A</span>
+<span class="linenos">162</span><span class="s2">  &lt;class2&gt; a: AA # ambiguous rule</span>
+<span class="linenos">163</span><span class="s2">  &lt;class1&gt; b: BB</span>
+<span class="linenos">164</span><span class="s2">  b &lt;class2&gt;: BB # also ambiguous</span>
+<span class="linenos">165</span><span class="s2">whitespace:</span>
+<span class="linenos">166</span><span class="s2">  default: &#39; &#39;</span>
+<span class="linenos">167</span><span class="s2">  consolidate: True</span>
+<span class="linenos">168</span><span class="s2">  token_class: wb</span>
+<span class="linenos">169</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">170</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">WARNING:root:The pattern [{'a'}, {'a'}, {'a', 'b', ' '}] can be matched by both:
+  &lt;class1&gt; a
+  &lt;class2&gt; a
+
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">WARNING:root:The pattern [{'a'}, {'b'}, {'a'}] can be matched by both:
+  &lt;class1&gt; b
+  b &lt;class2&gt;
+
+</pre>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="n">AmbiguousTransliterationRulesException</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The warning shows the set of possible previous tokens, matched tokens, and next tokens
+as three sets.</p>
+<p>Ambiguity checking is only necessary when using an untested Graph Transliterator. It can
+be turned off during initialization. To do so, set the initialization parameter
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">check_ambiguity</span></code> to <cite>False</cite>.</p>
+<p>Ambiguity checking can also be done on demand using <code class="xref py py-meth docutils literal notranslate"><span class="pre">check_for_ambiguity()</span></code>.</p>
+<p>Ambiguity checking is not performed if loading from a serialized GraphTransliterator
+using <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.load()</span></code> or <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.loads()</span></code>.</p>
+</section>
+<section id="setup-validation">
+<h3>Setup Validation<a class="headerlink" href="#setup-validation" title="Link to this heading"></a></h3>
+<p>Graph Transliterator validates both the “easy reading” configuration and the direct
+configuration using the <code class="xref py py-mod docutils literal notranslate"><span class="pre">marshmallow</span></code> library.</p>
+</section>
+</section>
+<section id="transliteration-and-its-exceptions">
+<h2>Transliteration and Its Exceptions<a class="headerlink" href="#transliteration-and-its-exceptions" title="Link to this heading"></a></h2>
+<p>The main method of Graph Transliterator is
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.transliterate()</span></code>. It will return a string:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">171</span><span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+<span class="linenos">172</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="linenos">173</span><span class="sd">tokens:</span>
+<span class="linenos">174</span><span class="sd">  a: []</span>
+<span class="linenos">175</span><span class="sd">  &#39; &#39;: [wb]</span>
+<span class="linenos">176</span><span class="sd">rules:</span>
+<span class="linenos">177</span><span class="sd">  a: A</span>
+<span class="linenos">178</span><span class="sd">  &#39; &#39;: &#39;_&#39;</span>
+<span class="linenos">179</span><span class="sd">whitespace:</span>
+<span class="linenos">180</span><span class="sd">  default: &#39; &#39;</span>
+<span class="linenos">181</span><span class="sd">  consolidate: True</span>
+<span class="linenos">182</span><span class="sd">  token_class: wb</span>
+<span class="linenos">183</span><span class="sd">&#39;&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;a a&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;A_A&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Details of transliteration error exceptions will be logged using
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">logging.warning()</span></code>.</p>
+<section id="unrecognizable-input-token">
+<h3>Unrecognizable Input Token<a class="headerlink" href="#unrecognizable-input-token" title="Link to this heading"></a></h3>
+<p>Unless the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphTransliterator</span></code> is initialized with or has the property
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">ignore_errors</span></code> set as <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.transliterate()</span></code> will
+raise <code class="xref py py-exc docutils literal notranslate"><span class="pre">UnrecognizableInputTokenException</span></code> when character(s) in the input string do
+not correspond to any defined types of input tokens. In both cases, there will be a
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">logging.warning()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">184</span><span class="kn">from</span><span class="w"> </span><span class="nn">graphtransliterator</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphTransliterator</span>
+<span class="linenos">185</span><span class="n">yaml_</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">186</span><span class="s2">  tokens:</span>
+<span class="linenos">187</span><span class="s2">   a: []</span>
+<span class="linenos">188</span><span class="s2">   &#39; &#39;: [wb]</span>
+<span class="linenos">189</span><span class="s2">  rules:</span>
+<span class="linenos">190</span><span class="s2">    a: A</span>
+<span class="linenos">191</span><span class="s2">    &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">192</span><span class="s2">  whitespace:</span>
+<span class="linenos">193</span><span class="s2">    default: &quot; &quot;</span>
+<span class="linenos">194</span><span class="s2">    consolidate: true</span>
+<span class="linenos">195</span><span class="s2">    token_class: wb</span>
+<span class="linenos">196</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">197</span><span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;a!a&quot;</span><span class="p">)</span> <span class="c1"># ignore_errors=False</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">WARNING:graphtransliterator:Unrecognizable token ! at pos 1 of a!a
+</pre>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="n">UnrecognizableInputTokenException</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">198</span><span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;a!a&quot;</span><span class="p">)</span> <span class="c1"># ignore_errors=True</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">WARNING:graphtransliterator:Unrecognizable token ! at pos 1 of a!a
+</pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;AA&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="no-matching-transliteration-rule">
+<h3>No Matching Transliteration Rule<a class="headerlink" href="#no-matching-transliteration-rule" title="Link to this heading"></a></h3>
+<p>Another possible error occurs when no transliteration rule can be identified at a
+particular index in the index string. In that case, there will be a
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">logging.warning()</span></code>. If the parameter <code class="xref py py-obj docutils literal notranslate"><span class="pre">ignore_errors</span></code> is set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#True" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">True</span></code></a>,
+the token index will be advanced. Otherwise, there will be a
+<code class="xref py py-exc docutils literal notranslate"><span class="pre">NoMatchingTransliterationRuleException</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">199</span><span class="n">yaml_</span><span class="o">=</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="linenos">200</span><span class="s1">  tokens:</span>
+<span class="linenos">201</span><span class="s1">    a: []</span>
+<span class="linenos">202</span><span class="s1">    b: []</span>
+<span class="linenos">203</span><span class="s1">    &#39; &#39;: [wb]</span>
+<span class="linenos">204</span><span class="s1">  rules:</span>
+<span class="linenos">205</span><span class="s1">    a: A</span>
+<span class="linenos">206</span><span class="s1">    b (a): B</span>
+<span class="linenos">207</span><span class="s1">  whitespace:</span>
+<span class="linenos">208</span><span class="s1">    default: &#39; &#39;</span>
+<span class="linenos">209</span><span class="s1">    token_class: wb</span>
+<span class="linenos">210</span><span class="s1">    consolidate: False</span>
+<span class="linenos">211</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="linenos">212</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">yaml_</span><span class="p">)</span>
+<span class="linenos">213</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">WARNING:graphtransliterator:No matching transliteration rule at token pos 2 of [' ', 'a', 'b', ' ']
+</pre>
+</div>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="n">NoMatchingTransliterationRuleException</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">214</span><span class="n">gt</span><span class="o">.</span><span class="n">ignore_errors</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="linenos">215</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;ab&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">WARNING:graphtransliterator:No matching transliteration rule at token pos 2 of [' ', 'a', 'b', ' ']
+</pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;A&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="transliterating-with-details">
+<h2>Transliterating with Details<a class="headerlink" href="#transliterating-with-details" title="Link to this heading"></a></h2>
+<p>It is also possible to get details about a transliteration by running <code class="xref py py-meth docutils literal notranslate"><span class="pre">transliterate_with_details()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">216</span><span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+<span class="linenos">217</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="linenos">218</span><span class="sd">tokens:</span>
+<span class="linenos">219</span><span class="sd">  a: []</span>
+<span class="linenos">220</span><span class="sd">  &#39; &#39;: [wb]</span>
+<span class="linenos">221</span><span class="sd">rules:</span>
+<span class="linenos">222</span><span class="sd">  a: A</span>
+<span class="linenos">223</span><span class="sd">  &#39; &#39;: &#39;_&#39;</span>
+<span class="linenos">224</span><span class="sd">whitespace:</span>
+<span class="linenos">225</span><span class="sd">  default: &#39; &#39;</span>
+<span class="linenos">226</span><span class="sd">  consolidate: True</span>
+<span class="linenos">227</span><span class="sd">  token_class: wb</span>
+<span class="linenos">228</span><span class="sd">&#39;&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transliterate_with_details</span><span class="p">(</span><span class="s2">&quot;a a&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>(&#39;A_A&#39;,
+ [TransliterationRule(production=&#39;A&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+  TransliterationRule(production=&#39;_&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+  TransliterationRule(production=&#39;A&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)])
+</pre></div>
+</div>
+</div>
+</div>
+<p>That returns a tuple of the transliteration output and a list of <code class="xref py py-obj docutils literal notranslate"><span class="pre">TransliterationRule</span></code>.</p>
+</section>
+<section id="additional-methods">
+<h2>Additional Methods<a class="headerlink" href="#additional-methods" title="Link to this heading"></a></h2>
+<p>Graph Transliterator also offers a few additional methods that may be useful for
+particular tasks.</p>
+<section id="serialization-and-deserialization">
+<h3>Serialization and Deserialization<a class="headerlink" href="#serialization-and-deserialization" title="Link to this heading"></a></h3>
+<p>The settings of a Graph Transliterator can be serialized using
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.dump()</span></code>, which returns a dictionary of native Python data
+types. A JSON string of the same can be accessed using
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.dumps()</span></code>. Validation is not performed during a dump.</p>
+<p>By default, <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.dumps()</span></code> will use compression level 2, which
+removes the internal graph and indexes tokens and graph node labels. Compression level 1
+also indexes tokens and graph node labels and contains the graph. Compression level 0
+is human readable and includes the graph. No information is lost during compression.
+Level 2, the default, loads the fastest and also has the smallest file size.</p>
+<p>A GraphTransliterator can be loaded from serialized settings, e.g. in an API context,
+using <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.load()</span></code> and from JSON data as
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.loads()</span></code>. Because they are intended to be quick, neither method
+performs ambiguity checks or strict validation checking by default.</p>
+<p>Serialization can be useful if providing an API or making the configured Graph
+Transliterator available in other programming languages, e.g. Javascript.</p>
+</section>
+<section id="matching-at-an-index">
+<h3>Matching at an Index<a class="headerlink" href="#matching-at-an-index" title="Link to this heading"></a></h3>
+<p>The method <code class="xref py py-meth docutils literal notranslate"><span class="pre">match_at()</span></code> is also public. It matches the best transliteration rule at
+a particular index, which is the rule that contains the largest number of required
+tokens. The method also has the option <code class="xref py py-obj docutils literal notranslate"><span class="pre">match_all</span></code> which, if set, returns all
+possible transliteration matches at a particular location:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">229</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<span class="linenos">230</span><span class="s1">        tokens:</span>
+<span class="linenos">231</span><span class="s1">            a: []</span>
+<span class="linenos">232</span><span class="s1">            a a: []</span>
+<span class="linenos">233</span><span class="s1">            &#39; &#39;: [wb]</span>
+<span class="linenos">234</span><span class="s1">        rules:</span>
+<span class="linenos">235</span><span class="s1">            a: &lt;A&gt;</span>
+<span class="linenos">236</span><span class="s1">            a a: &lt;AA&gt;</span>
+<span class="linenos">237</span><span class="s1">        whitespace:</span>
+<span class="linenos">238</span><span class="s1">            default: &#39; &#39;</span>
+<span class="linenos">239</span><span class="s1">            consolidate: True</span>
+<span class="linenos">240</span><span class="s1">            token_class: wb</span>
+<span class="linenos">241</span><span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="linenos">242</span><span class="n">tokens</span> <span class="o">=</span> <span class="n">gt</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="s2">&quot;aa&quot;</span><span class="p">)</span>
+<span class="linenos">243</span><span class="n">tokens</span> <span class="c1"># whitespace added to ends</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39; &#39;, &#39;a&#39;, &#39;a&#39;, &#39; &#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">244</span><span class="n">gt</span><span class="o">.</span><span class="n">match_at</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span> <span class="c1"># returns index to rule</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>0
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">245</span><span class="n">gt</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">gt</span><span class="o">.</span><span class="n">match_at</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)]</span> <span class="c1"># actual rule</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>TransliterationRule(production=&#39;&lt;AA&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;, &#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">246</span><span class="n">gt</span><span class="o">.</span><span class="n">match_at</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">match_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># index to rules, with match_all</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[0, 1]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">247</span><span class="p">[</span><span class="n">gt</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">_</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">gt</span><span class="o">.</span><span class="n">match_at</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">tokens</span><span class="p">,</span> <span class="n">match_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span> <span class="c1"># actual rules, with match_all</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[TransliterationRule(production=&#39;&lt;AA&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;, &#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;&lt;A&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="details-of-matches">
+<h3>Details of Matches<a class="headerlink" href="#details-of-matches" title="Link to this heading"></a></h3>
+<p>Each Graph Transliterator has a property <code class="xref py py-attr docutils literal notranslate"><span class="pre">last_matched_rules</span></code> which returns a list
+of <code class="xref py py-obj docutils literal notranslate"><span class="pre">TransliterationRule</span></code> of the previously matched transliteration rules:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">248</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;aaa&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;&lt;AA&gt;&lt;A&gt;&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">249</span><span class="n">gt</span><span class="o">.</span><span class="n">last_matched_rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[TransliterationRule(production=&#39;&lt;AA&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;, &#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;&lt;A&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+</pre></div>
+</div>
+</div>
+</div>
+<p>The particular tokens matched by those rules can be accessed using
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">last_matched_rule_tokens</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">250</span><span class="n">gt</span><span class="o">.</span><span class="n">last_matched_rule_tokens</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[[&#39;a&#39;, &#39;a&#39;], [&#39;a&#39;]]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="pruning-of-rules">
+<h3>Pruning of Rules<a class="headerlink" href="#pruning-of-rules" title="Link to this heading"></a></h3>
+<p>In particular cases, it may be useful to remove certain transliteration rules from a
+more robustly defined Graph Transliterator based on the string output produced by the
+rules. That can be done using <code class="xref py py-meth docutils literal notranslate"><span class="pre">pruned_of()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">251</span><span class="n">gt</span><span class="o">.</span><span class="n">rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[TransliterationRule(production=&#39;&lt;AA&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;, &#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;&lt;A&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">252</span><span class="n">gt</span><span class="o">.</span><span class="n">pruned_of</span><span class="p">(</span><span class="s1">&#39;&lt;AA&gt;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[TransliterationRule(production=&#39;&lt;A&gt;&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">253</span><span class="n">gt</span><span class="o">.</span><span class="n">pruned_of</span><span class="p">([</span><span class="s1">&#39;&lt;A&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;AA&gt;&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="internal-graph">
+<h2>Internal Graph<a class="headerlink" href="#internal-graph" title="Link to this heading"></a></h2>
+<p>Graph Transliterator creates a directed tree during its initialization. During calls to
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">transliterate()</span></code>, it searches that graph to find the best transliteration match at
+a particular index in the tokens of the input string.</p>
+<section id="directedgraph">
+<h3>DirectedGraph<a class="headerlink" href="#directedgraph" title="Link to this heading"></a></h3>
+<p>The tree is an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">DirectedGraph</span></code> that can be accessed using
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.graph</span></code>. It contains: a list of nodes, each consisting of a
+dictionary of attributes; a dictionary of edges keyed between the head and tail of an
+edge that contains a dictionary of edge attributes; and finally an edge list.</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">254</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span>
+<span class="linenos">255</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="linenos">256</span><span class="sd">    tokens:</span>
+<span class="linenos">257</span><span class="sd">      a: []</span>
+<span class="linenos">258</span><span class="sd">      &#39; &#39;: [wb]</span>
+<span class="linenos">259</span><span class="sd">    rules:</span>
+<span class="linenos">260</span><span class="sd">      a: b</span>
+<span class="linenos">261</span><span class="sd">      &lt;wb&gt; a: B</span>
+<span class="linenos">262</span><span class="sd">      &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">263</span><span class="sd">    whitespace:</span>
+<span class="linenos">264</span><span class="sd">      token_class: wb</span>
+<span class="linenos">265</span><span class="sd">      default: &#39; &#39;</span>
+<span class="linenos">266</span><span class="sd">      consolidate: false</span>
+<span class="linenos">267</span><span class="sd">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="linenos">268</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;graphtransliterator.graphs.DirectedGraph at 0x1087022f0&gt;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="nodes">
+<h3>Nodes<a class="headerlink" href="#nodes" title="Link to this heading"></a></h3>
+<p>The tree has nodes of three types: <cite>Start</cite>, <cite>token</cite>, and <cite>rule</cite>. A single <cite>Start</cite> node,
+the root, is connected to all other nodes. A <cite>token</cite> node corresponds to a token having
+been matched. Finally, <cite>rule</cite> nodes are leaf nodes (with no outgoing edges) that
+correspond to matched transliteration rules:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">269</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[{&#39;type&#39;: &#39;Start&#39;, &#39;ordered_children&#39;: {&#39;a&#39;: [1], &#39; &#39;: [4]}},
+ {&#39;type&#39;: &#39;token&#39;, &#39;token&#39;: &#39;a&#39;, &#39;ordered_children&#39;: {&#39;__rules__&#39;: [2, 3]}},
+ {&#39;type&#39;: &#39;rule&#39;, &#39;rule_key&#39;: 0, &#39;accepting&#39;: True, &#39;ordered_children&#39;: {}},
+ {&#39;type&#39;: &#39;rule&#39;, &#39;rule_key&#39;: 1, &#39;accepting&#39;: True, &#39;ordered_children&#39;: {}},
+ {&#39;type&#39;: &#39;token&#39;, &#39;token&#39;: &#39; &#39;, &#39;ordered_children&#39;: {&#39;__rules__&#39;: [5]}},
+ {&#39;type&#39;: &#39;rule&#39;, &#39;rule_key&#39;: 2, &#39;accepting&#39;: True, &#39;ordered_children&#39;: {}}]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="edges">
+<h3>Edges<a class="headerlink" href="#edges" title="Link to this heading"></a></h3>
+<p>Edges between these nodes may have different constraints in their attributes:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">270</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edge</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{0: {1: {&#39;token&#39;: &#39;a&#39;, &#39;cost&#39;: 0.41503749927884376},
+  4: {&#39;token&#39;: &#39; &#39;, &#39;cost&#39;: 0.5849625007211562}},
+ 1: {2: {&#39;cost&#39;: 0.41503749927884376, &#39;constraints&#39;: {&#39;prev_classes&#39;: [&#39;wb&#39;]}},
+  3: {&#39;cost&#39;: 0.5849625007211562}},
+ 4: {5: {&#39;cost&#39;: 0.5849625007211562}}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Before the <cite>token</cite> nodes, there is a <cite>token</cite> constraint on the edge that must be matched
+before the transliterator can visit the token node:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">271</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;token&#39;: &#39;a&#39;, &#39;cost&#39;: 0.41503749927884376}
+</pre></div>
+</div>
+</div>
+</div>
+<p>On the edges before rules there may be other <cite>constraints</cite>, such as certain tokens
+preceding or following tokens of the corresponding transliteration rule:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">272</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;cost&#39;: 0.41503749927884376, &#39;constraints&#39;: {&#39;prev_classes&#39;: [&#39;wb&#39;]}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>An edge list is also maintained that consists of a tuple of (head, tail):</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">273</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">edge_list</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[(0, 1), (0, 4), (1, 2), (1, 3), (4, 5)]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="search-and-preprocessing">
+<h3>Search and Preprocessing<a class="headerlink" href="#search-and-preprocessing" title="Link to this heading"></a></h3>
+<p>Graph Transliterator uses a best-first search, implemented using a stack, that finds the
+transliteration with the the lowest cost. The cost function is:</p>
+<div class="math notranslate nohighlight">
+\[\text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count}\_\text{of}\_ \text{tokens}\_ \text{in}(rule)}\big)}\]</div>
+<p>It results in a number between 1 and 0 that lessens as more tokens must be matched. Each
+edge on the graph has a cost attribute that is set to the lowest cost transliteration
+rule following it. When transliterating, Graph Transliterator will try lower cost edges
+first and will backtrack if the constraint conditions are not met.</p>
+<figure class="align-default" id="id1">
+<span id="sample-graph"></span><img alt="Sample graph" src="_images/figure1.png" />
+<figcaption>
+<p><span class="caption-text">An example graph created for the simple case of a Graph Transliterator that takes as
+input two token types, <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code> (space), and renders <code class="docutils literal notranslate"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code> as <code class="docutils literal notranslate"><span class="pre">&quot;</span> <span class="pre">&quot;</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">a</span></code> as <code class="docutils literal notranslate"><span class="pre">b</span></code> unless it follows a token of class <code class="docutils literal notranslate"><span class="pre">wb</span></code> (for wordbreak), in which
+case it renders <code class="docutils literal notranslate"><span class="pre">a</span></code> as <code class="docutils literal notranslate"><span class="pre">B</span></code>. The <cite>rule</cite> nodes are in double circles, and <cite>token</cite>
+nodes  are single circles. The numbers are the cost of the particular edge, and less
+costly edges are searched first. Previous token class (<code class="docutils literal notranslate"><span class="pre">prev_classes</span></code>) constraints
+are found on the edge before the leftmost leaf rule node.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>To optimize the search, during initialization an <code class="xref py py-obj docutils literal notranslate"><span class="pre">ordered_children</span></code> dictionary is
+added to each non-leaf node. Its values are a list of node indexes sorted by cost
+and keyed by the following <cite>token</cite>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">274</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;type&#39;: &#39;Start&#39;, &#39;ordered_children&#39;: {&#39;a&#39;: [1], &#39; &#39;: [4]}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Any <cite>rule</cite> connected to a node is added to each <cite>ordered_children</cite>. Any rule nodes
+immediately following the current node are keyed to <code class="xref py py-obj docutils literal notranslate"><span class="pre">__rules__</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">275</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;type&#39;: &#39;token&#39;, &#39;token&#39;: &#39;a&#39;, &#39;ordered_children&#39;: {&#39;__rules__&#39;: [2, 3]}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Because of this preprocessing, Graph Transliterator does not need to iterate through all
+of the outgoing edges of a node to find the next node to search.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bundled.html" class="btn btn-neutral float-right" title="Bundled Transliterators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Michigan State University.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

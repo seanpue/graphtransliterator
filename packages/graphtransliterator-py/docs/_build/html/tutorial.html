@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial: Using GraphTransliterator &mdash; Graph Transliterator 1.2.4 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/jupyter-sphinx.css" type="text/css" />
+      <link rel="stylesheet" href="_static/thebelab.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=928db92d"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/thebelab-helper.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Tutorial: Bundling a Transliterator" href="advanced_tutorial.html" />
+    <link rel="prev" title="Command Line Interface" href="cli.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Graph Transliterator
+          </a>
+              <div class="version">
+                1.2.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bundled.html">Bundled Transliterators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial: Using GraphTransliterator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-overview">Tutorial Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring">Configuring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#token-definitions">Token Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transliteration-rule-definitions">Transliteration Rule Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-match-rule-definitions">On Match Rule Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#whitespace-definitions">Whitespace Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata-definitions">Metadata Definitions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-transliterator">Creating a Transliterator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transliterating">Transliterating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-information">Other Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_tutorial.html">Advanced Tutorial: Bundling a Transliterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgements.html">Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kudos.html">Kudos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Graph Transliterator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial: Using GraphTransliterator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorial-using-graphtransliterator">
+<h1>Tutorial: Using GraphTransliterator<a class="headerlink" href="#tutorial-using-graphtransliterator" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Python code on this page: <a class="reference download internal" download="" href="_downloads/27bd98d715b7e4763a2e0c8527d57133/tutorial.py"><code class="xref download docutils literal notranslate"><span class="pre">tutorial.py</span></code></a> Jupyter Notebook: <a class="reference download internal" download="" href="_downloads/f7f609c1c812aadb65faae0f53c1821d/tutorial.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">tutorial.ipynb</span></code></a></p>
+</div>
+<p>Graph Transliterator is designed to allow you to quickly develop rules for
+transliterating between languages and scripts. In this tutorial you will use a
+portion of Graph Transliterators features, including its token matching,
+class-based matching, and on match rules, using the <code class="xref py py-class docutils literal notranslate"><span class="pre">GraphTransliterator</span></code> class.</p>
+<section id="tutorial-overview">
+<h2>Tutorial Overview<a class="headerlink" href="#tutorial-overview" title="Link to this heading"></a></h2>
+<p>The task for this tutorial will be to design a transliterator
+between the  <a class="reference external" href="https://en.wikipedia.org/wiki/ITRANS">ITRANS (Indian languages TRANSliteration)</a> encoding for
+<a class="reference external" href="https://en.wikipedia.org/wiki/Devanagari">Devanagari</a> (Hindi) and
+standard <a class="reference external" href="https://www.unicode.org">Unicode</a>. ITRANS developed as a means to
+transliterate Indic-language using the latin alphabet and punctuation marks
+before there were Unicode fonts.</p>
+<p>The Devanagari alphabet is an abugida (alphasyllabary), where each “syllable”
+is a separate symbol. Vowels, except for the default अ (“a”) have a unique
+symbol that connects to a consonant. At the start of the words, they have a
+unique shape. Consonants in sequence, without intermediary vowels, change
+their shape and are joined together. In Unicode, that is accomplished by using
+the <a class="reference external" href="https://en.wikipedia.org/wiki/Virama">Virama</a> character.</p>
+<p>Graph Transliterator works by first converting the input text into a series
+of tokens. In this tutorial you  will define the tokens of ITRANS and necessary
+token classes that will allow us to generate rules for conversion.</p>
+<p>Graph Transliterator allows rule matching by preceding tokens, tokens, and
+following tokens. It allows token classes to precede or follow any specific
+tokens. For this task, you will use a preceding token class to identify when to
+write vowel signs as opposed to full vowel characters.</p>
+<p>Graph Transliterator also allows the insertion of strings between matches
+involving particular token classes. This transliterator will need to
+insert the virama character between transliteration rules ending with
+consonants in order to create consonant clusters.</p>
+</section>
+<section id="configuring">
+<h2>Configuring<a class="headerlink" href="#configuring" title="Link to this heading"></a></h2>
+<p>Here you will parameterize the Graph Transliterator using its “easy reading”
+format, which uses <a class="reference external" href="https://yaml.org">YAML</a>. It maps to a dictionary
+containing up to five keys: <code class="docutils literal notranslate"><span class="pre">tokens</span></code>, <code class="docutils literal notranslate"><span class="pre">rules</span></code>, <code class="docutils literal notranslate"><span class="pre">onmatch_rules</span></code>
+(optional), <code class="docutils literal notranslate"><span class="pre">whitespace</span></code>, and <code class="docutils literal notranslate"><span class="pre">metadata</span></code> (optional).</p>
+<section id="token-definitions">
+<h3>Token Definitions<a class="headerlink" href="#token-definitions" title="Link to this heading"></a></h3>
+<p>Graph Transliterator tokenizes its input before transliterating. The <code class="docutils literal notranslate"><span class="pre">tokens</span></code>
+section will map the input tokens to their token classes. The main class you
+will need is one for consonants, so you can use <code class="docutils literal notranslate"><span class="pre">consonant</span></code> as the class.
+Graph Transliterator also requires a dedicated whitespace class, so you can use
+<code class="docutils literal notranslate"><span class="pre">whitespace</span></code>.</p>
+<p>Graph Transliterator allows the use of Unicode character names in files using
+\N{UNICODE CHARACTER NAME HERE}} notation. You can enter the Unicode
+characters using that notation or directly. YAML will also unescape \u####,
+where #### is the hexadecimal notation for a character.</p>
+<p>Here is a subsection of that definition:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">tokens</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">k</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">consonant</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">kh</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">consonant</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="s">&quot;\N{LATIN</span><span class="nv"> </span><span class="s">SMALL</span><span class="nv"> </span><span class="s">LETTER</span><span class="nv"> </span><span class="s">N</span><span class="nv"> </span><span class="s">WITH</span><span class="nv"> </span><span class="s">DOT</span><span class="nv"> </span><span class="s">ABOVE}&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">consonant</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">a</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">vowel</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">aa</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">vowel</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">A</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">vowel</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">wb</span><span class="p p-Indicator">,</span><span class="nv">whitespace</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="s">&quot;\t&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">wb</span><span class="p p-Indicator">,</span><span class="nv">whitespace</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">.N</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">vowel_sign</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="transliteration-rule-definitions">
+<h3>Transliteration Rule Definitions<a class="headerlink" href="#transliteration-rule-definitions" title="Link to this heading"></a></h3>
+<p>The rule definitions in Graph Transliterator in “easy reading” format are also
+a dictionary where the rules are the key and the production—what should be
+outputted by the rule—is the value. For this task, you just need to match
+individual tokens and also any preceding token classes:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">b</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\N{DEVANAGARI LETTER B}</span>
+<span class="w">  </span><span class="nt">&lt;consonant&gt; A</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\N{DEVANAGARI LETTER AA}</span>
+<span class="w">  </span><span class="nt">A</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">\N{DEVANAGARI LETTER AA}</span>
+</pre></div>
+</div>
+<p>These rules will replace “b” with the devanagari equivalent (ब), and “A” with
+with a full letter अा if it is at a start of a word (following a token of class
+“wb”, for wordbreak) or otherwise with a vowel sign ा if it is not, presumably
+following a consonant. Graph Transliterator automatically sorts rules by how
+many tokens are required for them to be matched, and it picks the one with
+that requires the most tokens. So the “A” following a consonant would be
+matched before an “A” after any other character. Graph Transliterator will also
+check for ambiguity in these rules, unless <code class="docutils literal notranslate"><span class="pre">check_ambiguity</span></code> is set to False.</p>
+<p>While not necessary for this tutorial, Graph Transliterator can also
+require matching of specific previous or following tokens and also
+classes preceding and following those tokens, e.g.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">k a r (U M g A &lt;wb&gt;)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k,a,r_followed_by_U,M,g,A_and_a_wordbreak</span>
+<span class="nt">s o (n a)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s,o_followed_by_n,a</span>
+<span class="nt">(&lt;wb&gt; p y) aa r</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aa,r_preceded_by_a_wordbreak,p,and_y</span>
+</pre></div>
+</div>
+<p>Here is a subsection of the rules:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">  </span><span class="s">&quot;\t&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;\t&quot;</span>
+<span class="w">  </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span>
+<span class="w">  </span><span class="s">&#39;,&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;,&#39;</span>
+<span class="w">  </span><span class="nt">.D</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;\N{DEVANAGARI</span><span class="nv"> </span><span class="s">LETTER</span><span class="nv"> </span><span class="s">DDDHA}&quot;</span>
+<span class="w">  </span><span class="nt">&lt;consonant&gt; A</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;\N{DEVANAGARI</span><span class="nv"> </span><span class="s">VOWEL</span><span class="nv"> </span><span class="s">SIGN</span><span class="nv"> </span><span class="s">AA}&quot;</span>
+<span class="w">  </span><span class="s">&quot;\N{LATIN</span><span class="nv"> </span><span class="s">SMALL</span><span class="nv"> </span><span class="s">LETTER</span><span class="nv"> </span><span class="s">N</span><span class="nv"> </span><span class="s">WITH</span><span class="nv"> </span><span class="s">DOT</span><span class="nv"> </span><span class="s">ABOVE}&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;\N{DEVANAGARI</span><span class="nv"> </span><span class="s">LETTER</span><span class="nv"> </span><span class="s">NGA}&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="on-match-rule-definitions">
+<h3>On Match Rule Definitions<a class="headerlink" href="#on-match-rule-definitions" title="Link to this heading"></a></h3>
+<p>You will want to insert the Virama character between consonants so that they
+will join together in Unicode output. To do so, add an “onmatch_rules”
+section:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">onmatch_rules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">&lt;consonant&gt; + &lt;consonant&gt;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;\N{DEVANAGARI</span><span class="nv"> </span><span class="s">SIGN</span><span class="nv"> </span><span class="s">VIRAMA}&quot;</span>
+</pre></div>
+</div>
+<p>Unlike the tokens and rules, the <em>onmatch rules are ordered</em>. The first rule
+matched is applied. In YAML, they consist of a list of dictionaries each with a
+single key and value. The value is the production string to be inserted between
+matches. The ` + ` represents that space. So in the input string <cite>kyA</cite>, which
+would tokenize as <code class="xref py py-obj docutils literal notranslate"><span class="pre">['</span> <span class="pre">','k','y','A','</span> <span class="pre">']</span></code>, a virama character would be
+inserted when <cite>y</cite> is matched, as it is of class “consonant” and the previously
+matched transliteration rule for “k” ends with a “consonant”.</p>
+</section>
+<section id="whitespace-definitions">
+<h3>Whitespace Definitions<a class="headerlink" href="#whitespace-definitions" title="Link to this heading"></a></h3>
+<p>The final required setup parameter is for whitespace. These include the
+<code class="docutils literal notranslate"><span class="pre">default</span></code> whitespace token, which is temporarily added before and after the
+input tokens; the <code class="docutils literal notranslate"><span class="pre">consolidate</span></code> option to replace sequential whitespace
+characters with a single default whitespace character; and the <code class="docutils literal notranslate"><span class="pre">token_class</span></code>
+of whitespace tokens:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">whitespace</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">consolidate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;</span><span class="nv"> </span><span class="s">&#39;</span>
+<span class="w">  </span><span class="nt">token_class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">whitespace</span>
+</pre></div>
+</div>
+</section>
+<section id="metadata-definitions">
+<h3>Metadata Definitions<a class="headerlink" href="#metadata-definitions" title="Link to this heading"></a></h3>
+<p>Graph Transliterator also allows metadata to be added to its settings:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ITRANS</span><span class="nv"> </span><span class="s">Devanagari</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">Unicode&quot;</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.1.0&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="creating-a-transliterator">
+<h2>Creating a Transliterator<a class="headerlink" href="#creating-a-transliterator" title="Link to this heading"></a></h2>
+<p>Now that the settings are ready, you can create a Graph Transliterator.
+Since you have  been using the “easy reading” format, you
+can use <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.from_yaml_file()</span></code> to read from a
+specific file or the <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.from_yaml()</span></code> to read from a
+YAML string. You read from the loaded contents of an “easy reading”
+YAML file using <code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.from_dict()</span></code>. Graph Transliterator
+will convert those settings into basic Python types and then return a
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphTransliterator</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="kn">from</span><span class="w"> </span><span class="nn">graphtransliterator</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphTransliterator</span>
+<span class="linenos">  2</span><span class="n">easyreading_yaml</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">  3</span><span class="s2">tokens:</span>
+<span class="linenos">  4</span><span class="s2">  k: [consonant]</span>
+<span class="linenos">  5</span><span class="s2">  kh: [consonant]</span>
+<span class="linenos">  6</span><span class="s2">  g: [consonant]</span>
+<span class="linenos">  7</span><span class="s2">  gh: [consonant]</span>
+<span class="linenos">  8</span><span class="s2">  ~N: [consonant]</span>
+<span class="linenos">  9</span><span class="s2">  &quot;</span><span class="se">\N{LATIN SMALL LETTER N WITH DOT ABOVE}</span><span class="s2">&quot;: [consonant]</span>
+<span class="linenos"> 10</span><span class="s2">  ch: [consonant]</span>
+<span class="linenos"> 11</span><span class="s2">  chh: [consonant]</span>
+<span class="linenos"> 12</span><span class="s2">  Ch: [consonant]</span>
+<span class="linenos"> 13</span><span class="s2">  j: [consonant]</span>
+<span class="linenos"> 14</span><span class="s2">  jh: [consonant]</span>
+<span class="linenos"> 15</span><span class="s2">  ~n: [consonant]</span>
+<span class="linenos"> 16</span><span class="s2">  T: [consonant]</span>
+<span class="linenos"> 17</span><span class="s2">  Th: [consonant]</span>
+<span class="linenos"> 18</span><span class="s2">  D: [consonant]</span>
+<span class="linenos"> 19</span><span class="s2">  Dh: [consonant]</span>
+<span class="linenos"> 20</span><span class="s2">  N: [consonant]</span>
+<span class="linenos"> 21</span><span class="s2">  t: [consonant]</span>
+<span class="linenos"> 22</span><span class="s2">  th: [consonant]</span>
+<span class="linenos"> 23</span><span class="s2">  d: [consonant]</span>
+<span class="linenos"> 24</span><span class="s2">  dh: [consonant]</span>
+<span class="linenos"> 25</span><span class="s2">  n: [consonant]</span>
+<span class="linenos"> 26</span><span class="s2">  ^n: [consonant]</span>
+<span class="linenos"> 27</span><span class="s2">  p: [consonant]</span>
+<span class="linenos"> 28</span><span class="s2">  ph: [consonant]</span>
+<span class="linenos"> 29</span><span class="s2">  b: [consonant]</span>
+<span class="linenos"> 30</span><span class="s2">  bh: [consonant]</span>
+<span class="linenos"> 31</span><span class="s2">  m: [consonant]</span>
+<span class="linenos"> 32</span><span class="s2">  y: [consonant]</span>
+<span class="linenos"> 33</span><span class="s2">  r: [consonant]</span>
+<span class="linenos"> 34</span><span class="s2">  R: [consonant]</span>
+<span class="linenos"> 35</span><span class="s2">  l: [consonant]</span>
+<span class="linenos"> 36</span><span class="s2">  ld: [consonant]</span>
+<span class="linenos"> 37</span><span class="s2">  L: [consonant]</span>
+<span class="linenos"> 38</span><span class="s2">  zh: [consonant]</span>
+<span class="linenos"> 39</span><span class="s2">  v: [consonant]</span>
+<span class="linenos"> 40</span><span class="s2">  sh: [consonant]</span>
+<span class="linenos"> 41</span><span class="s2">  Sh: [consonant]</span>
+<span class="linenos"> 42</span><span class="s2">  s: [consonant]</span>
+<span class="linenos"> 43</span><span class="s2">  h: [consonant]</span>
+<span class="linenos"> 44</span><span class="s2">  x: [consonant]</span>
+<span class="linenos"> 45</span><span class="s2">  kSh: [consonant]</span>
+<span class="linenos"> 46</span><span class="s2">  GY: [consonant]</span>
+<span class="linenos"> 47</span><span class="s2">  j~n: [consonant]</span>
+<span class="linenos"> 48</span><span class="s2">  dny: [consonant]</span>
+<span class="linenos"> 49</span><span class="s2">  q: [consonant]</span>
+<span class="linenos"> 50</span><span class="s2">  K: [consonant]</span>
+<span class="linenos"> 51</span><span class="s2">  G: [consonant]</span>
+<span class="linenos"> 52</span><span class="s2">  J: [consonant]</span>
+<span class="linenos"> 53</span><span class="s2">  z: [consonant]</span>
+<span class="linenos"> 54</span><span class="s2">  .D: [consonant]</span>
+<span class="linenos"> 55</span><span class="s2">  .Dh: [consonant]</span>
+<span class="linenos"> 56</span><span class="s2">  f: [consonant]</span>
+<span class="linenos"> 57</span><span class="s2">  Y: [consonant]</span>
+<span class="linenos"> 58</span><span class="s2">  a: [vowel]</span>
+<span class="linenos"> 59</span><span class="s2">  aa: [vowel]</span>
+<span class="linenos"> 60</span><span class="s2">  A: [vowel]</span>
+<span class="linenos"> 61</span><span class="s2">  i: [vowel]</span>
+<span class="linenos"> 62</span><span class="s2">  ii: [vowel]</span>
+<span class="linenos"> 63</span><span class="s2">  I: [vowel]</span>
+<span class="linenos"> 64</span><span class="s2">  ee: [vowel]</span>
+<span class="linenos"> 65</span><span class="s2">  u: [vowel]</span>
+<span class="linenos"> 66</span><span class="s2">  uu: [vowel]</span>
+<span class="linenos"> 67</span><span class="s2">  U: [vowel]</span>
+<span class="linenos"> 68</span><span class="s2">  RRi: [vowel]</span>
+<span class="linenos"> 69</span><span class="s2">  R^i: [vowel]</span>
+<span class="linenos"> 70</span><span class="s2">  LLi: [vowel]</span>
+<span class="linenos"> 71</span><span class="s2">  L^i: [vowel]</span>
+<span class="linenos"> 72</span><span class="s2">  RRI: [vowel]</span>
+<span class="linenos"> 73</span><span class="s2">  LLI: [vowel]</span>
+<span class="linenos"> 74</span><span class="s2">  a.c: [vowel]</span>
+<span class="linenos"> 75</span><span class="s2">  ^e: [vowel]</span>
+<span class="linenos"> 76</span><span class="s2">  e: [vowel]</span>
+<span class="linenos"> 77</span><span class="s2">  ai: [vowel]</span>
+<span class="linenos"> 78</span><span class="s2">  A.c: [vowel]</span>
+<span class="linenos"> 79</span><span class="s2">  ^o: [vowel]</span>
+<span class="linenos"> 80</span><span class="s2">  o: [vowel]</span>
+<span class="linenos"> 81</span><span class="s2">  au: [vowel]</span>
+<span class="linenos"> 82</span><span class="s2">  &#39; &#39;: [wb,whitespace]</span>
+<span class="linenos"> 83</span><span class="s2">  &quot;</span><span class="se">\t</span><span class="s2">&quot;: [wb,whitespace]</span>
+<span class="linenos"> 84</span><span class="s2">  &#39;,&#39;: [wb]</span>
+<span class="linenos"> 85</span><span class="s2">  .h: [wb]</span>
+<span class="linenos"> 86</span><span class="s2">  H: [wb]</span>
+<span class="linenos"> 87</span><span class="s2">  OM: [wb]</span>
+<span class="linenos"> 88</span><span class="s2">  AUM: [wb]</span>
+<span class="linenos"> 89</span><span class="s2">  &#39;|&#39;: [wb]</span>
+<span class="linenos"> 90</span><span class="s2">  &#39;||&#39;: [wb]</span>
+<span class="linenos"> 91</span><span class="s2">  &#39;0&#39;: [wb]</span>
+<span class="linenos"> 92</span><span class="s2">  &#39;1&#39;: [wb]</span>
+<span class="linenos"> 93</span><span class="s2">  &#39;2&#39;: [wb]</span>
+<span class="linenos"> 94</span><span class="s2">  &#39;3&#39;: [wb]</span>
+<span class="linenos"> 95</span><span class="s2">  &#39;4&#39;: [wb]</span>
+<span class="linenos"> 96</span><span class="s2">  &#39;5&#39;: [wb]</span>
+<span class="linenos"> 97</span><span class="s2">  &#39;6&#39;: [wb]</span>
+<span class="linenos"> 98</span><span class="s2">  &#39;7&#39;: [wb]</span>
+<span class="linenos"> 99</span><span class="s2">  &#39;8&#39;: [wb]</span>
+<span class="linenos">100</span><span class="s2">  &#39;9&#39;: [wb]</span>
+<span class="linenos">101</span><span class="s2">  Rs.: [wb]</span>
+<span class="linenos">102</span><span class="s2">  ~Rs.: [wb]</span>
+<span class="linenos">103</span><span class="s2">  .a: [wb]</span>
+<span class="linenos">104</span><span class="s2">  a.e: [vowel_sign]</span>
+<span class="linenos">105</span><span class="s2">  .N: [vowel_sign]</span>
+<span class="linenos">106</span><span class="s2">  .n: [vowel_sign]</span>
+<span class="linenos">107</span><span class="s2">  M: [vowel_sign]</span>
+<span class="linenos">108</span><span class="s2">  .m: [vowel_sign]</span>
+<span class="linenos">109</span><span class="s2">rules:</span>
+<span class="linenos">110</span><span class="s2">  &quot;</span><span class="se">\t</span><span class="s2">&quot;: &quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+<span class="linenos">111</span><span class="s2">  &#39; &#39;: &#39; &#39;</span>
+<span class="linenos">112</span><span class="s2">  &#39;,&#39;: &#39;,&#39;</span>
+<span class="linenos">113</span><span class="s2">  .D: &quot;</span><span class="se">\N{DEVANAGARI LETTER DDDHA}</span><span class="s2">&quot;</span>
+<span class="linenos">114</span><span class="s2">  .Dh: &quot;</span><span class="se">\N{DEVANAGARI LETTER RHA}</span><span class="s2">&quot;</span>
+<span class="linenos">115</span><span class="s2">  .N: &quot;</span><span class="se">\N{DEVANAGARI SIGN CANDRABINDU}</span><span class="s2">&quot;</span>
+<span class="linenos">116</span><span class="s2">  .a: &quot;</span><span class="se">\N{DEVANAGARI SIGN AVAGRAHA}</span><span class="s2">&quot;</span>
+<span class="linenos">117</span><span class="s2">  .h: &quot;</span><span class="se">\N{DEVANAGARI SIGN VIRAMA}\N{ZERO WIDTH NON-JOINER}</span><span class="s2">&quot;</span>
+<span class="linenos">118</span><span class="s2">  .m: &quot;</span><span class="se">\N{DEVANAGARI SIGN ANUSVARA}</span><span class="s2">&quot;</span>
+<span class="linenos">119</span><span class="s2">  .n: &quot;</span><span class="se">\N{DEVANAGARI SIGN ANUSVARA}</span><span class="s2">&quot;</span>
+<span class="linenos">120</span><span class="s2">  &#39;0&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT ZERO}</span><span class="s2">&quot;</span>
+<span class="linenos">121</span><span class="s2">  &#39;1&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT ONE}</span><span class="s2">&quot;</span>
+<span class="linenos">122</span><span class="s2">  &#39;2&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT TWO}</span><span class="s2">&quot;</span>
+<span class="linenos">123</span><span class="s2">  &#39;3&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT THREE}</span><span class="s2">&quot;</span>
+<span class="linenos">124</span><span class="s2">  &#39;4&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT FOUR}</span><span class="s2">&quot;</span>
+<span class="linenos">125</span><span class="s2">  &#39;5&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT FIVE}</span><span class="s2">&quot;</span>
+<span class="linenos">126</span><span class="s2">  &#39;6&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT SIX}</span><span class="s2">&quot;</span>
+<span class="linenos">127</span><span class="s2">  &#39;7&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT SEVEN}</span><span class="s2">&quot;</span>
+<span class="linenos">128</span><span class="s2">  &#39;8&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT EIGHT}</span><span class="s2">&quot;</span>
+<span class="linenos">129</span><span class="s2">  &#39;9&#39;: &quot;</span><span class="se">\N{DEVANAGARI DIGIT NINE}</span><span class="s2">&quot;</span>
+<span class="linenos">130</span><span class="s2">  &lt;consonant&gt; A: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN AA}</span><span class="s2">&quot;</span>
+<span class="linenos">131</span><span class="s2">  &lt;consonant&gt; A.c: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN CANDRA O}</span><span class="s2">&quot;</span>
+<span class="linenos">132</span><span class="s2">  &lt;consonant&gt; I: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN II}</span><span class="s2">&quot;</span>
+<span class="linenos">133</span><span class="s2">  &lt;consonant&gt; LLI: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN VOCALIC LL}</span><span class="s2">&quot;</span>
+<span class="linenos">134</span><span class="s2">  &lt;consonant&gt; LLi: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN VOCALIC L}</span><span class="s2">&quot;</span>
+<span class="linenos">135</span><span class="s2">  &lt;consonant&gt; L^i: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN VOCALIC L}</span><span class="s2">&quot;</span>
+<span class="linenos">136</span><span class="s2">  &lt;consonant&gt; RRI: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN VOCALIC RR}</span><span class="s2">&quot;</span>
+<span class="linenos">137</span><span class="s2">  &lt;consonant&gt; RRi: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN VOCALIC R}</span><span class="s2">&quot;</span>
+<span class="linenos">138</span><span class="s2">  &lt;consonant&gt; R^i: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN VOCALIC R}</span><span class="s2">&quot;</span>
+<span class="linenos">139</span><span class="s2">  &lt;consonant&gt; U: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN UU}</span><span class="s2">&quot;</span>
+<span class="linenos">140</span><span class="s2">  &lt;consonant&gt; ^e: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN SHORT E}</span><span class="s2">&quot;</span>
+<span class="linenos">141</span><span class="s2">  &lt;consonant&gt; ^o: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN SHORT O}</span><span class="s2">&quot;</span>
+<span class="linenos">142</span><span class="s2">  &lt;consonant&gt; a: &#39;&#39;</span>
+<span class="linenos">143</span><span class="s2">  &lt;consonant&gt; a.c: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN CANDRA E}</span><span class="s2">&quot;</span>
+<span class="linenos">144</span><span class="s2">  &lt;consonant&gt; aa: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN AA}</span><span class="s2">&quot;</span>
+<span class="linenos">145</span><span class="s2">  &lt;consonant&gt; ai: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN AI}</span><span class="s2">&quot;</span>
+<span class="linenos">146</span><span class="s2">  &lt;consonant&gt; au: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN AU}</span><span class="s2">&quot;</span>
+<span class="linenos">147</span><span class="s2">  &lt;consonant&gt; e: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN E}</span><span class="s2">&quot;</span>
+<span class="linenos">148</span><span class="s2">  &lt;consonant&gt; ee: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN II}</span><span class="s2">&quot;</span>
+<span class="linenos">149</span><span class="s2">  &lt;consonant&gt; i: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN I}</span><span class="s2">&quot;</span>
+<span class="linenos">150</span><span class="s2">  &lt;consonant&gt; ii: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN II}</span><span class="s2">&quot;</span>
+<span class="linenos">151</span><span class="s2">  &lt;consonant&gt; o: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN O}</span><span class="s2">&quot;</span>
+<span class="linenos">152</span><span class="s2">  &lt;consonant&gt; u: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN U}</span><span class="s2">&quot;</span>
+<span class="linenos">153</span><span class="s2">  &lt;consonant&gt; uu: &quot;</span><span class="se">\N{DEVANAGARI VOWEL SIGN UU}</span><span class="s2">&quot;</span>
+<span class="linenos">154</span><span class="s2">  A: &quot;</span><span class="se">\N{DEVANAGARI LETTER AA}</span><span class="s2">&quot;</span>
+<span class="linenos">155</span><span class="s2">  A.c: &quot;</span><span class="se">\N{DEVANAGARI LETTER CANDRA O}</span><span class="s2">&quot;</span>
+<span class="linenos">156</span><span class="s2">  AUM: &quot;</span><span class="se">\N{DEVANAGARI OM}</span><span class="s2">&quot;</span>
+<span class="linenos">157</span><span class="s2">  Ch: &quot;</span><span class="se">\N{DEVANAGARI LETTER CHA}</span><span class="s2">&quot;</span>
+<span class="linenos">158</span><span class="s2">  D: &quot;</span><span class="se">\N{DEVANAGARI LETTER DDA}</span><span class="s2">&quot;</span>
+<span class="linenos">159</span><span class="s2">  Dh: &quot;</span><span class="se">\N{DEVANAGARI LETTER DDHA}</span><span class="s2">&quot;</span>
+<span class="linenos">160</span><span class="s2">  G: &quot;</span><span class="se">\N{DEVANAGARI LETTER GHHA}</span><span class="s2">&quot;</span>
+<span class="linenos">161</span><span class="s2">  GY: &quot;</span><span class="se">\N{DEVANAGARI LETTER JA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER NYA}</span><span class="s2">&quot;</span>
+<span class="linenos">162</span><span class="s2">  H: &quot;</span><span class="se">\N{DEVANAGARI SIGN VISARGA}</span><span class="s2">&quot;</span>
+<span class="linenos">163</span><span class="s2">  I: &quot;</span><span class="se">\N{DEVANAGARI LETTER II}</span><span class="s2">&quot;</span>
+<span class="linenos">164</span><span class="s2">  J: &quot;</span><span class="se">\N{DEVANAGARI LETTER ZA}</span><span class="s2">&quot;</span>
+<span class="linenos">165</span><span class="s2">  K: &quot;</span><span class="se">\N{DEVANAGARI LETTER KHHA}</span><span class="s2">&quot;</span>
+<span class="linenos">166</span><span class="s2">  L: &quot;</span><span class="se">\N{DEVANAGARI LETTER LLA}</span><span class="s2">&quot;</span>
+<span class="linenos">167</span><span class="s2">  LLI: &quot;</span><span class="se">\N{DEVANAGARI LETTER VOCALIC LL}</span><span class="s2">&quot;</span>
+<span class="linenos">168</span><span class="s2">  LLi: &quot;</span><span class="se">\N{DEVANAGARI LETTER VOCALIC L}</span><span class="s2">&quot;</span>
+<span class="linenos">169</span><span class="s2">  L^i: &quot;</span><span class="se">\N{DEVANAGARI LETTER VOCALIC L}</span><span class="s2">&quot;</span>
+<span class="linenos">170</span><span class="s2">  M: &quot;</span><span class="se">\N{DEVANAGARI SIGN ANUSVARA}</span><span class="s2">&quot;</span>
+<span class="linenos">171</span><span class="s2">  N: &quot;</span><span class="se">\N{DEVANAGARI LETTER NNA}</span><span class="s2">&quot;</span>
+<span class="linenos">172</span><span class="s2">  OM: &quot;</span><span class="se">\N{DEVANAGARI OM}</span><span class="s2">&quot;</span>
+<span class="linenos">173</span><span class="s2">  R: &quot;</span><span class="se">\N{DEVANAGARI LETTER RRA}</span><span class="s2">&quot;</span>
+<span class="linenos">174</span><span class="s2">  RRI: &quot;</span><span class="se">\N{DEVANAGARI LETTER VOCALIC RR}</span><span class="s2">&quot;</span>
+<span class="linenos">175</span><span class="s2">  RRi: &quot;</span><span class="se">\N{DEVANAGARI LETTER VOCALIC R}</span><span class="s2">&quot;</span>
+<span class="linenos">176</span><span class="s2">  R^i: &quot;</span><span class="se">\N{DEVANAGARI LETTER VOCALIC R}</span><span class="s2">&quot;</span>
+<span class="linenos">177</span><span class="s2">  Rs.: &quot;</span><span class="se">\N{INDIAN RUPEE SIGN}</span><span class="s2">&quot;</span>
+<span class="linenos">178</span><span class="s2">  Sh: &quot;</span><span class="se">\N{DEVANAGARI LETTER SSA}</span><span class="s2">&quot;</span>
+<span class="linenos">179</span><span class="s2">  T: &quot;</span><span class="se">\N{DEVANAGARI LETTER TTA}</span><span class="s2">&quot;</span>
+<span class="linenos">180</span><span class="s2">  Th: &quot;</span><span class="se">\N{DEVANAGARI LETTER TTHA}</span><span class="s2">&quot;</span>
+<span class="linenos">181</span><span class="s2">  U: &quot;</span><span class="se">\N{DEVANAGARI LETTER UU}</span><span class="s2">&quot;</span>
+<span class="linenos">182</span><span class="s2">  Y: &quot;</span><span class="se">\N{DEVANAGARI LETTER YYA}</span><span class="s2">&quot;</span>
+<span class="linenos">183</span><span class="s2">  ^e: &quot;</span><span class="se">\N{DEVANAGARI LETTER SHORT E}</span><span class="s2">&quot;</span>
+<span class="linenos">184</span><span class="s2">  ^n: &quot;</span><span class="se">\N{DEVANAGARI LETTER NNNA}</span><span class="s2">&quot;</span>
+<span class="linenos">185</span><span class="s2">  ^o: &quot;</span><span class="se">\N{DEVANAGARI LETTER SHORT O}</span><span class="s2">&quot;</span>
+<span class="linenos">186</span><span class="s2">  a: &quot;</span><span class="se">\N{DEVANAGARI LETTER A}</span><span class="s2">&quot;</span>
+<span class="linenos">187</span><span class="s2">  a.c: &quot;</span><span class="se">\N{DEVANAGARI LETTER CANDRA E}</span><span class="s2">&quot;</span>
+<span class="linenos">188</span><span class="s2">  a.e: &quot;</span><span class="se">\N{DEVANAGARI LETTER CANDRA A}</span><span class="s2">&quot;</span>
+<span class="linenos">189</span><span class="s2">  aa: &quot;</span><span class="se">\N{DEVANAGARI LETTER AA}</span><span class="s2">&quot;</span>
+<span class="linenos">190</span><span class="s2">  ai: &quot;</span><span class="se">\N{DEVANAGARI LETTER AI}</span><span class="s2">&quot;</span>
+<span class="linenos">191</span><span class="s2">  au: &quot;</span><span class="se">\N{DEVANAGARI LETTER AU}</span><span class="s2">&quot;</span>
+<span class="linenos">192</span><span class="s2">  b: &quot;</span><span class="se">\N{DEVANAGARI LETTER BA}</span><span class="s2">&quot;</span>
+<span class="linenos">193</span><span class="s2">  bh: &quot;</span><span class="se">\N{DEVANAGARI LETTER BHA}</span><span class="s2">&quot;</span>
+<span class="linenos">194</span><span class="s2">  ch: &quot;</span><span class="se">\N{DEVANAGARI LETTER CA}</span><span class="s2">&quot;</span>
+<span class="linenos">195</span><span class="s2">  chh: &quot;</span><span class="se">\N{DEVANAGARI LETTER CHA}</span><span class="s2">&quot;</span>
+<span class="linenos">196</span><span class="s2">  d: &quot;</span><span class="se">\N{DEVANAGARI LETTER DA}</span><span class="s2">&quot;</span>
+<span class="linenos">197</span><span class="s2">  dh: &quot;</span><span class="se">\N{DEVANAGARI LETTER DHA}</span><span class="s2">&quot;</span>
+<span class="linenos">198</span><span class="s2">  dny: &quot;</span><span class="se">\N{DEVANAGARI LETTER JA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER NYA}</span><span class="s2">&quot;</span>
+<span class="linenos">199</span><span class="s2">  e: &quot;</span><span class="se">\N{DEVANAGARI LETTER E}</span><span class="s2">&quot;</span>
+<span class="linenos">200</span><span class="s2">  ee: &quot;</span><span class="se">\N{DEVANAGARI LETTER II}</span><span class="s2">&quot;</span>
+<span class="linenos">201</span><span class="s2">  f: &quot;</span><span class="se">\N{DEVANAGARI LETTER FA}</span><span class="s2">&quot;</span>
+<span class="linenos">202</span><span class="s2">  g: &quot;</span><span class="se">\N{DEVANAGARI LETTER GA}</span><span class="s2">&quot;</span>
+<span class="linenos">203</span><span class="s2">  gh: &quot;</span><span class="se">\N{DEVANAGARI LETTER GHA}</span><span class="s2">&quot;</span>
+<span class="linenos">204</span><span class="s2">  h: &quot;</span><span class="se">\N{DEVANAGARI LETTER HA}</span><span class="s2">&quot;</span>
+<span class="linenos">205</span><span class="s2">  i: &quot;</span><span class="se">\N{DEVANAGARI LETTER I}</span><span class="s2">&quot;</span>
+<span class="linenos">206</span><span class="s2">  ii: &quot;</span><span class="se">\N{DEVANAGARI LETTER II}</span><span class="s2">&quot;</span>
+<span class="linenos">207</span><span class="s2">  j: &quot;</span><span class="se">\N{DEVANAGARI LETTER JA}</span><span class="s2">&quot;</span>
+<span class="linenos">208</span><span class="s2">  jh: &quot;</span><span class="se">\N{DEVANAGARI LETTER JHA}</span><span class="s2">&quot;</span>
+<span class="linenos">209</span><span class="s2">  j~n: &quot;</span><span class="se">\N{DEVANAGARI LETTER JA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER NYA}</span><span class="s2">&quot;</span>
+<span class="linenos">210</span><span class="s2">  k: &quot;</span><span class="se">\N{DEVANAGARI LETTER KA}</span><span class="s2">&quot;</span>
+<span class="linenos">211</span><span class="s2">  kSh: &quot;</span><span class="se">\N{DEVANAGARI LETTER KA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER SSA}</span><span class="s2">&quot;</span>
+<span class="linenos">212</span><span class="s2">  kh: &quot;</span><span class="se">\N{DEVANAGARI LETTER KHA}</span><span class="s2">&quot;</span>
+<span class="linenos">213</span><span class="s2">  l: &quot;</span><span class="se">\N{DEVANAGARI LETTER LA}</span><span class="s2">&quot;</span>
+<span class="linenos">214</span><span class="s2">  ld: &quot;</span><span class="se">\N{DEVANAGARI LETTER LLA}</span><span class="s2">&quot;</span>
+<span class="linenos">215</span><span class="s2">  m: &quot;</span><span class="se">\N{DEVANAGARI LETTER MA}</span><span class="s2">&quot;</span>
+<span class="linenos">216</span><span class="s2">  n: &quot;</span><span class="se">\N{DEVANAGARI LETTER NA}</span><span class="s2">&quot;</span>
+<span class="linenos">217</span><span class="s2">  o: &quot;</span><span class="se">\N{DEVANAGARI LETTER O}</span><span class="s2">&quot;</span>
+<span class="linenos">218</span><span class="s2">  p: &quot;</span><span class="se">\N{DEVANAGARI LETTER PA}</span><span class="s2">&quot;</span>
+<span class="linenos">219</span><span class="s2">  ph: &quot;</span><span class="se">\N{DEVANAGARI LETTER PHA}</span><span class="s2">&quot;</span>
+<span class="linenos">220</span><span class="s2">  q: &quot;</span><span class="se">\N{DEVANAGARI LETTER QA}</span><span class="s2">&quot;</span>
+<span class="linenos">221</span><span class="s2">  r: &quot;</span><span class="se">\N{DEVANAGARI LETTER RA}</span><span class="s2">&quot;</span>
+<span class="linenos">222</span><span class="s2">  s: &quot;</span><span class="se">\N{DEVANAGARI LETTER SA}</span><span class="s2">&quot;</span>
+<span class="linenos">223</span><span class="s2">  sh: &quot;</span><span class="se">\N{DEVANAGARI LETTER SHA}</span><span class="s2">&quot;</span>
+<span class="linenos">224</span><span class="s2">  t: &quot;</span><span class="se">\N{DEVANAGARI LETTER TA}</span><span class="s2">&quot;</span>
+<span class="linenos">225</span><span class="s2">  th: &quot;</span><span class="se">\N{DEVANAGARI LETTER THA}</span><span class="s2">&quot;</span>
+<span class="linenos">226</span><span class="s2">  u: &quot;</span><span class="se">\N{DEVANAGARI LETTER U}</span><span class="s2">&quot;</span>
+<span class="linenos">227</span><span class="s2">  uu: &quot;</span><span class="se">\N{DEVANAGARI LETTER UU}</span><span class="s2">&quot;</span>
+<span class="linenos">228</span><span class="s2">  v: &quot;</span><span class="se">\N{DEVANAGARI LETTER VA}</span><span class="s2">&quot;</span>
+<span class="linenos">229</span><span class="s2">  x: &quot;</span><span class="se">\N{DEVANAGARI LETTER KA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER SSA}</span><span class="s2">&quot;</span>
+<span class="linenos">230</span><span class="s2">  y: &quot;</span><span class="se">\N{DEVANAGARI LETTER YA}</span><span class="s2">&quot;</span>
+<span class="linenos">231</span><span class="s2">  z: &quot;</span><span class="se">\N{DEVANAGARI LETTER ZA}</span><span class="s2">&quot;</span>
+<span class="linenos">232</span><span class="s2">  zh: &quot;</span><span class="se">\N{DEVANAGARI LETTER LLLA}</span><span class="s2">&quot;</span>
+<span class="linenos">233</span><span class="s2">  &#39;|&#39;: &quot;</span><span class="se">\N{DEVANAGARI DANDA}</span><span class="s2">&quot;</span>
+<span class="linenos">234</span><span class="s2">  &#39;||&#39;: &quot;</span><span class="se">\N{DEVANAGARI DOUBLE DANDA}</span><span class="s2">&quot;</span>
+<span class="linenos">235</span><span class="s2">  ~N: &quot;</span><span class="se">\N{DEVANAGARI LETTER NGA}</span><span class="s2">&quot;</span>
+<span class="linenos">236</span><span class="s2">  ~Rs.: &quot;</span><span class="se">\N{INDIAN RUPEE SIGN}</span><span class="s2">&quot;</span>
+<span class="linenos">237</span><span class="s2">  ~n: &quot;</span><span class="se">\N{DEVANAGARI LETTER NYA}</span><span class="s2">&quot;</span>
+<span class="linenos">238</span><span class="s2">  &quot;</span><span class="se">\N{LATIN SMALL LETTER N WITH DOT ABOVE}</span><span class="s2">&quot;: &quot;</span><span class="se">\N{DEVANAGARI LETTER NGA}</span><span class="s2">&quot;</span>
+<span class="linenos">239</span><span class="s2">onmatch_rules:</span>
+<span class="linenos">240</span><span class="s2">- &lt;consonant&gt; + &lt;consonant&gt;: &quot;</span><span class="se">\N{DEVANAGARI SIGN VIRAMA}</span><span class="s2">&quot;</span>
+<span class="linenos">241</span><span class="s2">whitespace:</span>
+<span class="linenos">242</span><span class="s2">  consolidate: false</span>
+<span class="linenos">243</span><span class="s2">  default: &#39; &#39;</span>
+<span class="linenos">244</span><span class="s2">  token_class: whitespace</span>
+<span class="linenos">245</span><span class="s2">metadata:</span>
+<span class="linenos">246</span><span class="s2">  title: ITRANS to Unicode</span>
+<span class="linenos">247</span><span class="s2">  version: 0.1.0</span>
+<span class="linenos">248</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">249</span><span class="n">gt</span> <span class="o">=</span> <span class="n">GraphTransliterator</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">easyreading_yaml</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</section>
+<section id="transliterating">
+<h2>Transliterating<a class="headerlink" href="#transliterating" title="Link to this heading"></a></h2>
+<p>With the transliterator created, you can now transliterate using
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">GraphTransliterator.transliterate()</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">250</span><span class="n">gt</span><span class="o">.</span><span class="n">transliterate</span><span class="p">(</span><span class="s2">&quot;aaj mausam ba.Daa beiimaan hai, aaj mausam&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;आज मौसम बड़ा बेईमान है, आज मौसम&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="other-information">
+<h2>Other Information<a class="headerlink" href="#other-information" title="Link to this heading"></a></h2>
+<p>Graph Transliterator has a few other tools built in that are for more
+specialized applications.</p>
+<p>If you want to  receive the details of the most recent transliteration, access
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.last_matched_rules</span></code> to get this list of rules
+matched:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">251</span><span class="n">gt</span><span class="o">.</span><span class="n">last_matched_rules</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[TransliterationRule(production=&#39;आ&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;aa&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ज&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;j&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39; &#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;म&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;m&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ौ&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;au&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;स&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;s&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;म&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;m&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39; &#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ब&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;b&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;ड़&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;.D&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ा&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;aa&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39; &#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ब&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;b&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;े&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;e&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;ई&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;ii&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;म&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;m&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ा&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;aa&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;न&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;n&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39; &#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ह&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;h&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ै&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;ai&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;,&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;,&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39; &#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;आ&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;aa&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ज&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;j&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39; &#39;, prev_classes=None, prev_tokens=None, tokens=[&#39; &#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;म&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;m&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;ौ&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;au&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;स&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;s&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562),
+ TransliterationRule(production=&#39;&#39;, prev_classes=[&#39;consonant&#39;], prev_tokens=None, tokens=[&#39;a&#39;], next_tokens=None, next_classes=None, cost=0.41503749927884376),
+ TransliterationRule(production=&#39;म&#39;, prev_classes=None, prev_tokens=None, tokens=[&#39;m&#39;], next_tokens=None, next_classes=None, cost=0.5849625007211562)]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Or if you just want to know the tokens matched by each rule, check
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.last_matched_rule_tokens</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">252</span><span class="n">gt</span><span class="o">.</span><span class="n">last_matched_rule_tokens</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>[[&#39;aa&#39;],
+ [&#39;j&#39;],
+ [&#39; &#39;],
+ [&#39;m&#39;],
+ [&#39;au&#39;],
+ [&#39;s&#39;],
+ [&#39;a&#39;],
+ [&#39;m&#39;],
+ [&#39; &#39;],
+ [&#39;b&#39;],
+ [&#39;a&#39;],
+ [&#39;.D&#39;],
+ [&#39;aa&#39;],
+ [&#39; &#39;],
+ [&#39;b&#39;],
+ [&#39;e&#39;],
+ [&#39;ii&#39;],
+ [&#39;m&#39;],
+ [&#39;aa&#39;],
+ [&#39;n&#39;],
+ [&#39; &#39;],
+ [&#39;h&#39;],
+ [&#39;ai&#39;],
+ [&#39;,&#39;],
+ [&#39; &#39;],
+ [&#39;aa&#39;],
+ [&#39;j&#39;],
+ [&#39; &#39;],
+ [&#39;m&#39;],
+ [&#39;au&#39;],
+ [&#39;s&#39;],
+ [&#39;a&#39;],
+ [&#39;m&#39;]]
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can access the directed tree used by GraphTransliterator using
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">GraphTransliterator.graph</span></code>:</p>
+<div class="jupyter_cell jupyter_container docutils container">
+<div class="cell_input code_cell docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">253</span><span class="n">gt</span><span class="o">.</span><span class="n">graph</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;graphtransliterator.graphs.DirectedGraph at 0x10c8f8250&gt;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli.html" class="btn btn-neutral float-left" title="Command Line Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced_tutorial.html" class="btn btn-neutral float-right" title="Advanced Tutorial: Bundling a Transliterator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Michigan State University.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
