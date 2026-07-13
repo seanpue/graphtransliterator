@@ -19,10 +19,16 @@ History
 
 ?.?.? (2026-)
 ------------------
-* updated readthedocs config, Makefile, and docs/conf.py for new poetry integration
-* move to a poly-monorepo setup
-* dropped Python 3.9 support
-* added type annotation
+* Migrated repository to a structured Poetry-based monorepo workspace layout.
+* Moved the core Python library into ``packages/graphtransliterator-py``, utilizing a src-layout structure.
+* Configured the workspace root as a non-package project manager to handle local dependencies in editable mode.
+* Implemented strict static typing across the entire codebase, achieving 100% compliance with ``mypy``.
+* Added explicit type annotations for all functions, methods, variables, and properties (enforcing ``disallow_untyped_defs``).
+* Refactored runtime coverage instrumentation classes (``VisitLoggingList``, ``VisitLoggingDict``) using structured transparent proxy objects (``OnMatchRuleProxy``) to monitor rule matching accurately.
+* Eliminated dynamic method override warnings by standardizing class composition methods using ``setattr``.
+* Resolved nested resource path evaluation errors in Sphinx documentation generation caused by the new src-layout structure.
+* Updated readthedocs config, Makefile, and docs/conf.py for new poetry integration.
+* Dropped Python 3.9 support.
 
 1.3.1 (2026-07-11)
 ------------------
