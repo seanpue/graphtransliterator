@@ -1,5 +1,5 @@
 # Define the browser command for opening docs (fallback to open on macOS / xdg-open on Linux)
-BROWSER := $(shell which open 2>/dev/null || check which xdg-open 2>/dev/null || echo "echo Cannot open")
+BROWSER := $(shell which open 2>/dev/null || which xdg-open 2>/dev/null || echo "echo Cannot open")
 
 .DEFAULT_GOAL := help
 
@@ -43,6 +43,10 @@ build: clean-build ## Build wheel file using poetry
 clean-build: ## Clean build artifacts
 	rm -rf dist
 
+.PHONY: clean-docs
+clean-docs: ## Clean documentation build artifacts
+	rm -rf docs/_build
+
 .PHONY: publish
 publish: ## Publish a release to PyPI
 	@echo "🚀 Publishing: Dry run."
@@ -56,14 +60,13 @@ build-and-publish: build publish ## Build and publish
 
 .PHONY: docs-test
 docs-test: ## Test if documentation can be built without warnings or errors
-	poetry run $(MAKE) -C docs html
+	poetry run sphinx-build -b html docs docs/_build/html
 
 .PHONY: docs
-docs: ## Build and serve the documentation
-	poetry run $(MAKE) -C docs clean
-	poetry run $(MAKE) -C docs html
+docs: clean-docs ## Build and serve the documentation
+	poetry run sphinx-build -b html docs docs/_build/html
 	$(BROWSER) docs/_build/html/index.html
 
 .PHONY: servedocs
 servedocs: docs ## Compile the docs watching for changes
-	poetry run watchmedo shell-command -p '*.py;*.rst;*ipynb;*md' -c '$(MAKE) -C docs html' -R -D .
+	poetry run watchmedo shell-command -p '*.py;*.rst;*ipynb;*md' -c 'poetry run sphinx-build -b html docs docs/_build/html' -R -D .
