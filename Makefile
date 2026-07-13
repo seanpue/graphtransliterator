@@ -1,16 +1,19 @@
-.PHONY: clean
+.PHONY: clean-build
+clean-build: ## Remove python build artifacts
+	rm -rf packages/graphtransliterator-py/dist
+	rm -rf packages/graphtransliterator-py/build
 
-clean:
-	@echo "Cleaning up build artifacts, caches, and docs..."
-	rm -rf .tox/
-	rm -rf .pytest_cache/
-	rm -rf .mypy_cache/
-	rm -rf .coverage
-	rm -f coverage.xml
-	rm -rf dist/
-	rm -rf build/
-	rm -rf *.egg-info/
-	rm -rf packages/graphtransliterator-py/docs/_build/
+.PHONY: clean-docs
+clean-docs: ## Remove documentation build artifacts
+	rm -rf packages/graphtransliterator-py/docs/_build
+
+.PHONY: clean
+clean: clean-build clean-docs ## Remove all build, test, and lint cache artifacts
+	rm -rf packages/graphtransliterator-py/.pytest_cache
+	rm -rf packages/graphtransliterator-py/.mypy_cache
+	rm -rf packages/graphtransliterator-py/.coverage
+	rm -rf packages/graphtransliterator-py/htmlcov
+	rm -f packages/graphtransliterator-py/coverage.xml
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.py[co]" -delete
-	@echo "✨ Everything is fresh and clean!"
+	@echo "✨ Workspace is completely clean!"
