@@ -18,8 +18,8 @@ build:
         # 3. Tell poetry NOT to create its own virtualenv
         - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry config virtualenvs.create false
 
-        # 4. Install all your project dependencies AND your dev group plugins (jupyter-sphinx, etc.)
-        - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install --with dev
+        # 4. Explicitly pass the active environment path so poetry drops packages in the right sandbox
+        - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install --with dev
 
         # 5. Manually trigger the Sphinx build
         - $READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
