@@ -19,7 +19,7 @@ History
 
 ?.?.? (2026-)
 ------------------
-* updated readthedocs config
+* updated readthedocs config, Makefile, and docs/conf.py for new poetry integration
 
 1.3.1 (2026-07-11)
 ------------------

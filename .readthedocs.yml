@@ -1,27 +1,21 @@
 # .readthedocs.yml
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-# Required
 version: 2
 
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-    configuration: docs/conf.py
-
-# Optionally build your docs in additional formats such as PDF and ePub
 formats: all
 
 build:
     os: ubuntu-22.04
     tools:
         python: "3.11"
-    jobs:
-        post_create_environment:
-            # Install poetry directly into the Read the Docs virtual environment
-            - $READTHEDOCS_VIRTUALENV_PATH/bin/pip install "poetry>=2.0.0,<3.0.0"
-            # FORCE poetry to install globally inside this specific environment context
-            - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry config virtualenvs.create false
-        post_install:
-            # Install dependencies cleanly into the RTD environment
-            - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install
+    commands:
+        # 1. Install poetry using the RTD virtual environment pip
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/pip install "poetry>=2.0.0,<3.0.0"
+
+        # 2. Tell poetry NOT to create its own virtualenv (forces it to install right here)
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry config virtualenvs.create false
+
+        # 3. Install all your project dependencies (like marshmallow) into the RTD environment
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install
+
+        # 4. Manually trigger the Sphinx build using the RTD environment python
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
