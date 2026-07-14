@@ -5,7 +5,6 @@
 import graphtransliterator
 import graphtransliterator.compression as compression
 from graphtransliterator import GraphTransliterator
-import json
 import pytest
 
 
@@ -51,7 +50,7 @@ def test_compression():
     compressed_config = compression.compress_config(gt.dump())
     decompressed_config = compression.decompress_config(compressed_config)
     gt_from_decompressed = GraphTransliterator.load(decompressed_config)
-    
+
     # Verify underlying configurations and behavior instead of order-dependent list dicts
     assert gt.tokens == gt_from_decompressed.tokens
     assert gt.rules == gt_from_decompressed.rules
