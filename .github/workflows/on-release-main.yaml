@@ -75,4 +75,4 @@ jobs:
             - name: Publish to npm via OIDC
               run: |
                   pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
-                  pnpm publish --no-git-checks --provenance
+                  npm publish --provenance
