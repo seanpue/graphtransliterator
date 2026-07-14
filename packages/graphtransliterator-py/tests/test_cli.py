@@ -89,7 +89,7 @@ def test_cli_generate_tests():
     gen_tests_result = runner.invoke(cli.main, ["generate-tests", "--from", "bundled", "Example"])
     assert gen_tests_result.exit_code == 0
     yaml_ = yaml.safe_load(StringIO(gen_tests_result.output))
-    assert len(yaml_) == 5 and type(yaml_) is dict
+    assert len(yaml_) == 5 and isinstance(yaml_, dict)
 
 
 def test_cli_dump():

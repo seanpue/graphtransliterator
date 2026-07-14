@@ -176,7 +176,7 @@ def compress_config(config: dict[str, Any], compression_level: int = 1) -> Any:
 
 def _strip_empty(d: dict[str, Any]) -> dict[str, Any]:
     """Strips entries of dict with no value, but allow zero."""
-    return {k: v for k, v in d.items() if v or (type(v) is int and v == 0) or (type(v) is str and v == "")}
+    return {k: v for k, v in d.items() if v or (isinstance(v, int) and v == 0) or (isinstance(v, str) and v == "")}
 
 
 def decompress_config(compressed_config: tuple[Any, ...]) -> dict[str, Any]:

@@ -437,7 +437,7 @@ def test_serialization():
     # test dumps
     x = gt.dumps()
     assert "graph" in gt.dumps()
-    assert type(x) is str
+    assert isinstance(x, str)
     # test loads
     new_gt = GraphTransliterator.loads(x)
     assert GraphTransliterator.loads(gt.dumps()).dumps()

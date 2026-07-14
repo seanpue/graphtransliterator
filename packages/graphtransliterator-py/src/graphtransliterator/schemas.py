@@ -230,7 +230,7 @@ class NodeDataSchema(Schema):
     @pre_dump
     def strip_empty(self, data: NodeData, **kwargs: Any) -> dict[str, Any]:
         """Remove keys with empty values, allowing zero."""
-        _data = {k: v for k, v in data.items() if v or (type(v) is int and v == 0)}
+        _data = {k: v for k, v in data.items() if v or (isinstance(v, int) and v == 0)}
         return _data
 
 
