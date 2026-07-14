@@ -1,0 +1,29 @@
+{
+  "name": "graphtransliterator-ts",
+  "version": "1.0.0",
+  "description": "TypeScript implementation of Graph Transliterator",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --clean && tsc --emitDeclarationOnly --outDir dist",
+    "watch": "tsup src/index.ts --format cjs,esm --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2"
+  }
+}
