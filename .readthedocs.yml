@@ -6,7 +6,7 @@ formats: all
 build:
     os: ubuntu-22.04
     tools:
-        python: "3.11"
+        python: "3.10"
     commands:
         # 1. Manually create the virtual environment
         - python -m virtualenv $READTHEDOCS_VIRTUALENV_PATH
@@ -18,8 +18,8 @@ build:
         # 3. Tell poetry NOT to create its own virtualenv
         - $READTHEDOCS_VIRTUALENV_PATH/bin/poetry config virtualenvs.create false
 
-        # 4. Explicitly pass the active environment path so poetry drops packages in the right sandbox
-        - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install --with dev
+        # 4. Run poetry install INSIDE the subpackage directory
+        - cd packages/graphtransliterator-py && VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH $READTHEDOCS_VIRTUALENV_PATH/bin/poetry install --with dev
 
-        # 5. Manually trigger the Sphinx build
-        - $READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+        # 5. Manually trigger the Sphinx build using the updated paths
+        - $READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx -T -b html -d packages/graphtransliterator-py/_build/doctrees -D language=en packages/graphtransliterator-py/docs $READTHEDOCS_OUTPUT/html

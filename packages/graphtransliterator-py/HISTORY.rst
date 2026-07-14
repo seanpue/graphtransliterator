@@ -17,7 +17,7 @@ History
 -------
 * Add on/off switch characters
 
-?.?.? (2026-)
+1.3.2 (2026-07-13)
 ------------------
 * Migrated repository to a structured Poetry-based monorepo workspace layout.
 * Moved the core Python library into ``packages/graphtransliterator-py``, utilizing a src-layout structure.

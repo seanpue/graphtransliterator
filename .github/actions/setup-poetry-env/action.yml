@@ -5,7 +5,12 @@ inputs:
     python-version:
         required: false
         description: "The python version to use"
-        default: "3.11"
+        default: "3.10"
+    # 👇 Add this new input to handle your subpackage path
+    working-directory:
+        required: false
+        description: "The directory where the python package lives"
+        default: "packages/graphtransliterator-py"
 
 runs:
     using: "composite"
@@ -23,10 +28,14 @@ runs:
           id: cached-poetry-dependencies
           uses: actions/cache@v4
           with:
-              path: .venv
-              key: venv-${{ runner.os }}-${{ inputs.python-version }}-${{ hashFiles('poetry.lock') }}
+              # 👇 Scopes the cache path to the subpackage
+              path: ${{ inputs.working-directory }}/.venv
+              # 👇 Finds the correct subpackage lockfile
+              key: venv-${{ runner.os }}-${{ inputs.python-version }}-${{ hashFiles(format('{0}/poetry.lock', inputs.working-directory)) }}
 
         - name: Install dependencies
           if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+          # 👇 Forces poetry to run inside the subpackage folder
+          working-directory: ${{ inputs.working-directory }}
           run: poetry install --no-interaction
           shell: bash

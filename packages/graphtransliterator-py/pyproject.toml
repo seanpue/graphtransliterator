@@ -1,6 +1,6 @@
 [project]
 name = "graphtransliterator"
-version = "1.3.1"
+version = "1.3.2"
 description = "A graph-based transliteration tool"
 authors = [{ name = "A. Sean Pue", email = "seanpue@users.noreply.github.com" }]
 license = "MIT"
