@@ -72,6 +72,9 @@ jobs:
             - name: Build package
               run: pnpm run build
 
+            - name: Upgrade npm CLI
+              run: npm install -g npm@latest
+
             - name: Publish to npm via OIDC
               run: |
                   pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
