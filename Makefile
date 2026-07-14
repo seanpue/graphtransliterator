@@ -4,8 +4,14 @@ install: ## Install environments for all subpackages
 	pnpm install
 
 .PHONY: check
-check: ## Run linting on all subpackages
+check: check-py check-ts ## Run linting on all subpackages
+
+.PHONY: check-py
+check-py: ## Run Python-only checks
 	$(MAKE) -C packages/graphtransliterator-py check
+
+.PHONY: check-ts
+check-ts: ## Run TS-only checks
 	pnpm --filter graphtransliterator-ts run lint
 
 .PHONY: test
