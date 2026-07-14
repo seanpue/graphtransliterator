@@ -52,12 +52,14 @@ jobs:
               with:
                   version: 9
                   cache: true
-                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
+                  # 🌟 Fix: Corrected to snake_case input parameters
+                  cache_dependency_path: packages/graphtransliterator-ts/pnpm-lock.yaml
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 22
+                  # 🌟 Fix: Upgraded to Node 24 to match modern runner defaults natively
+                  node-version: 24
 
             - name: Export tag
               id: vars
@@ -77,5 +79,7 @@ jobs:
 
             - name: Publish to npm via OIDC
               run: |
+                  # 🌟 Fix: Clear setup-node's default runner lockfile to prevent OIDC interference
+                  rm -f .npmrc ~/.npmrc
                   pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
                   npm publish --provenance --registry=https://registry.npmjs.org/
