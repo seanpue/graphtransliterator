@@ -60,3 +60,36 @@ jobs:
             - name: Upload coverage reports to Codecov with GitHub Action on Python 3.10
               uses: codecov/codecov-action@v4
               if: ${{ matrix.python-version == '3.10' }}
+    # Add this alongside your 'quality' and 'tox' jobs
+    typescript-tests:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: packages/graphtransliterator-ts
+        steps:
+            - name: Check out
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-index: 20
+                  cache: "pnpm"
+                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Lint and Format Check
+              run: pnpm run lint
+
+            - name: Build TypeScript
+              run: pnpm run build
+
+            - name: Run Tests
+              run: pnpm run test

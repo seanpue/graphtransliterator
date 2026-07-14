@@ -3,12 +3,10 @@ name: release-main
 on:
     release:
         types: [published]
-        branches: [main]
 
 jobs:
-    publish:
+    publish-py:
         runs-on: ubuntu-latest
-        # 👇 This ensures the job ONLY executes if your release tag starts with 'py-'
         if: startsWith(github.ref_name, 'py-')
         defaults:
             run:
@@ -23,18 +21,97 @@ jobs:
             - name: Export tag
               id: vars
               run: |
-                  # github.ref_name is just the tag name (e.g., py-v1.3.2)
                   RAW_TAG="${{ github.ref_name }}"
-                  # Strip 'py-v' prefix to isolate the raw semver (e.g., 1.3.2)
                   CLEAN_VERSION="${RAW_TAG#py-v}"
                   echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
 
             - name: Build and publish
               run: |
-                  # Automatically synchronize pyproject.toml version with your git tag
                   poetry version ${{ steps.vars.outputs.version }}
                   poetry build
                   poetry publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
               env:
                   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
                   RELEASE_VERSION: ${{ steps.vars.outputs.version }}
+
+    publish-ts:
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref_name, 'ts-')
+        # 👇 REQUIRED: Grants permission to mint the secure OIDC identity token
+        permissions:
+            id-token: write
+            contents: read
+        defaults:
+            run:
+                working-directory: packages/graphtransliterator-ts
+        steps:
+            - name: Check out
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22 # Recommended engine for OIDC publishing
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build package
+              run: pnpm run build
+
+            - name: Publish via OIDC Trusted Publishing
+              # Notice: No NODE_AUTH_TOKEN required!
+              run: |
+                  pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version
+                  pnpm publish --no-git-checks
+        runs-on: ubuntu-latest
+        # 👇 This ensures the job ONLY executes if your release tag starts with 'ts-'
+        if: startsWith(github.ref_name, 'ts-')
+        defaults:
+            run:
+                working-directory: packages/graphtransliterator-ts
+        steps:
+            - name: Check out
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  registry-url: "https://registry.npmjs.org"
+                  cache: "pnpm"
+                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
+
+            - name: Export tag
+              id: vars
+              run: |
+                  RAW_TAG="${{ github.ref_name }}"
+                  # Strip 'ts-v' prefix to isolate the raw semver (e.g., 0.9.0)
+                  CLEAN_VERSION="${RAW_TAG#ts-v}"
+                  echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build package
+              run: pnpm run build
+
+            - name: Publish to npm
+              # pnpm publish reads the version directly from package.json,
+              # but passing the explicit tag version keeps it perfectly matched.
+              run: |
+                  pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version
+                  pnpm publish --no-git-checks
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
