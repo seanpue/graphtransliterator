@@ -19,11 +19,16 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --clean && tsc --emitDeclarationOnly --outDir dist",
-    "watch": "tsup src/index.ts --format cjs,esm --watch"
+    "watch": "tsup src/index.ts --format cjs,esm --watch",
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
     "tsup": "^8.5.1",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
   }
 }
