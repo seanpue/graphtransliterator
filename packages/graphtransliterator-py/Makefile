@@ -74,7 +74,17 @@ docs-test: ## Test if documentation can be built without warnings or errors
 	poetry run sphinx-build -b html docs docs/_build/html
 
 .PHONY: docs
-docs: clean-docs ## Build and serve the documentation
+docs:
+	rm -rf docs/_build
+	# 1. Automatically regenerate TypeScript Markdown docs using the isolated sandbox
+	npx --prefix $$(mktemp -d) --package=typescript@5.7.3 --package=typedoc --package=typedoc-plugin-markdown \
+		typedoc \
+		--plugin typedoc-plugin-markdown \
+		--entryPoints ../graphtransliterator-ts/src/index.ts \
+		--out docs/typescript_api \
+		--readme none \
+		--skipErrorChecking true
+	# 2. Build the Sphinx documentation
 	poetry run sphinx-build -b html docs docs/_build/html
 	$(BROWSER) docs/_build/html/index.html
 

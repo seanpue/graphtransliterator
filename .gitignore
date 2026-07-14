@@ -160,3 +160,25 @@ cython_debug/
 #.idea/
 *.swp
 _build/
+
+# ==========================================
+# TypeScript / Node / pnpm Configuration
+# ==========================================
+
+# Dependencies
+node_modules/
+.pnpm-debug.log*
+
+# Build Outputs
+/packages/graphtransliterator-ts/dist/
+
+# TypeScript / Build Caches
+*.tsbuildinfo
+.eslintcache
+.tsup/
+
+# IDE and Environment Variables
+.env
+.env.local
+.env.*.local
+.DS_Store

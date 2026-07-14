@@ -64,4 +64,41 @@ describe("GraphTransliterator Core Framework", () => {
         expect(ruleIds.length).toBeGreaterThanOrEqual(1);
         expect(typeof ruleIds[0]).toBe("number");
     });
+
+    // =============================================================================
+    // RULE PRUNING METHOD TESTS
+    // =============================================================================
+    describe("Rule Pruning via prunedOf", () => {
+        it("should return a new instance and leave the original instance unmutated", () => {
+            const prunedGt = gt.prunedOf("C*2");
+
+            expect(prunedGt).not.toBe(gt);
+            // Verify original instance still processes complex 'cc' rules
+            expect(transliterate("cc", gt)).toBe("C*2");
+            // Verify new instance successfully fell back to individual 'c' rules
+            expect(transliterate("cc", prunedGt)).toBe("CC");
+        });
+
+        it("should accept a single string production and filter it out completely", () => {
+            const prunedGt = gt.prunedOf("a_before_class_c");
+
+            // Contextual 'ac' rule should be dropped, falling back to literal 'a' + 'c'
+            expect(transliterate("ac", prunedGt)).toBe("AC");
+        });
+
+        it("should accept an array of strings and drop multiple matching rules simultaneously", () => {
+            const prunedGt = gt.prunedOf(["C*2", "a_after_bb"]);
+
+            // Both targeted custom pathways should fallback cleanly
+            expect(transliterate("cc", prunedGt)).toBe("CC");
+            expect(transliterate("bba", prunedGt)).toBe("BBA");
+        });
+
+        it("should handle pruning non-existent productions gracefully without altering behavior", () => {
+            const prunedGt = gt.prunedOf("NON_EXISTENT_PRODUCTION");
+
+            expect(transliterate("cc", prunedGt)).toBe("C*2");
+            expect(transliterate("ac", prunedGt)).toBe("a_before_class_cC");
+        });
+    });
 });

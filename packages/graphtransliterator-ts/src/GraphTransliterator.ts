@@ -156,6 +156,30 @@ export class GraphTransliterator {
         this.tokenizerPatternStr = config.tokenizerPatternStr;
         this.graph = config.graph;
     }
+
+    /**
+     * Returns a new GraphTransliterator instance with rules filtered out
+     * based on their production outputs.
+     */
+    public prunedOf(productions: string | string[]): GraphTransliterator {
+        const prodSet = new Set(
+            typeof productions === "string" ? [productions] : productions,
+        );
+
+        // Filter the existing rules array down
+        const prunedRules = this.rules.filter(
+            (rule) => !prodSet.has(rule.production),
+        );
+
+        // Re-compile a fresh engine instance using your factory function
+        return graphTransliterator({
+            tokens: this.tokens,
+            rules: prunedRules,
+            whitespaceRule: this.whiteSpace,
+            onMatchRules: this.onMatchRules,
+            metadata: this.metadata,
+        });
+    }
 }
 
 // =============================================================================

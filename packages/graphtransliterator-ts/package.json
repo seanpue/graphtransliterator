@@ -1,7 +1,13 @@
 {
   "name": "graphtransliterator-ts",
-  "version": "1.0.0",
-  "description": "TypeScript implementation of Graph Transliterator",
+  "version": "0.9.0",
+  "description": "A high-performance string matching and deterministic token transformation graph framework",
+  "homepage": "https://graphtransliterator.readthedocs.io/en/latest/typescript.html",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seanpue/graphtransliterator.git",
+    "directory": "packages/graphtransliterator-ts"
+  },
   "private": false,
   "type": "module",
   "main": "./dist/index.cjs",
@@ -25,7 +31,8 @@
   "devDependencies": {
     "@types/node": "^26.1.1",
     "tsup": "^8.5.1",
-    "typescript": "^7.0.2",
+    "typedoc-plugin-markdown": "^4.12.0",
+    "typescript": "^5.7.2",
     "vitest": "^4.1.10"
   },
   "dependencies": {

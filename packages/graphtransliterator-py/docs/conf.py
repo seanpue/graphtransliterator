@@ -20,6 +20,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_issues",
     "jupyter_sphinx",
+    "myst_parser",
 ]
 
 # Github repo settings
@@ -30,7 +31,10 @@ issues_commit_uri = "https://github.com/seanpue/graphtransliterator/commit/{comm
 
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 templates_path = ["_templates"]
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 
 # Modernized root document config
 root_doc = "index"

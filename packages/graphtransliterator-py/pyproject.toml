@@ -45,6 +45,8 @@ pytest-cov = "^4.1.0"
 ruff = "^0.15.21"
 types-pyyaml = "^6.0.12.20260518"
 mypy = "^2.3.0"
+sphinx-js = "^5.0.3"
+myst-parser = ">=2.0.0,<4.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -80,7 +82,7 @@ source = ["graphtransliterator"]
 
 [tool.deptry]
 known_first_party = ["graphtransliterator"]
-exclude = ["docs", "tests"]
+exclude = ["docs", "tests", ".tox"]
 
 [tool.deptry.per_rule_ignores]
 DEP003 = ["pytest"]

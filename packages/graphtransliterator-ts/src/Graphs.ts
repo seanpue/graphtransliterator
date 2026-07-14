@@ -170,7 +170,7 @@ export function getEdge<T, N, E>(
  * Returns an ordered array of children node identifiers connected directly from a parent node.
  * Achieves high performance by leveraging the pre-compiled O(1) successors lookup index.
  *
- * @ordering Sorted ascending by numeric NodeId values.
+ * Ordering: Sorted ascending by numeric NodeId values.
  */
 export function childrenOf<T, N, E>(
     graph: DirectedGraph<T, N, E>,
@@ -184,7 +184,7 @@ export function childrenOf<T, N, E>(
  * Returns an ordered array of parent node identifiers feeding into a child target node.
  * Achieves high performance by leveraging the pre-compiled O(1) predecessors lookup index.
  *
- * @ordering Sorted ascending by numeric NodeId values.
+ * Ordering: Sorted ascending by numeric NodeId values.
  */
 export function parentsOf<T, N, E>(
     graph: DirectedGraph<T, N, E>,

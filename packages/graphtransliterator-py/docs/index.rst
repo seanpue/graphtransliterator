@@ -27,6 +27,7 @@
    acknowledgements
    kudos
    history
+   typescript
 
 Indices and tables
 ==================

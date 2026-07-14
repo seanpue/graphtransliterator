@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "build:ts": "pnpm --filter graphtransliterator-ts build",
+    "test:ts": "pnpm --filter graphtransliterator-ts test",
+    "test:py": "cd packages/graphtransliterator-py && poetry run pytest",
+    "docs:build": "cd packages/graphtransliterator-py && make docs"
+  }
+}
