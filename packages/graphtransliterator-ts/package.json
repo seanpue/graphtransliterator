@@ -1,41 +1,44 @@
 {
-  "name": "graphtransliterator-ts",
-  "version": "0.9.0",
-  "description": "A high-performance string matching and deterministic token transformation graph framework",
-  "homepage": "https://graphtransliterator.readthedocs.io/en/latest/typescript.html",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/seanpue/graphtransliterator.git",
-    "directory": "packages/graphtransliterator-ts"
-  },
-  "private": false,
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --clean && tsc --emitDeclarationOnly --outDir dist",
-    "watch": "tsup src/index.ts --format cjs,esm --watch",
-    "test": "vitest run"
-  },
-  "devDependencies": {
-    "@types/node": "^26.1.1",
-    "tsup": "^8.5.1",
-    "typedoc-plugin-markdown": "^4.12.0",
-    "typescript": "^5.7.2",
-    "vitest": "^4.1.10"
-  },
-  "dependencies": {
-    "yaml": "^2.9.0"
-  }
+	"name": "graphtransliterator-ts",
+	"version": "0.9.0",
+	"description": "A high-performance string matching and deterministic token transformation graph framework",
+	"homepage": "https://graphtransliterator.readthedocs.io/en/latest/typescript.html",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/seanpue/graphtransliterator.git",
+		"directory": "packages/graphtransliterator-ts"
+	},
+	"private": false,
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup src/index.ts --format cjs,esm --clean && tsc --emitDeclarationOnly --outDir dist",
+		"watch": "tsup src/index.ts --format cjs,esm --watch",
+		"test": "vitest run",
+		"lint": "biome check src/ tests/",
+		"lint:fix": "biome check --write src/ tests/"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.3",
+		"@types/node": "^26.1.1",
+		"tsup": "^8.5.1",
+		"typedoc-plugin-markdown": "^4.12.0",
+		"typescript": "^5.7.2",
+		"vitest": "^4.1.10"
+	},
+	"dependencies": {
+		"yaml": "^2.9.0"
+	}
 }

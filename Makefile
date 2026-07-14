@@ -6,8 +6,7 @@ install: ## Install environments for all subpackages
 .PHONY: check
 check: ## Run linting on all subpackages
 	$(MAKE) -C packages/graphtransliterator-py check
-	# If you add a lint script to your TS package later, uncomment below:
-	# pnpm --filter graphtransliterator-ts run lint
+	pnpm --filter graphtransliterator-ts run lint
 
 .PHONY: test
 test: ## Run test suites for all languages

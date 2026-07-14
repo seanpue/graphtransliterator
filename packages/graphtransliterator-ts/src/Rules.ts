@@ -29,13 +29,13 @@ export type Cost = number;
  * string output to be produced, as well as the rule's cost.
  */
 export interface TransliterationRule {
-    production: Production;
-    prevClasses?: TokenClasses | null;
-    prevTokens?: Tokens | null;
-    tokens: Tokens;
-    nextTokens?: Tokens | null;
-    nextClasses?: TokenClasses | null;
-    cost: Cost;
+	production: Production;
+	prevClasses?: TokenClasses | null;
+	prevTokens?: Tokens | null;
+	tokens: Tokens;
+	nextTokens?: Tokens | null;
+	nextClasses?: TokenClasses | null;
+	cost: Cost;
 }
 
 /** Array of `TransliterationRule` */
@@ -47,10 +47,10 @@ export type TransliterationRules = TransliterationRule[];
  * Whitespace rules of a GraphTransliterator
  */
 export interface WhitespaceRule {
-    consolidate: boolean;
-    /** Standard token substitution for consolidated whitespace chunks. */
-    defaultToken: Token;
-    tokenClass: TokenClass;
+	consolidate: boolean;
+	/** Standard token substitution for consolidated whitespace chunks. */
+	defaultToken: Token;
+	tokenClass: TokenClass;
 }
 
 // ---------- On Match ----------
@@ -59,9 +59,9 @@ export interface WhitespaceRule {
  * Rules about adding text between certain combinations of matched rules.
  */
 export interface OnMatchRule {
-    prevClasses: TokenClasses;
-    nextClasses: TokenClasses;
-    production: Production;
+	prevClasses: TokenClasses;
+	nextClasses: TokenClasses;
+	production: Production;
 }
 
 /** Array of `OnMatchRule` */
@@ -77,22 +77,21 @@ export type OnMatchRuleIds = OnMatchRuleId[];
 
 /** Calculate number of tokens in a rule. */
 function numTokensOf(
-    prevClasses: TokenClasses | null | undefined,
-    prevTokens: Tokens | null | undefined,
-    tokens: Tokens,
-    nextTokens: Tokens | null | undefined,
-    nextClasses: TokenClasses | null | undefined,
+	prevClasses: TokenClasses | null | undefined,
+	prevTokens: Tokens | null | undefined,
+	tokens: Tokens,
+	nextTokens: Tokens | null | undefined,
+	nextClasses: TokenClasses | null | undefined,
 ): number {
-    const maybeLen = <T>(arr: T[] | null | undefined): number =>
-        arr?.length ?? 0;
+	const maybeLen = <T>(arr: T[] | null | undefined): number => arr?.length ?? 0;
 
-    return (
-        maybeLen(prevClasses) +
-        maybeLen(prevTokens) +
-        tokens.length +
-        maybeLen(nextTokens) +
-        maybeLen(nextClasses)
-    );
+	return (
+		maybeLen(prevClasses) +
+		maybeLen(prevTokens) +
+		tokens.length +
+		maybeLen(nextTokens) +
+		maybeLen(nextClasses)
+	);
 }
 
 /**
@@ -102,18 +101,18 @@ function numTokensOf(
  * have lower cost and should be tried first (i.e. sort ascending by cost).
  */
 export function costOf(
-    prevClasses: TokenClasses | null | undefined,
-    prevTokens: Tokens | null | undefined,
-    tokens: Tokens,
-    nextTokens: Tokens | null | undefined,
-    nextClasses: TokenClasses | null | undefined,
+	prevClasses: TokenClasses | null | undefined,
+	prevTokens: Tokens | null | undefined,
+	tokens: Tokens,
+	nextTokens: Tokens | null | undefined,
+	nextClasses: TokenClasses | null | undefined,
 ): Cost {
-    const n: number = numTokensOf(
-        prevClasses,
-        prevTokens,
-        tokens,
-        nextTokens,
-        nextClasses,
-    );
-    return 1 / (1 + n);
+	const n: number = numTokensOf(
+		prevClasses,
+		prevTokens,
+		tokens,
+		nextTokens,
+		nextClasses,
+	);
+	return 1 / (1 + n);
 }

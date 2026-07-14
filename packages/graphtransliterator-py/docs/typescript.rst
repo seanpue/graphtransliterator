@@ -38,10 +38,10 @@ The following script loads an EasyReading configuration setup, initializes rules
 
 .. code-block:: typescript
 
-   import { 
-       fromEasyReadingSettings, 
-       graphTransliterator, 
-       transliterate 
+   import {
+       fromEasyReadingSettings,
+       graphTransliterator,
+       transliterate
    } from "graphtransliterator-ts";
 
    // 1. Declare tokens, classes, and contextual logic rules
@@ -71,7 +71,7 @@ The following script loads an EasyReading configuration setup, initializes rules
 
    // 3. Process inputs through the compiled framework
    const result = transliterate("ac", gt);
-   console.log(result); 
+   console.log(result);
    // Returns: "a_before_class_cC"
 
 
