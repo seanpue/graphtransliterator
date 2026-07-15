@@ -49,7 +49,7 @@ export type TransliterationRules = TransliterationRule[];
 export interface WhitespaceRule {
 	consolidate: boolean;
 	/** Standard token substitution for consolidated whitespace chunks. */
-	defaultToken: Token;
+	default: Token;
 	tokenClass: TokenClass;
 }
 

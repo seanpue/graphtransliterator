@@ -27,7 +27,7 @@ describe("GraphTransliterator Core Framework", () => {
 		},
 		whitespace: {
 			consolidate: true,
-			defaultToken: " ",
+			default: " ",
 			tokenClass: "wb",
 		},
 	};

@@ -50,7 +50,7 @@ import {
 
 export interface RawWhitespaceRule {
 	consolidate: boolean;
-	defaultToken: string;
+	default: string;
 	token_class: string;
 }
 
@@ -327,7 +327,7 @@ export function fromEasyReadingYaml(yamlString: string): GraphTransliterator {
 		onmatch_rules: raw.onmatch_rules,
 		whitespace: {
 			consolidate: raw.whitespace.consolidate,
-			defaultToken: raw.whitespace.defaultToken,
+			default: raw.whitespace.default,
 			tokenClass: raw.whitespace.token_class,
 		},
 		metadata: raw.metadata,
@@ -540,7 +540,7 @@ export function* productionsOf(gt: GraphTransliterator): Generator<Production> {
 // =============================================================================
 
 export function tokenize(input: string, gt: GraphTransliterator): Tokens {
-	const tokens: Tokens = [gt.whiteSpace.defaultToken];
+	const tokens: Tokens = [gt.whiteSpace.default];
 	let matchAt = 0;
 
 	const isWhitespace = (tok: string): boolean => {
@@ -576,7 +576,7 @@ export function tokenize(input: string, gt: GraphTransliterator): Tokens {
 		}
 	}
 
-	tokens.push(gt.whiteSpace.defaultToken);
+	tokens.push(gt.whiteSpace.default);
 	return tokens;
 }
 
