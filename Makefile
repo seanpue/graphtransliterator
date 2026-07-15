@@ -12,12 +12,12 @@ check-py: ## Run Python-only checks
 
 .PHONY: check-ts
 check-ts: ## Run TS-only checks
-	pnpm --filter graphtransliterator-ts run lint
+	pnpm --filter graphtransliterator run lint
 
 .PHONY: test
 test: ## Run test suites for all languages
 	$(MAKE) -C packages/graphtransliterator-py test
-	pnpm --filter graphtransliterator-ts test
+	pnpm --filter graphtransliterator test
 
 .PHONY: clean
 clean: ## Delegate cleaning down to the subpackage directory
