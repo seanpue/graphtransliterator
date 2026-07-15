@@ -48,20 +48,19 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Install pnpm
+              # 🌟 Pinned to v4.2.0 to bypass upstream pnpm action store path resolution bugs
               uses: pnpm/action-setup@v4.2.0
               with:
                   version: 9
-                  # 🌟 Cleaned up inputs: Setup-Node (below) handles the caching natively
-                  # which prevents any setup-pnpm action warnings!
+                  cache: true
+                  cache_dependency_path: packages/graphtransliterator-ts/pnpm-lock.yaml
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 24
                   registry-url: "https://registry.npmjs.org"
-                  # 🌟 Handing caching to actions/setup-node instead of pnpm-setup
-                  cache: "pnpm"
-                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
+                  # 🌟 Cache config removed here to prevent setup-node conflicts with pnpm's global store path
 
             - name: Export tag
               id: vars
@@ -79,5 +78,4 @@ jobs:
             - name: Publish to npm via OIDC
               run: |
                   pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
-                  # 🌟 Added '--access public' to allow first-time provenance generation
                   npm publish --provenance --access public
