@@ -1,44 +1,80 @@
-publish-ts:
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref_name, 'ts-')
-    permissions:
-        id-token: write
-        contents: read
-    defaults:
-        run:
-            working-directory: packages/graphtransliterator-ts
-    steps:
-        - name: Check out
-          uses: actions/checkout@v4
+name: release-main
 
-        - name: Install pnpm
-          # 🌟 Pinned to v4.2.0 to bypass upstream pnpm action store path resolution bugs
-          uses: pnpm/action-setup@v4.2.0
-          with:
-              version: 9
-              # ❌ Invalid cache inputs completely removed!
+on:
+    release:
+        types: [published]
 
-        - name: Set up Node.js
-          uses: actions/setup-node@v4
-          with:
-              node-version: 24
-              registry-url: "https://registry.npmjs.org"
-              # 🌟 Cache config removed here to prevent setup-node conflicts with pnpm's global store path
+jobs:
+    publish-py:
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref_name, 'py-')
+        defaults:
+            run:
+                working-directory: packages/graphtransliterator-py
+        steps:
+            - name: Check out
+              uses: actions/checkout@v4
 
-        - name: Export tag
-          id: vars
-          run: |
-              RAW_TAG="${{ github.ref_name }}"
-              CLEAN_VERSION="${RAW_TAG#ts-v}"
-              echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+            - name: Set up the environment
+              uses: ./.github/actions/setup-poetry-env
 
-        - name: Install dependencies
-          run: pnpm install --frozen-lockfile
+            - name: Export tag
+              id: vars
+              run: |
+                  RAW_TAG="${{ github.ref_name }}"
+                  CLEAN_VERSION="${RAW_TAG#py-v}"
+                  echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
 
-        - name: Build package
-          run: pnpm run build
+            - name: Build and publish
+              run: |
+                  poetry version ${{ steps.vars.outputs.version }}
+                  poetry build
+                  poetry publish --username __token__ --password ${{ secrets.PYPI_TOKEN }}
+              env:
+                  PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+                  RELEASE_VERSION: ${{ steps.vars.outputs.version }}
 
-        - name: Publish to npm via OIDC
-          run: |
-              pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
-              npm publish --provenance --access public
+    publish-ts:
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref_name, 'ts-')
+        permissions:
+            id-token: write
+            contents: read
+        defaults:
+            run:
+                working-directory: packages/graphtransliterator-ts
+        steps:
+            - name: Check out
+              uses: actions/checkout@v4
+
+            - name: Install pnpm
+              # 🌟 Pinned to v4.2.0 to bypass upstream pnpm action store path resolution bugs
+              uses: pnpm/action-setup@v4.2.0
+              with:
+                  version: 9
+                  # ❌ Invalid cache inputs completely removed!
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  registry-url: "https://registry.npmjs.org"
+                  # 🌟 Cache config removed here to prevent setup-node conflicts with pnpm's global store path
+
+            - name: Export tag
+              id: vars
+              run: |
+                  RAW_TAG="${{ github.ref_name }}"
+                  CLEAN_VERSION="${RAW_TAG#ts-v}"
+                  echo "version=${CLEAN_VERSION}" >> $GITHUB_OUTPUT
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build package
+              run: pnpm run build
+
+            - name: Publish to npm via OIDC
+              run: |
+                  pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
+                  npm publish --provenance --access public
