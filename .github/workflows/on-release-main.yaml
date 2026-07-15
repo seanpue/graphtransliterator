@@ -38,7 +38,7 @@ jobs:
         runs-on: ubuntu-latest
         if: startsWith(github.ref_name, 'ts-')
         permissions:
-            id-token: write
+            id-token: write # 🌟 Required for OIDC
             contents: read
         defaults:
             run:
@@ -52,14 +52,13 @@ jobs:
               with:
                   version: 9
                   cache: true
-                  # 🌟 Fix: Corrected to snake_case input parameters
                   cache_dependency_path: packages/graphtransliterator-ts/pnpm-lock.yaml
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  # 🌟 Fix: Upgraded to Node 24 to match modern runner defaults natively
                   node-version: 24
+                  registry-url: "https://registry.npmjs.org" # 🌟 Instructs setup-node to prepare OIDC handshaking
 
             - name: Export tag
               id: vars
@@ -74,12 +73,7 @@ jobs:
             - name: Build package
               run: pnpm run build
 
-            - name: Upgrade npm CLI
-              run: npm install -g npm@latest
-
             - name: Publish to npm via OIDC
               run: |
-                  # 🌟 Fix: Clear setup-node's default runner lockfile to prevent OIDC interference
-                  rm -f .npmrc ~/.npmrc
                   pnpm version ${{ steps.vars.outputs.version }} --no-git-tag-version --allow-same-version
-                  npm publish --provenance --registry=https://registry.npmjs.org/
+                  npm publish --provenance
