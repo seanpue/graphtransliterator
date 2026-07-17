@@ -12,7 +12,8 @@ check-py: ## Run Python-only checks
 
 .PHONY: check-ts
 check-ts: ## Run TS-only checks
-	pnpm --filter graphtransliterator run lint
+	pnpm --filter graphtransliterator lint
+	pnpm --filter graphtransliterator test:types
 
 .PHONY: test
 test: ## Run test suites for all languages
