@@ -1,0 +1,26 @@
+{
+  "folders": [
+    {
+      "name": "root-configs",
+      "path": "."
+    },
+    {
+      "name": "graphtransliterator-py",
+      "path": "packages/graphtransliterator-py"
+    },
+    {
+      "name": "graphtransliterator-ts",
+      "path": "packages/graphtransliterator-ts"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/__pycache__": true,
+      "**/.pytest_cache": true,
+      "**/.tox": true
+    },
+    "editor.formatOnSave": true
+  }
+}

@@ -35,4 +35,3 @@ fix-py: ## Automatically fix and format Python code
 .PHONY: fix-ts
 fix-ts: ## Automatically fix and format TypeScript code
 	pnpm --filter graphtransliterator lint:fix
-
