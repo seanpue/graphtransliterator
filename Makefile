@@ -24,3 +24,15 @@ test: ## Run test suites for all languages
 clean: ## Delegate cleaning down to the subpackage directory
 	$(MAKE) -C packages/graphtransliterator-py clean
 	rm -rf packages/graphtransliterator-ts/dist
+
+.PHONY: fix
+fix: fix-py fix-ts ## Automatically fix format/lint errors across the entire monorepo
+
+.PHONY: fix-py
+fix-py: ## Automatically fix and format Python code
+	cd packages/graphtransliterator-py && poetry run ruff check --fix . && poetry run ruff format .
+
+.PHONY: fix-ts
+fix-ts: ## Automatically fix and format TypeScript code
+	pnpm --filter graphtransliterator lint:fix
+

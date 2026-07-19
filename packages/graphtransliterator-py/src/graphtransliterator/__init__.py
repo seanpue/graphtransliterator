@@ -8,7 +8,7 @@ graphtransliterator
 """
 
 __author__ = """A. Sean Pue"""
-__email__ = "pue@msu.edu"
+__email__ = "pue@umd.edu"
 __version__ = "1.2.4"
 
 # Core classes
