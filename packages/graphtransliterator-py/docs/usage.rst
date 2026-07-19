@@ -480,8 +480,8 @@ and initialized directly using basic Python types passed as dictionary to
 This feature can be useful if generating a Graph Transliterator using code as opposed to
 a configuration file.
 
-You can inspect the fully parsed and optimized configurations of an active engine at any 
-time via the public :attr:`GraphTransliterator.settings` property. This outputs a 
+You can inspect the fully parsed and optimized configurations of an active engine at any
+time via the public :attr:`GraphTransliterator.settings` property. This outputs a
 structured dictionary conforming strictly to the internal schemas:
 
 .. jupyter-execute::
@@ -788,7 +788,7 @@ rules. That can be done using :meth:`pruned_of`:
 Merging Transliterators
 -----------------------
 
-Two independent :class:`GraphTransliterator` instances can be combined into a single, comprehensive instance. This can be accomplished using either the :meth:`merge` method or the intuitive ``+`` operator override. 
+Two independent :class:`GraphTransliterator` instances can be combined into a single, comprehensive instance. This can be accomplished using either the :meth:`merge` method or the intuitive ``+`` operator override.
 
 During a merge operation, the underlying transliteration rules, tokens, contextual ``onmatch_rules``, and optional ``metadata`` dictionaries from both instances are consolidated.
 
@@ -829,9 +829,9 @@ We can verify that the metadata maps from both instances were safely merged as w
 Merging Raw Easy Reading Configurations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Compiling state graphs can be computationally expensive. If you are stacking multiple 
-language parameters or profile layers dynamically, you can use the static utility 
-:meth:`GraphTransliterator.merge_easyreading_configs` to merge raw configurations at 
+Compiling state graphs can be computationally expensive. If you are stacking multiple
+language parameters or profile layers dynamically, you can use the static utility
+:meth:`GraphTransliterator.merge_easyreading_configs` to merge raw configurations at
 the dictionary level before instantiating the main graph:
 
 .. jupyter-execute::
@@ -850,10 +850,54 @@ the dictionary level before instantiating the main graph:
 
   # Combine configurations natively using the static utility
   merged_config = GraphTransliterator.merge_easyreading_configs(config_a, config_b)
-  
+
   # Instantiating the graph only once
   gt_compiled = GraphTransliterator.from_easyreading_dict(merged_config)
   gt_compiled.transliterate("ab")
+
+Subgraph Injection
+------------------
+
+You can inject one :class:`GraphTransliterator` as a subgraph extension into another using :meth:`inject_subgraph` or the ``>>`` operator override.
+
+.. jupyter-execute::
+  :linenos:
+
+  gt_base = GraphTransliterator.from_yaml("""
+      tokens: {a: [vowel], ' ': [wb]}
+      rules: {a: A}
+      whitespace: {default: ' ', consolidate: true, token_class: wb}
+  """)
+
+  gt_sub = GraphTransliterator.from_yaml("""
+      tokens: {b: [consonant], ' ': [wb]}
+      rules: {b: B}
+      whitespace: {default: ' ', consolidate: true, token_class: wb}
+  """)
+
+  # Inject gt_sub into gt_base using the '>>' operator
+  injected_gt = gt_base >> gt_sub
+  injected_gt.transliterate("ab")
+
+Subgraph operations can also be chained across multiple instances:
+
+.. jupyter-execute::
+
+  gt_sub2 = GraphTransliterator.from_yaml("""
+      tokens: {c: [consonant], ' ': [wb]}
+      rules: {c: C}
+      whitespace: {default: ' ', consolidate: true, token_class: wb}
+  """)
+
+  chained_gt = gt_base >> gt_sub >> gt_sub2
+  chained_gt.transliterate("abc")
+
+When calling :meth:`inject_subgraph` directly, optional parameters such as ``prefix_tokens`` can be supplied to automatically prepend lookbehind constraints onto the injected ruleset:
+
+.. jupyter-execute::
+
+  # Prepend lookbehind requirement ['a'] onto rules injected from gt_sub
+  prefixed_gt = gt_base.inject_subgraph(gt_sub, prefix_tokens=["a"])
 
 Internal Graph
 ==============

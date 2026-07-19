@@ -22,7 +22,7 @@ next release
 * Added a type-safe static method ``merge_easyreading_configs()`` to combine raw Easy Reading dictionary setups before compiling state graphs.
 * added py.typed
 * Added a ``merge()`` method to ``GraphTransliterator`` to combine rules, tokens, and optional metadata from two independent transliterator configurations into a single instance.
-* Added support for the ``+`` operator override (``__add__``) to allow intuitive combining of ``GraphTransliterator`` instances (e.g., ``gt1 + gt2``).
+* Added support for the ``+`` operator override (``__add__``) and ``>>`` operator override (``__rshift__``) to allow intuitive combining of ``GraphTransliterator`` instances (e.g., ``gt1 + gt2``, ``gt1 >> gt2 >> gt3``).
 * Added validation checking during merge operations to ensure matching structural whitespace configurations before combining profiles.
 
 1.3.2 (2026-07-13)

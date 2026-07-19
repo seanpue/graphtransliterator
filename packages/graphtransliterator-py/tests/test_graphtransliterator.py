@@ -3,22 +3,32 @@
 
 """Tests for `graphtransliterator` package."""
 
-# from click.testing import CliRunner
+import re
+from itertools import combinations
+from typing import cast
+
+import pytest
+import yaml
+from marshmallow import ValidationError
+
+import graphtransliterator
 from graphtransliterator import process
-from graphtransliterator.core import GraphTransliterator
+from graphtransliterator.core import CoverageTransliterator, GraphTransliterator
 from graphtransliterator.exceptions import (
+    IncompleteOnMatchRulesCoverageException,
     IncorrectVersionException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
 from graphtransliterator.graphs import DirectedGraph
+from graphtransliterator.initialize import (
+    _onmatch_rule_of,
+    _transliteration_rule_of,
+    _whitespace_rules_of,
+)
 from graphtransliterator.rules import OnMatchRule, TransliterationRule, WhitespaceRules
-from itertools import combinations
-from marshmallow import ValidationError
-import graphtransliterator
-import pytest
-import re
-import yaml
+from graphtransliterator.schemas import SettingsSchema
+from graphtransliterator.types import EasyReadingDict, EdgeData
 
 yaml_for_test = r"""
 tokens:
@@ -195,14 +205,20 @@ def test_GraphTransliterator_from_YAML():
 
 
 def test_graphtransliterator_process():
-    """Test graphtransliterator proccessing of rules."""
+    """Test graphtransliterator processing of rules."""
 
     data = yaml.safe_load(yaml_for_test)
 
-    assert process._process_rules({"a": "A"})[0]["tokens"] == ["a"]
-    assert process._process_rules({"a": "A"})[0]["production"] == "A"
-    assert process._process_onmatch_rules(data["onmatch_rules"])[0]["prev_classes"][0] == "class1"
-    assert process._process_onmatch_rules(data["onmatch_rules"])[0]["next_classes"][0] == "class2"
+    processed_rule = process._process_rules({"a": "A"})[0]
+    assert processed_rule.get("tokens") == ["a"]
+    assert processed_rule.get("production") == "A"
+
+    processed_onmatch = process._process_onmatch_rules(data["onmatch_rules"])[0]
+    prev_classes = processed_onmatch.get("prev_classes")
+    next_classes = processed_onmatch.get("next_classes")
+
+    assert prev_classes and prev_classes[0] == "class1"
+    assert next_classes and next_classes[0] == "class2"
 
 
 def test_graphtransliterator_models():
@@ -217,7 +233,6 @@ def test_graphtransliterator_models():
         cost=1,
     )
     assert tr.cost == 1
-    # assert TransliteratorOutput([tr], 'A').output == 'A'
     assert OnMatchRule(prev_classes=["class1"], next_classes=["class2"], production=",")
     assert WhitespaceRules(default=" ", token_class="wb", consolidate=False)
 
@@ -231,33 +246,33 @@ def test_graphtransliterator_structures():
     # test with node data
     graph.add_node({"type": "test1"})
     graph.add_node({"type": "test2"})
-    assert graph.node[0]["type"] == "test1"
-    assert graph.node[1]["type"] == "test2"
+    assert graph.node[0].get("type") == "test1"
+    assert graph.node[1].get("type") == "test2"
     # test if no node data
     graph.add_node()  # 2
     # test add_edge
-    graph.add_edge(0, 1, {"type": "edge_test1"})
-    assert graph.edge[0][1]["type"] == "edge_test1"
+    graph.add_edge(0, 1, cast(EdgeData, {"type": "edge_test1"}))
+    assert graph.edge and graph.edge[0][1].get("type") == "edge_test1"
     # test add_edge with no edge data
     graph.add_edge(1, 2)
     # edge tail not in graph
     with pytest.raises(ValueError):
-        graph.add_edge(0, 7, {})
+        graph.add_edge(0, 7, cast(EdgeData, {}))
     # edge head not in graph
     with pytest.raises(ValueError):
-        graph.add_edge(7, 0, {})
+        graph.add_edge(7, 0, cast(EdgeData, {}))
     # invalid edge data
     with pytest.raises(ValueError):
-        graph.add_edge(0, 1, "not a dict")
+        graph.add_edge(0, 1, "not a dict")  # type: ignore[arg-type]
     # invalid edge head type
     with pytest.raises(ValueError):
-        graph.add_edge("zero", 1)
+        graph.add_edge("zero", 1)  # type: ignore[arg-type]
     # invalid edge tail type
     with pytest.raises(ValueError):
-        graph.add_edge(1, "zero")
+        graph.add_edge(1, "zero")  # type: ignore[arg-type]
     # invalid node data
     with pytest.raises(ValueError):
-        graph.add_node("Not a dict")
+        graph.add_node("Not a dict")  # type: ignore[arg-type]
     # test edge_list
     assert len(graph.edge_list) > 1
     # test create graph without node, edges but not edge_list ads edge_list
@@ -305,8 +320,6 @@ def test_GraphTransliterator_transliterate(tmpdir):
     assert gt.transliterate("aa") == "AA"
     # rules with multiple tokens (for rule_key)
     assert gt.transliterate("cc") == "C*2"
-    # # rules with multiple tokens overlapping end of tokens
-    # assert gt.transliterate('c') == 'C'
 
     # rules with prev class
     assert gt.transliterate("ca") == "CA"
@@ -521,6 +534,8 @@ def test_GraphTransliterator(tmpdir):
     input_dict = yaml.safe_load(yaml_str)
     assert "a" in GraphTransliterator.from_easyreading_dict(input_dict).tokens.keys()
     gt = GraphTransliterator.from_easyreading_dict(input_dict)
+    # Assert gt.metadata is present to satisfy type checkers
+    assert gt.onmatch_rules is not None
     assert gt.onmatch_rules[0].production == ","
     assert gt.tokens
     assert gt.rules
@@ -528,6 +543,7 @@ def test_GraphTransliterator(tmpdir):
     assert gt.whitespace.default
     assert gt.whitespace.token_class
     assert gt.whitespace.consolidate
+    assert gt.metadata is not None
     assert gt.metadata["author"] == "Author"
     assert isinstance(gt.graph, DirectedGraph)
     yaml_file = tmpdir.join("yaml_test.yaml")
@@ -627,11 +643,11 @@ def test_GraphTransliterator_types():
 
     graph.add_node({"type": "test1"})
     graph.add_node({"type": "test2"})
-    assert graph.node[0]["type"] == "test1"
-    assert graph.node[1]["type"] == "test2"
+    assert graph.node[0].get("type") == "test1"
+    assert graph.node[1].get("type") == "test2"
 
-    graph.add_edge(0, 1, {"type": "edge_test1"})
-    assert graph.edge[0][1]["type"] == "edge_test1"
+    graph.add_edge(0, 1, cast(EdgeData, {"type": "edge_test1"}))
+    assert graph.edge and graph.edge[0][1].get("type") == "edge_test1"
 
 
 def test_GraphTransliterator_productions():
@@ -673,11 +689,8 @@ def test_GraphTransliterator_graph():
     settings = {"tokens": tokens, "rules": rules, "whitespace": whitespace}
     gt = GraphTransliterator.from_easyreading_dict(settings)
     assert gt._graph
-    assert gt._graph.node[0]["type"] == "Start"  # test for Start
+    assert gt._graph.node[0].get("type") == "Start"  # test for Start
     assert gt
-
-
-from graphtransliterator.schemas import SettingsSchema
 
 
 def test_graph_transliterator_settings_property():
@@ -712,3 +725,220 @@ def test_graph_transliterator_settings_property():
     # This guarantees that the dictionary perfectly matches SettingsSchema requirements.
     validated_data = SettingsSchema().load(current_settings)
     assert validated_data is not None
+
+
+def test_lookahead_and_lookbehind_edge_cases():
+    """Direct programmatic test for negative matches, combined constraints, and fallbacks."""
+    YAML = r"""
+    tokens:
+        a: [vowel]
+        b: [consonant]
+        x: [prefix]
+        y: [suffix]
+        " ": [wb]
+    rules:
+        # Fallback rules
+        a: A
+        b: B
+        x: X
+        y: Y
+        
+        # Combined lookbehind AND lookahead constraint
+        (x) a (y): A_CENTERED
+        
+        # Multi-class lookahead
+        b <vowel> <consonant>: B_BEFORE_VOWEL_CONSONANT
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    gt = GraphTransliterator.from_yaml(YAML)
+
+    # 1. Combined lookbehind + lookahead succeeds
+    assert gt.transliterate("xay") == "XA_CENTEREDY"
+
+    # 2. Combined lookbehind + lookahead fails when suffix missing (falls back to 'A')
+    assert gt.transliterate("xab") == "XAB"
+
+    # 3. Combined lookbehind + lookahead fails when prefix missing
+    assert gt.transliterate("bay") == "BAY"
+
+    # 4. Multi-class lookahead
+    assert gt.transliterate("bab") == "B_BEFORE_VOWEL_CONSONANTAB"
+
+
+# ---------------------------------------------------------------------------
+# 1. Test Compression Level Validation
+# ---------------------------------------------------------------------------
+def test_dump_invalid_compression_level():
+    gt = GraphTransliterator.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """
+    )
+    with pytest.raises(ValueError, match="Compression level must be between 0 and 2"):
+        gt.dump(compression_level=99)
+
+
+def test_merge_mismatched_whitespace_and_operator_add():
+    gt1 = GraphTransliterator.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """
+    )
+    gt2 = GraphTransliterator.from_yaml(
+        """
+        tokens: {b: [c2], '_': [wb]}
+        rules: {b: B}
+        whitespace: {default: '_', consolidate: false, token_class: wb}
+        """
+    )
+
+    # Whitespace mismatch should raise ValueError on merge
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
+        gt1.merge(gt2)
+
+    # Adding non-GraphTransliterator should return NotImplemented
+    assert gt1.__add__("not_a_gt_instance") == NotImplemented  # type: ignore[arg-type]
+
+    # Successful merge with new tokens in gt3
+    gt3 = GraphTransliterator.from_yaml(
+        """
+        tokens: {b: [c2], ' ': [wb]}
+        rules: {b: B}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """
+    )
+    merged = gt1 + gt3
+    assert "b" in merged.tokens
+
+
+# ---------------------------------------------------------------------------
+# 3. Test Static Method `merge_easyreading_configs`
+# ---------------------------------------------------------------------------
+def test_merge_easyreading_configs_coverage():
+    cfg1 = cast(
+        EasyReadingDict,
+        {
+            "tokens": {"a": ["c1"]},
+            "rules": {"a": "A"},
+            "whitespace": {"default": " ", "consolidate": True, "token_class": "wb"},
+            "onmatch_rules": [{"<c1> + <c1>": ","}],
+            "metadata": {"author": "Alice"},
+        },
+    )
+    cfg2 = cast(
+        EasyReadingDict,
+        {
+            "tokens": {"a": ["c2"], "b": ["c1"]},
+            "rules": {"b": "B"},
+            "whitespace": {"default": " ", "consolidate": True, "token_class": "wb"},
+            "onmatch_rules": [{"<c1> + <c1>": ","}, {"<c1> + <c2>": ";"}],
+            "metadata": {"version": "1.0"},
+        },
+    )
+
+    # Test clean merging and deduplication
+    merged = GraphTransliterator.merge_easyreading_configs(cfg1, cfg2)
+    assert set(merged["tokens"]["a"]) == {"c1", "c2"}
+    assert "b" in merged["tokens"]
+    assert merged.get("onmatch_rules") and len(merged.get("onmatch_rules", [])) == 2
+    assert merged.get("metadata") and merged.get("metadata", {}).get("author") == "Alice"
+
+    # Test whitespace mismatch validation
+    bad_cfg = cast(EasyReadingDict, dict(cfg2))
+    bad_cfg["whitespace"] = {"default": "_", "consolidate": False, "token_class": "wb"}
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
+        GraphTransliterator.merge_easyreading_configs(cfg1, bad_cfg)
+
+
+# ---------------------------------------------------------------------------
+# 4. Test Subclass Instantiation Wrappers (`__new__` and `__init_subclass__`)
+# ---------------------------------------------------------------------------
+def test_subclass_init_wrappers():
+    class CustomGT(GraphTransliterator):
+        pass
+
+    class CustomCoverage(CoverageTransliterator):
+        pass
+
+    # Instantiate custom GT with extra keyword arguments (triggers __new__ wrapper)
+    gt = CustomGT.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """,
+        ignore_errors=True,
+    )
+    assert gt.ignore_errors is True
+
+    # Instantiate custom CoverageTransliterator with extra keyword arguments
+    cov = CustomCoverage.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """,
+        ignore_errors=True,
+    )
+    assert cov.ignore_errors is True
+
+
+# ---------------------------------------------------------------------------
+# 5. Test CoverageTransliterator OnMatch Coverage Check
+# ---------------------------------------------------------------------------
+def test_coverage_transliterator_onmatch_checks():
+    YAML = r"""
+    tokens:
+        a: [class1]
+        b: [class2]
+        " ": [wb]
+    rules:
+        a: A
+        b: B
+    onmatch_rules:
+        - <class1> + <class2>: ","
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    easyreading_dict = yaml.safe_load(YAML)
+
+    # 1. Process settings into raw dictionaries
+    gt_dict = process._process_easyreading_settings(easyreading_dict)
+
+    # 2. Convert raw dictionaries to class instances
+    rules = [_transliteration_rule_of(r) for r in gt_dict.get("rules", [])]
+    onmatch_rules = [_onmatch_rule_of(r) for r in gt_dict.get("onmatch_rules", [])]
+    whitespace = _whitespace_rules_of(gt_dict["whitespace"])  # type: ignore[arg-type]
+
+    # 3. Instantiate CoverageTransliterator directly
+    cov = CoverageTransliterator(
+        tokens=gt_dict.get("tokens", {}),
+        rules=rules,
+        onmatch_rules=onmatch_rules,
+        whitespace=whitespace,
+        metadata=gt_dict.get("metadata", {}),
+    )
+
+    # Process 'a' and 'b' individually so graph rules pass edge coverage,
+    # but the combined sequence triggering onmatch rule <class1> + <class2> is NEVER run.
+    cov.transliterate("a")
+    cov.transliterate("b")
+
+    # Checking coverage should now fail specifically on missing OnMatchRules coverage
+    with pytest.raises(IncompleteOnMatchRulesCoverageException, match="Missed OnMatchRules: 0"):
+        cov.check_coverage(raise_exception=True)
+
+    # Check returns False when raise_exception=False
+    assert cov.check_coverage(raise_exception=False) is False
+
+    # Clear visited flags
+    cov.clear_visited()

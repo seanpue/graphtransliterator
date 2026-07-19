@@ -4,6 +4,24 @@
 GraphTransliterator core classes.
 """
 
+import json
+import logging
+import re
+from collections import deque
+from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, Union, cast
+
+import yaml
+from marshmallow import (
+    Schema,
+    ValidationError,
+    fields,
+    post_load,
+    pre_load,
+    validates_schema,
+)
+
+from graphtransliterator import __version__ as __version__
+
 from .ambiguity import check_for_ambiguity
 from .compression import compress_config, decompress_config
 from .exceptions import (
@@ -12,8 +30,7 @@ from .exceptions import (
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
-from .graphs import VisitLoggingDirectedGraph, VisitLoggingList, DirectedGraph, EdgeData
-from .rules import TransliterationRule, OnMatchRule, WhitespaceRules
+from .graphs import DirectedGraph, EdgeData, VisitLoggingDirectedGraph, VisitLoggingList
 from .initialize import (
     _graph_from,
     _onmatch_rules_lookup,
@@ -21,7 +38,8 @@ from .initialize import (
     _tokens_by_class_of,
     _unescape_charnames,
 )
-from .process import _process_easyreading_settings, ProcessedSettingsDict
+from .process import ProcessedSettingsDict, _process_easyreading_settings
+from .rules import OnMatchRule, TransliterationRule, WhitespaceRules
 from .schemas import (
     DirectedGraphSchema,
     EasyReadingSettingsSchema,
@@ -30,23 +48,7 @@ from .schemas import (
     TransliterationRuleSchema,
     WhitespaceSettingsSchema,
 )
-from .types import EasyReadingDict
-from collections import deque
-
-from graphtransliterator import __version__ as __version__
-import json
-import logging
-from marshmallow import (
-    fields,
-    pre_load,
-    post_load,
-    Schema,
-    validates_schema,
-    ValidationError,
-)
-import re
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast, Mapping
-import yaml
+from .types import EasyReadingDict, Token, TokenClass
 
 logger = logging.getLogger("graphtransliterator")
 
@@ -739,6 +741,102 @@ class GraphTransliterator:
         if not isinstance(other, GraphTransliterator):
             return NotImplemented
         return self.merge(other)
+
+    def inject_subgraph(
+        self, other: "GraphTransliterator", prefix_tokens: Optional[List[str]] = None
+    ) -> "GraphTransliterator":
+        """Injects another GraphTransliterator's ruleset as a subgraph extension.
+
+        Compiles the combined rules and tokens into a single optimized engine instance.
+
+        :param other: The secondary GraphTransliterator instance to graft into the base graph.
+        :param prefix_tokens: Optional list of tokens to prepend as lookbehind constraints for the injected rules.
+        :return: A fresh, re-compiled GraphTransliterator containing the merged topologies.
+        """
+        # 1. Enforce matching whitespace invariants before grafting graphs together
+        if (
+            self.whitespace.consolidate != other.whitespace.consolidate
+            or self.whitespace.default != other.whitespace.default
+            or self.whitespace.token_class != other.whitespace.token_class
+        ):
+            raise ValueError(
+                "Graph Injection Mismatch: The whitespace settings of the injected subgraph must match the base configuration exactly."
+            )
+
+        # 2. Blend Tokens and deduplicate Token Classes cleanly
+        merged_tokens = {k: set(v) for k, v in self.tokens.items()}
+        for k, v in other.tokens.items():
+            if k in merged_tokens:
+                merged_tokens[k].update(v)
+            else:
+                merged_tokens[k] = set(v)
+
+        # 3. Clone existing base rules
+        merged_rules = list(self.rules)
+
+        # 4. Inject and optionally prefix the other instance's rules
+        for rule in other.rules:
+            if prefix_tokens:
+                # If prefix tokens are supplied, push them into the lookbehinds
+                new_prev_tokens = prefix_tokens + rule.prev_tokens if rule.prev_tokens else list(prefix_tokens)
+
+                # Reconstruct as a raw dictionary shape to leverage cost-calculation mechanics cleanly
+                raw_rule_dict = {
+                    "production": rule.production,
+                    "prev_classes": rule.prev_classes,
+                    "prev_tokens": new_prev_tokens,
+                    "tokens": rule.tokens,
+                    "next_tokens": rule.next_tokens,
+                    "next_classes": rule.next_classes,
+                }
+
+                # Import internally to safely compute rule weight penalties
+                from .initialize import _transliteration_rule_of
+
+                merged_rules.append(_transliteration_rule_of(raw_rule_dict))
+            else:
+                # Standalone injection fallback
+                merged_rules.append(rule)
+
+        # 5. Combine Contextual On-Match Rules safely
+        merged_onmatch = None
+        if self.onmatch_rules or other.onmatch_rules:
+            merged_onmatch = []
+            if self.onmatch_rules:
+                merged_onmatch.extend(self.onmatch_rules)
+            if other.onmatch_rules:
+                for o_rule in other.onmatch_rules:
+                    # Deduplicate overlapping rule boundaries
+                    if o_rule not in merged_onmatch:
+                        merged_onmatch.append(o_rule)
+
+        # 6. Blend Optional Metadata
+        merged_metadata = {}
+        if self.metadata:
+            merged_metadata.update(self.metadata)
+        if other.metadata:
+            merged_metadata.update(other.metadata)
+
+        # 7. Return a pristine re-compiled operational instance
+        return GraphTransliterator(
+            tokens=merged_tokens,
+            rules=merged_rules,
+            whitespace=self.whitespace,
+            onmatch_rules=merged_onmatch if merged_onmatch else None,
+            metadata=merged_metadata if merged_metadata else None,
+            ignore_errors=self.ignore_errors,
+            check_ambiguity=self._check_ambiguity,
+        )
+
+    def __rshift__(self, other: "GraphTransliterator") -> "GraphTransliterator":
+        """Operator overload for injecting a subgraph using '>>'.
+
+        Example:
+            combined = base_gt >> subgraph_gt
+        """
+        if not isinstance(other, GraphTransliterator):
+            return NotImplemented
+        return self.inject_subgraph(other)
 
 
 class CoverageTransliterator(GraphTransliterator):
