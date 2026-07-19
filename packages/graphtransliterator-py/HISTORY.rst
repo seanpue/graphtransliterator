@@ -16,7 +16,7 @@ History
 -------
 * Add on/off switch characters
 
-next release
+1.4.0 (2026-07-19)
 ------------------
 * Added a ``settings`` property to ``GraphTransliterator`` instances to allow public API introspection of compiled configuration details matching ``SettingsSchema``.
 * Added a type-safe static method ``merge_easyreading_configs()`` to combine raw Easy Reading dictionary setups before compiling state graphs.
