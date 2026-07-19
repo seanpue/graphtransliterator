@@ -675,3 +675,40 @@ def test_GraphTransliterator_graph():
     assert gt._graph
     assert gt._graph.node[0]["type"] == "Start"  # test for Start
     assert gt
+
+
+from graphtransliterator.schemas import SettingsSchema
+
+
+def test_graph_transliterator_settings_property():
+    """Verify that the .settings property outputs a perfectly structured dict
+
+    that matches the expectations of SettingsSchema.
+    """
+    setup = {
+        "tokens": {"a": ["vowel"], " ": ["wb"]},
+        "rules": [{"tokens": ["a"], "production": "A"}],
+        "whitespace": {"default": " ", "token_class": "wb", "consolidate": True},
+        "metadata": {"author": "Alice"},
+    }
+    gt = GraphTransliterator.from_dict(setup)
+
+    # Fetch the generated introspection settings dictionary
+    current_settings = gt.settings
+
+    # 1. Structural assertions on the generated dictionary layout
+    assert "tokens" in current_settings
+    assert "rules" in current_settings
+    assert "whitespace" in current_settings
+    assert current_settings["metadata"] == {"author": "Alice"}
+    assert current_settings["whitespace"]["default"] == " "
+
+    # Verify rules conversion maps appropriately
+    assert len(current_settings["rules"]) == 1
+    assert current_settings["rules"][0]["production"] == "A"
+    assert current_settings["rules"][0]["tokens"] == ["a"]
+
+    # 2. Schema Round-trip validation check
+    # This guarantees that the dictionary perfectly matches SettingsSchema requirements.
+    validated_data = SettingsSchema().load(current_settings)
+    assert validated_data is not None

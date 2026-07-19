@@ -1,14 +1,14 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / addNode
+[graphtransliterator](../README.md) / addNode
 
 # Function: addNode()
 
 > **addNode**\<`T`, `N`, `E`\>(`graph`, `type_`, `label`, `data`): \[[`DirectedGraph`](../interfaces/DirectedGraph.md)\<`T`, `N`, `E`\>, [`Node`](../interfaces/Node.md)\<`T`, `N`\>\]
 
-Defined in: [Graphs.ts:220](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Graphs.ts#L220)
+Defined in: [Graphs.ts:219](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Graphs.ts#L219)
 
 Stitches a fresh vertex node onto an existing graph context using pure state propagation.
 

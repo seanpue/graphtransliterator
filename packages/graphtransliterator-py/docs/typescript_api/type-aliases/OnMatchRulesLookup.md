@@ -1,11 +1,11 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / OnMatchRulesLookup
+[graphtransliterator](../README.md) / OnMatchRulesLookup
 
 # Type Alias: OnMatchRulesLookup
 
 > **OnMatchRulesLookup** = `Map`\<[`Token`](Token.md), `Map`\<[`Token`](Token.md), [`OnMatchRuleIds`](OnMatchRuleIds.md)\>\>
 
-Defined in: [GraphTransliterator.ts:90](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L90)
+Defined in: [GraphTransliterator.ts:88](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L88)

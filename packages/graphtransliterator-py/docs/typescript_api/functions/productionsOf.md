@@ -1,14 +1,14 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / productionsOf
+[graphtransliterator](../README.md) / productionsOf
 
 # Function: productionsOf()
 
 > **productionsOf**(`gt`): `Generator`\<`string`\>
 
-Defined in: [GraphTransliterator.ts:539](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L539)
+Defined in: [GraphTransliterator.ts:532](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L532)
 
 ## Parameters
 

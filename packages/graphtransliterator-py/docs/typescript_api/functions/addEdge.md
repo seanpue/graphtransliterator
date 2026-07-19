@@ -1,14 +1,14 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / addEdge
+[graphtransliterator](../README.md) / addEdge
 
 # Function: addEdge()
 
 > **addEdge**\<`T`, `N`, `E`\>(`graph`, `head`, `tail`, `data`): \[[`DirectedGraph`](../interfaces/DirectedGraph.md)\<`T`, `N`, `E`\>, [`Edge`](../interfaces/Edge.md)\<`E`\>\]
 
-Defined in: [Graphs.ts:251](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Graphs.ts#L251)
+Defined in: [Graphs.ts:250](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Graphs.ts#L250)
 
 Registers an active transition pathway bridging two nodes together.
 Generates an optimized internal cache mapping to prevent linear execution search penalties.

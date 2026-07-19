@@ -1,12 +1,12 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / RawWhitespaceRule
+[graphtransliterator](../README.md) / RawWhitespaceRule
 
 # Interface: RawWhitespaceRule
 
-Defined in: [GraphTransliterator.ts:53](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L53)
+Defined in: [GraphTransliterator.ts:51](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L51)
 
 ## Properties
 
@@ -14,15 +14,15 @@ Defined in: [GraphTransliterator.ts:53](https://github.com/seanpue/graphtranslit
 
 > **consolidate**: `boolean`
 
-Defined in: [GraphTransliterator.ts:54](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L54)
+Defined in: [GraphTransliterator.ts:52](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L52)
 
 ***
 
-### defaultToken
+### default
 
-> **defaultToken**: `string`
+> **default**: `string`
 
-Defined in: [GraphTransliterator.ts:55](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L55)
+Defined in: [GraphTransliterator.ts:53](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L53)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [GraphTransliterator.ts:55](https://github.com/seanpue/graphtranslit
 
 > **token\_class**: `string`
 
-Defined in: [GraphTransliterator.ts:56](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L56)
+Defined in: [GraphTransliterator.ts:54](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L54)

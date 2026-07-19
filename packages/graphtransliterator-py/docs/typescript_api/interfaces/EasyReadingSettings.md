@@ -1,12 +1,12 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / EasyReadingSettings
+[graphtransliterator](../README.md) / EasyReadingSettings
 
 # Interface: EasyReadingSettings
 
-Defined in: [GraphTransliterator.ts:73](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L73)
+Defined in: [GraphTransliterator.ts:71](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L71)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [GraphTransliterator.ts:73](https://github.com/seanpue/graphtranslit
 
 > `optional` **metadata?**: [`Metadata`](../type-aliases/Metadata.md)
 
-Defined in: [GraphTransliterator.ts:78](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L78)
+Defined in: [GraphTransliterator.ts:76](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L76)
 
 ***
 
@@ -22,7 +22,7 @@ Defined in: [GraphTransliterator.ts:78](https://github.com/seanpue/graphtranslit
 
 > `optional` **onmatch\_rules?**: `Record`\<`string`, `string`\>[]
 
-Defined in: [GraphTransliterator.ts:76](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L76)
+Defined in: [GraphTransliterator.ts:74](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L74)
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: [GraphTransliterator.ts:76](https://github.com/seanpue/graphtranslit
 
 > **rules**: `Record`\<`string`, `string`\>
 
-Defined in: [GraphTransliterator.ts:75](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L75)
+Defined in: [GraphTransliterator.ts:73](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L73)
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: [GraphTransliterator.ts:75](https://github.com/seanpue/graphtranslit
 
 > **tokens**: `Record`\<[`Token`](../type-aliases/Token.md), [`TokenClasses`](../type-aliases/TokenClasses.md)\>
 
-Defined in: [GraphTransliterator.ts:74](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L74)
+Defined in: [GraphTransliterator.ts:72](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L72)
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: [GraphTransliterator.ts:74](https://github.com/seanpue/graphtranslit
 
 > **whitespace**: [`WhitespaceRule`](WhitespaceRule.md)
 
-Defined in: [GraphTransliterator.ts:77](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L77)
+Defined in: [GraphTransliterator.ts:75](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/GraphTransliterator.ts#L75)

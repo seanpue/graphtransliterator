@@ -1,12 +1,12 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / TransliterationRule
+[graphtransliterator](../README.md) / TransliterationRule
 
 # Interface: TransliterationRule
 
-Defined in: [Rules.ts:31](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L31)
+Defined in: [Rules.ts:31](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L31)
 
 A transliteration rule containing the specific match conditions and
 string output to be produced, as well as the rule's cost.
@@ -17,7 +17,7 @@ string output to be produced, as well as the rule's cost.
 
 > **cost**: `number`
 
-Defined in: [Rules.ts:38](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L38)
+Defined in: [Rules.ts:38](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L38)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [Rules.ts:38](https://github.com/seanpue/graphtransliterator/blob/83
 
 > `optional` **nextClasses?**: [`TokenClasses`](../type-aliases/TokenClasses.md)
 
-Defined in: [Rules.ts:37](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L37)
+Defined in: [Rules.ts:37](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L37)
 
 ***
 
@@ -33,7 +33,7 @@ Defined in: [Rules.ts:37](https://github.com/seanpue/graphtransliterator/blob/83
 
 > `optional` **nextTokens?**: [`Tokens`](../type-aliases/Tokens.md)
 
-Defined in: [Rules.ts:36](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L36)
+Defined in: [Rules.ts:36](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L36)
 
 ***
 
@@ -41,7 +41,7 @@ Defined in: [Rules.ts:36](https://github.com/seanpue/graphtransliterator/blob/83
 
 > `optional` **prevClasses?**: [`TokenClasses`](../type-aliases/TokenClasses.md)
 
-Defined in: [Rules.ts:33](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L33)
+Defined in: [Rules.ts:33](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L33)
 
 ***
 
@@ -49,7 +49,7 @@ Defined in: [Rules.ts:33](https://github.com/seanpue/graphtransliterator/blob/83
 
 > `optional` **prevTokens?**: [`Tokens`](../type-aliases/Tokens.md)
 
-Defined in: [Rules.ts:34](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L34)
+Defined in: [Rules.ts:34](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L34)
 
 ***
 
@@ -57,7 +57,7 @@ Defined in: [Rules.ts:34](https://github.com/seanpue/graphtransliterator/blob/83
 
 > **production**: `string`
 
-Defined in: [Rules.ts:32](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L32)
+Defined in: [Rules.ts:32](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L32)
 
 ***
 
@@ -65,4 +65,4 @@ Defined in: [Rules.ts:32](https://github.com/seanpue/graphtransliterator/blob/83
 
 > **tokens**: [`Tokens`](../type-aliases/Tokens.md)
 
-Defined in: [Rules.ts:35](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L35)
+Defined in: [Rules.ts:35](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L35)

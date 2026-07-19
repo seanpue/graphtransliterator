@@ -30,6 +30,7 @@ from .schemas import (
     TransliterationRuleSchema,
     WhitespaceSettingsSchema,
 )
+from .types import EasyReadingDict
 from collections import deque
 
 from graphtransliterator import __version__ as __version__
@@ -635,6 +636,103 @@ class GraphTransliterator:
             ignore_errors=self.ignore_errors,
             check_ambiguity=self._check_ambiguity,
         )
+
+    @property
+    def settings(self) -> Dict[str, Any]:
+        """Returns the fully parsed structural dictionary of the current state,
+        suitable for debugging or direct validation matching SettingsSchema.
+        """
+        return {
+            "tokens": {k: list(v) for k, v in self.tokens.items()},
+            "rules": [
+                {
+                    "tokens": rule.tokens,
+                    "production": rule.production,
+                    # Plus lookahead / lookbehind constraint details if present
+                }
+                for rule in self.rules
+            ],
+            "whitespace": {
+                "default": self.whitespace.default,
+                "token_class": self.whitespace.token_class,
+                "consolidate": self.whitespace.consolidate,
+            },
+            "metadata": self.metadata,
+        }
+
+    @staticmethod
+    def merge_easyreading_configs(config1: EasyReadingDict, config2: EasyReadingDict) -> EasyReadingDict:
+        """Combines two raw Easy Reading configurations together.
+
+        Validates matching structural whitespace blocks before merging rule definitions
+        and token configurations.
+        """
+        w1 = config1["whitespace"]
+        w2 = config2["whitespace"]
+
+        # 1. Structural Whitespace Enforcement
+        if (
+            w1.get("consolidate") != w2.get("consolidate")
+            or w1.get("default") != w2.get("default")
+            or w1.get("token_class") != w2.get("token_class")
+        ):
+            raise ValueError(
+                "Configuration Mismatch: The whitespace settings in both easy reading profiles must match exactly to merge."
+            )
+
+        # 2. Blend Tokens
+        merged_tokens: Dict[Token, List[TokenClass]] = {}
+        # Seed with first configuration
+        for token, classes in config1["tokens"].items():
+            merged_tokens[token] = list(classes)
+        # Unique union with the second configuration
+        for token, classes in config2["tokens"].items():
+            if token in merged_tokens:
+                # Deduplicate overlapping classes cleanly
+                merged_tokens[token] = list(set(merged_tokens[token] + classes))
+            else:
+                merged_tokens[token] = list(classes)
+
+        # 3. Blend Rules
+        merged_rules: Dict[str, str] = dict(config1["rules"])
+        merged_rules.update(config2["rules"])
+
+        # 4. Initialize Result Template
+        result: EasyReadingDict = {
+            "tokens": merged_tokens,
+            "rules": merged_rules,
+            "whitespace": {
+                "default": w1["default"],
+                "token_class": w1["token_class"],
+                "consolidate": w1["consolidate"],
+            },
+        }
+
+        # 5. Blend Optional Contextual On-Match Arrays
+        onmatch1 = config1.get("onmatch_rules", [])
+        onmatch2 = config2.get("onmatch_rules", [])
+        if onmatch1 or onmatch2:
+            merged_onmatch: List[Dict[str, str]] = []
+            # Deduplicate incoming identical strings/rules cleanly
+            seen_onmatch = []
+            for item in onmatch1 + onmatch2:
+                if item not in seen_onmatch:
+                    seen_onmatch.append(item)
+                    merged_onmatch.append(dict(item))
+            result["onmatch_rules"] = merged_onmatch
+
+        # 6. Blend Optional Metadata Dictionaries Safely
+        meta1 = config1.get("metadata", {})
+        meta2 = config2.get("metadata", {})
+        if meta1 or meta2:
+            merged_metadata: Dict[str, Any] = {}
+            if meta1:
+                merged_metadata.update(meta1)
+            if meta2:
+                merged_metadata.update(meta2)
+            result["metadata"] = merged_metadata
+
+        return result
 
     def __add__(self, other: "GraphTransliterator") -> "GraphTransliterator":
         """Operator overload for merging two GraphTransliterator instances using '+'."""

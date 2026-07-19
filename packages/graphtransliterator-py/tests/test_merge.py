@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 from graphtransliterator import GraphTransliterator
+from graphtransliterator.types import EasyReadingDict
 
 
 def test_graph_transliterator_merge_success():
@@ -109,3 +110,21 @@ def test_graph_transliterator_merge_onmatch_rules():
     merged = gt1 + gt2
     assert merged.onmatch_rules is not None
     assert len(merged.onmatch_rules) == 1
+
+
+def test_merge_easyreading_configs_whitespace_mismatch():
+    """Verify that an exception is raised if easy reading configs have different whitespace parameters."""
+    config1: EasyReadingDict = {
+        "tokens": {"a": []},
+        "rules": {"a": "A"},
+        "whitespace": {"default": " ", "token_class": "wb", "consolidate": True},
+    }
+
+    config2: EasyReadingDict = {
+        "tokens": {"b": []},
+        "rules": {"b": "B"},
+        "whitespace": {"default": "_", "token_class": "wb", "consolidate": True},  # Mismatched default
+    }
+
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
+        GraphTransliterator.merge_easyreading_configs(config1, config2)

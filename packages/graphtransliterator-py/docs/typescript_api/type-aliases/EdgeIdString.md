@@ -1,14 +1,14 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / EdgeIdString
+[graphtransliterator](../README.md) / EdgeIdString
 
 # Type Alias: EdgeIdString
 
 > **EdgeIdString** = `string`
 
-Defined in: [Graphs.ts:65](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Graphs.ts#L65)
+Defined in: [Graphs.ts:65](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Graphs.ts#L65)
 
 Serialized map key identifier string tracking matching edge boundaries.
 Enforces the invariant: `${head},${tail}`.

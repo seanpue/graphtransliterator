@@ -480,6 +480,14 @@ and initialized directly using basic Python types passed as dictionary to
 This feature can be useful if generating a Graph Transliterator using code as opposed to
 a configuration file.
 
+You can inspect the fully parsed and optimized configurations of an active engine at any 
+time via the public :attr:`GraphTransliterator.settings` property. This outputs a 
+structured dictionary conforming strictly to the internal schemas:
+
+.. jupyter-execute::
+
+  gt.settings
+
 Ambiguity Checking
 ------------------
 Graph Transliterator, by default, will check for ambiguity in its transliteration rules.
@@ -777,6 +785,75 @@ rules. That can be done using :meth:`pruned_of`:
 
   gt.pruned_of(['<A>', '<AA>']).rules
 
+Merging Transliterators
+-----------------------
+
+Two independent :class:`GraphTransliterator` instances can be combined into a single, comprehensive instance. This can be accomplished using either the :meth:`merge` method or the intuitive ``+`` operator override. 
+
+During a merge operation, the underlying transliteration rules, tokens, contextual ``onmatch_rules``, and optional ``metadata`` dictionaries from both instances are consolidated.
+
+.. jupyter-execute::
+  :linenos:
+
+  setup1 = {
+      "tokens": {"a": [], " ": ["wb"]},
+      "rules": [{"tokens": ["a"], "production": "alpha"}],
+      "whitespace": {"default": " ", "token_class": "wb", "consolidate": True},
+      "metadata": {"author": "Alice"},
+  }
+  gt_a = GraphTransliterator.from_dict(setup1)
+
+  setup2 = {
+      "tokens": {"b": [], " ": ["wb"]},
+      "rules": [{"tokens": ["b"], "production": "beta"}],
+      "whitespace": {"default": " ", "token_class": "wb", "consolidate": True},
+      "metadata": {"version": "2.0"},
+  }
+  gt_b = GraphTransliterator.from_dict(setup2)
+
+  # Merge using the + operator
+  merged_gt = gt_a + gt_b
+  merged_gt.transliterate("ab")
+
+We can verify that the metadata maps from both instances were safely merged as well:
+
+.. jupyter-execute::
+
+  merged_gt.metadata
+
+.. note::
+   The structural whitespace settings (the ``default`` token, the ``token_class``,
+   and the ``consolidate`` flag) of both instances **must match exactly**. If there
+   is a configuration mismatch, a :exc:`ValueError` will be raised.
+
+Merging Raw Easy Reading Configurations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compiling state graphs can be computationally expensive. If you are stacking multiple 
+language parameters or profile layers dynamically, you can use the static utility 
+:meth:`GraphTransliterator.merge_easyreading_configs` to merge raw configurations at 
+the dictionary level before instantiating the main graph:
+
+.. jupyter-execute::
+  :linenos:
+
+  config_a = {
+      "tokens": {"a": ["vowel"], " ": ["wb"]},
+      "rules": {"a": "alpha"},
+      "whitespace": {"default": " ", "token_class": "wb", "consolidate": True}
+  }
+  config_b = {
+      "tokens": {"b": ["consonant"], " ": ["wb"]},
+      "rules": {"b": "beta"},
+      "whitespace": {"default": " ", "token_class": "wb", "consolidate": True}
+  }
+
+  # Combine configurations natively using the static utility
+  merged_config = GraphTransliterator.merge_easyreading_configs(config_a, config_b)
+  
+  # Instantiating the graph only once
+  gt_compiled = GraphTransliterator.from_easyreading_dict(merged_config)
+  gt_compiled.transliterate("ab")
 
 Internal Graph
 ==============

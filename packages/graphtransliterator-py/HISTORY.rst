@@ -8,7 +8,6 @@ History
 * allow insertion of transliteration error messages into output
 * fix Devanagari output in Sphinx-generated Latex PDF
 * add translated messages
-* add static typing with mypy
 * adjust IncorrectVersionException to only consider major, minor versioning not patch
 * Adjust CSS for CLI output in docs
 * add doc making test to commit
@@ -19,6 +18,8 @@ History
 
 next release
 ------------------
+* Added a ``settings`` property to ``GraphTransliterator`` instances to allow public API introspection of compiled configuration details matching ``SettingsSchema``.
+* Added a type-safe static method ``merge_easyreading_configs()`` to combine raw Easy Reading dictionary setups before compiling state graphs.
 * added py.typed
 * Added a ``merge()`` method to ``GraphTransliterator`` to combine rules, tokens, and optional metadata from two independent transliterator configurations into a single instance.
 * Added support for the ``+`` operator override (``__add__``) to allow intuitive combining of ``GraphTransliterator`` instances (e.g., ``gt1 + gt2``).

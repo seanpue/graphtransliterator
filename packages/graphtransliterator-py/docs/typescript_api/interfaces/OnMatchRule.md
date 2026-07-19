@@ -1,12 +1,12 @@
-[**graphtransliterator-ts**](../README.md)
+[**graphtransliterator**](../README.md)
 
 ***
 
-[graphtransliterator-ts](../README.md) / OnMatchRule
+[graphtransliterator](../README.md) / OnMatchRule
 
 # Interface: OnMatchRule
 
-Defined in: [Rules.ts:61](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L61)
+Defined in: [Rules.ts:61](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L61)
 
 Rules about adding text between certain combinations of matched rules.
 
@@ -16,7 +16,7 @@ Rules about adding text between certain combinations of matched rules.
 
 > **nextClasses**: [`TokenClasses`](../type-aliases/TokenClasses.md)
 
-Defined in: [Rules.ts:63](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L63)
+Defined in: [Rules.ts:63](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L63)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [Rules.ts:63](https://github.com/seanpue/graphtransliterator/blob/83
 
 > **prevClasses**: [`TokenClasses`](../type-aliases/TokenClasses.md)
 
-Defined in: [Rules.ts:62](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L62)
+Defined in: [Rules.ts:62](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L62)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [Rules.ts:62](https://github.com/seanpue/graphtransliterator/blob/83
 
 > **production**: `string`
 
-Defined in: [Rules.ts:64](https://github.com/seanpue/graphtransliterator/blob/83f4eb8e6b7957664bb77a2ded02cf6a46ce9fff/packages/graphtransliterator-ts/src/Rules.ts#L64)
+Defined in: [Rules.ts:64](https://github.com/seanpue/graphtransliterator/blob/67b1064e1d86c3350ed11de54d845d3e9cf61897/packages/graphtransliterator-ts/src/Rules.ts#L64)

@@ -1,8 +1,8 @@
-**graphtransliterator-ts**
+**graphtransliterator**
 
 ***
 
-# graphtransliterator-ts
+# graphtransliterator
 
 ## Classes
 

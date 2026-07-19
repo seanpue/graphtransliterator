@@ -66,3 +66,13 @@ class LoadedGraphDict(TypedDict):
     node: list[NodeData]
     edge: dict[int, dict[int, EdgeData]]
     edge_list: list[tuple[int, int]]
+
+
+class EasyReadingDict(TypedDict):
+    """Explicit type layout representing a raw Easy Reading configuration dictionary."""
+
+    tokens: dict[Token, list[TokenClass]]
+    rules: dict[str, str]
+    whitespace: RawWhitespaceDict
+    onmatch_rules: NotRequired[list[dict[str, str]]]
+    metadata: NotRequired[dict[str, Any]]
