@@ -585,6 +585,63 @@ class GraphTransliterator:
         _settings = dict(json.loads(settings), **kwargs)
         return cast("GraphTransliterator", GraphTransliteratorSchema().load(_settings))
 
+    def merge(self, other: "GraphTransliterator") -> "GraphTransliterator":
+        """Merges another GraphTransliterator context cleanly into this one.
+
+        Verifies structural parity of whitespace configurations before combining rulesets.
+        """
+        # Validate structural parity of whitespace configurations
+        if (
+            self.whitespace.consolidate != other.whitespace.consolidate
+            or self.whitespace.default != other.whitespace.default
+            or self.whitespace.token_class != other.whitespace.token_class
+        ):
+            raise ValueError("Configuration Mismatch: The whitespace configurations must be identical to merge.")
+
+        # Blend token definitions cleanly
+        unified_tokens = {k: set(v) for k, v in self.tokens.items()}
+        for k, v in other.tokens.items():
+            if k in unified_tokens:
+                unified_tokens[k].update(v)
+            else:
+                unified_tokens[k] = set(v)
+
+        # Combine rules arrays
+        unified_rules = list(self.rules) + list(other.rules)
+
+        # Combine optional metadata dictionaries safely
+        unified_metadata = {}
+        if self.metadata:
+            unified_metadata.update(self.metadata)
+        if other.metadata:
+            unified_metadata.update(other.metadata)
+
+        # Combine optional onmatch rules
+        unified_onmatch = None
+        if self.onmatch_rules or other.onmatch_rules:
+            unified_onmatch = []
+            if self.onmatch_rules:
+                unified_onmatch.extend(self.onmatch_rules)
+            if other.onmatch_rules:
+                unified_onmatch.extend(other.onmatch_rules)
+
+        # Re-initialize a brand new combined GraphTransliterator context
+        return GraphTransliterator(
+            tokens=unified_tokens,
+            rules=unified_rules,
+            whitespace=self.whitespace,
+            onmatch_rules=unified_onmatch,
+            metadata=unified_metadata if unified_metadata else None,
+            ignore_errors=self.ignore_errors,
+            check_ambiguity=self._check_ambiguity,
+        )
+
+    def __add__(self, other: "GraphTransliterator") -> "GraphTransliterator":
+        """Operator overload for merging two GraphTransliterator instances using '+'."""
+        if not isinstance(other, GraphTransliterator):
+            return NotImplemented
+        return self.merge(other)
+
 
 class CoverageTransliterator(GraphTransliterator):
     """Subclass of GraphTransliterator that logs visits to graph and on_match rules."""

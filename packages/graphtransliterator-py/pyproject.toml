@@ -29,6 +29,7 @@ graphtransliterator = "graphtransliterator.cli:main"
 [tool.poetry]
 # Update this line to look inside "src"
 packages = [{ include = "graphtransliterator", from = "src" }]
+include = ["src/graphtransliterator/py.typed"]
 
 [tool.poetry.group.dev.dependencies]
 bash_kernel = "^0.9.1"
