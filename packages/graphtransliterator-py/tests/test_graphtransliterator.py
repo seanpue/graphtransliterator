@@ -742,10 +742,10 @@ def test_lookahead_and_lookbehind_edge_cases():
         b: B
         x: X
         y: Y
-        
+
         # Combined lookbehind AND lookahead constraint
         (x) a (y): A_CENTERED
-        
+
         # Multi-class lookahead
         b <vowel> <consonant>: B_BEFORE_VOWEL_CONSONANT
     whitespace:

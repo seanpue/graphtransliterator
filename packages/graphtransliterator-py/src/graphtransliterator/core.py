@@ -21,6 +21,7 @@ from marshmallow import (
 )
 
 from graphtransliterator import __version__ as __version__
+from graphtransliterator.types import RawRuleDict  # Adjust import path if needed
 
 from .ambiguity import check_for_ambiguity
 from .compression import compress_config, decompress_config
@@ -793,7 +794,7 @@ class GraphTransliterator:
                 # Import internally to safely compute rule weight penalties
                 from .initialize import _transliteration_rule_of
 
-                merged_rules.append(_transliteration_rule_of(raw_rule_dict))
+                merged_rules.append(_transliteration_rule_of(cast(RawRuleDict, raw_rule_dict)))
             else:
                 # Standalone injection fallback
                 merged_rules.append(rule)
