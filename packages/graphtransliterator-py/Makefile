@@ -19,14 +19,8 @@ check: ## Run all strict Python code quality and validation checks
 	@echo "🚀 Checking Poetry lock file consistency..."
 	poetry check --lock
 
-	@echo "\n🚀 Linting code with Ruff..."
-	poetry run ruff check .
-
-	@echo "\n🚀 Validating code formatting with Ruff..."
-	poetry run ruff format --check .
-
-	@echo "\n🚀 Running static type validation with Mypy..."
-	poetry run mypy src
+	@echo "\n🚀 Running pre-commit hooks across all files..."
+	poetry run pre-commit run --all-files
 
 	@echo "\n🚀 Scanning for obsolete or untracked package dependencies..."
 	poetry run deptry src --exclude .venv
