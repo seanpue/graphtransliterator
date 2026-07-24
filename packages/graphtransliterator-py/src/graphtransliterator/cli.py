@@ -2,18 +2,20 @@
 
 """Console script for graphtransliterator."""
 
-from graphtransliterator import (
-    DEFAULT_COMPRESSION_LEVEL,
-    HIGHEST_COMPRESSION_LEVEL,
-    GraphTransliterator,
-)
-import click
 import json
 import os
 import re
 import sys
 from typing import Any, Tuple
-from graphtransliterator import __version__
+
+import click
+
+from graphtransliterator import (
+    # DEFAULT_COMPRESSION_LEVEL,
+    # HIGHEST_COMPRESSION_LEVEL,
+    GraphTransliterator,
+    __version__,
+)
 
 
 @click.group()
@@ -124,17 +126,18 @@ def transliterate(
     help="Check for ambiguity.",
     show_default=True,
 )
-@click.option(
-    "--compression-level",
-    "-cl",
-    default=DEFAULT_COMPRESSION_LEVEL,
-    help=f"Compression level, from 0 to {HIGHEST_COMPRESSION_LEVEL}",
-    show_default=True,
-)
-def dump(from_: Tuple[str, str], check_ambiguity: bool, compression_level: int) -> None:
+# @click.option(
+#     "--compression-level",
+#     "-cl",
+#     default=DEFAULT_COMPRESSION_LEVEL,
+#     help=f"Compression level, from 0 to {HIGHEST_COMPRESSION_LEVEL}",
+#     show_default=True,
+# )
+# def dump(from_: Tuple[str, str], check_ambiguity: bool, compression_level: int) -> None:
+def dump(from_: Tuple[str, str], check_ambiguity: bool) -> None:
     """Dump transliterator as JSON."""
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity)
-    click.echo(transliterator.dumps(compression_level=compression_level))
+    click.echo(transliterator.dumps())  # compression_level=compression_level))
 
 
 @click.command()

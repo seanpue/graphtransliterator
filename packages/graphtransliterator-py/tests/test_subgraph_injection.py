@@ -4,14 +4,14 @@ import pytest
 
 from graphtransliterator import (
     GraphTransliterator,
-    WhitespaceRules,
+    WhitespaceRule,
 )
 from graphtransliterator.initialize import _transliteration_rule_of
 
 
 @pytest.fixture
 def default_whitespace():
-    return WhitespaceRules(default=" ", token_class="space", consolidate=True)
+    return WhitespaceRule(default=" ", token_class="space", consolidate=True)
 
 
 @pytest.fixture
@@ -93,7 +93,7 @@ def test_subgraph_injection_with_prefix_tokens(base_transliterator, greek_subgra
 
 def test_subgraph_whitespace_mismatch_raises_error(base_transliterator):
     """Tests that injecting a subgraph with mismatched whitespace rules raises a ValueError."""
-    mismatched_ws = WhitespaceRules(default=" ", token_class="space", consolidate=False)
+    mismatched_ws = WhitespaceRule(default=" ", token_class="space", consolidate=False)
     incompatible_subgraph = GraphTransliterator(
         tokens={"x": ["letter"]},
         rules=[_transliteration_rule_of({"tokens": ["x"], "production": "X"})],

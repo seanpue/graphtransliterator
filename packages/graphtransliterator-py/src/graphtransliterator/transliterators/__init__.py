@@ -8,7 +8,7 @@ import importlib.util
 import inspect
 import pkgutil
 import sys
-from typing import cast, Any, Iterator, List, Union
+from typing import Any, Iterator, List, Union, cast
 
 from .bundled import Bundled  # noqa
 from .schemas import MetadataSchema  # noqa
@@ -26,6 +26,7 @@ def _skip_class_name(name: str) -> bool:
 
 def add_transliterators(path: Union[List[str], Any] = None) -> None:
     """Walk submodules and loads bundled transliterators into namespace."""
+
     if path is None:
         path = __path__
 

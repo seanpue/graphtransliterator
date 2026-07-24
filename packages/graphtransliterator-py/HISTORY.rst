@@ -16,6 +16,14 @@ History
 -------
 * Add on/off switch characters
 
+new release
+-----------
+* Removed compression
+* refactored for compatibility with Typescript version
+* moved all types to types.py
+* Removed namedtuples for typeddict
+* restricted dump fields
+
 1.4.0 (2026-07-19)
 ------------------
 * Added a ``settings`` property to ``GraphTransliterator`` instances to allow public API introspection of compiled configuration details matching ``SettingsSchema``.

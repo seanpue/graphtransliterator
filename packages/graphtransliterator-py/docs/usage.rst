@@ -334,7 +334,7 @@ whitespace character. At the start and end of input, it removes any whitespace:
   gt.transliterate('a ')  # consolidate removes whitespace at end of string
 
 
-Whitespace settings are stored internally as :class:`WhitespaceRules` and can be
+Whitespace settings are stored internally as :class:`WhitespaceRule` and can be
 accessed using :attr:`GraphTransliterator.whitespace`:
 
 .. jupyter-execute::
@@ -943,25 +943,26 @@ correspond to matched transliteration rules:
 
 .. jupyter-execute::
 
-  gt.graph.node
+  gt.graph.nodes
 
 
 Edges
 -----
 
-Edges between these nodes may have different constraints in their attributes:
+Edges between these nodes contain source/target relationships and attribute constraints:
 
 .. jupyter-execute::
 
-  gt.graph.edge
+  gt.graph.edges
 
 
-Before the `token` nodes, there is a `token` constraint on the edge that must be matched
+Before the `token` nodes, there is a `token` constraint on the edge data that must be matched
 before the transliterator can visit the token node:
 
 .. jupyter-execute::
 
-  gt.graph.edge[0][1]
+  # Access the first edge's attributes
+  gt.graph.edges[0]
 
 
 On the edges before rules there may be other `constraints`, such as certain tokens
@@ -969,15 +970,15 @@ preceding or following tokens of the corresponding transliteration rule:
 
 .. jupyter-execute::
 
-  gt.graph.edge[1][2]
+  # Inspect an edge containing rule constraints (e.g., the 4th edge)
+  gt.graph.edges[3]
 
 
-An edge list is also maintained that consists of a tuple of (head, tail):
+You can also inspect specific edge attributes directly, such as the data dictionary:
 
 .. jupyter-execute::
 
-  gt.graph.edge_list
-
+  gt.graph.edges[3]['data']
 
 Search and Preprocessing
 ------------------------
@@ -987,9 +988,9 @@ transliteration with the the lowest cost. The cost function is:
 
 .. math::
 
-  \text{cost}(rule) = \log_2{\big(1+\frac{1}{1+\text{count}\_\text{of}\_ \text{tokens}\_ \text{in}(rule)}\big)}
+  \text{cost}(rule) = -{\text{count}\_\text{of}\_ \text{tokens}\_ \text{in}(rule)}\big)}
 
-It results in a number between 1 and 0 that lessens as more tokens must be matched. Each
+It results in a number less than zero that lessens as more tokens must be matched. Each
 edge on the graph has a cost attribute that is set to the lowest cost transliteration
 rule following it. When transliterating, Graph Transliterator will try lower cost edges
 first and will backtrack if the constraint conditions are not met.
@@ -1012,7 +1013,7 @@ and keyed by the following `token`:
 
 .. jupyter-execute::
 
-  gt.graph.node[0]
+  gt.graph.nodes[0]
 
 
 Any `rule` connected to a node is added to each `ordered_children`. Any rule nodes
@@ -1020,8 +1021,41 @@ immediately following the current node are keyed to :obj:`__rules__`:
 
 .. jupyter-execute::
 
-  gt.graph.node[1]
+  gt.graph.nodes[1]
 
 
 Because of this preprocessing, Graph Transliterator does not need to iterate through all
 of the outgoing edges of a node to find the next node to search.
+
+Configuring Directly
+====================
+
+Inspecting Active Settings
+--------------------------
+You can inspect the fully parsed and optimized configurations of an active engine at any
+time via the public :attr:`GraphTransliterator.settings` property. This outputs a
+structured dictionary conforming strictly to internal schemas:
+
+.. jupyter-execute::
+
+  gt.settings
+
+Loading from JSON and Files
+---------------------------
+In addition to YAML, you can load configurations from JSON strings or JSON/dictionary files:
+
+- :meth:`GraphTransliterator.from_json`
+- :meth:`GraphTransliterator.from_json_file`
+- :meth:`GraphTransliterator.from_dict_file`
+
+Coverage Analysis
+-----------------
+If you need to ensure that all rules, graph nodes, and ``onmatch_rules`` are exercised by your test suite, pass ``coverage=True`` when initializing from a dictionary:
+
+.. code-block:: python
+
+  gt = GraphTransliterator.from_dict(settings, coverage=True)
+  gt.transliterate("test string")
+
+  # Assert that all rules and paths were executed
+  gt.check_coverage(raise_exception=True)

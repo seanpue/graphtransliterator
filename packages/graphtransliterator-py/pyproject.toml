@@ -87,3 +87,6 @@ exclude = ["docs", "tests", ".tox"]
 
 [tool.deptry.per_rule_ignores]
 DEP003 = ["pytest"]
+
+[tool.setuptools.package-data]
+"graph_transliterator" = ["py.typed"]

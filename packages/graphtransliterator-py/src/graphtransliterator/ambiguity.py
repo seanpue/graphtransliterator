@@ -9,7 +9,8 @@ import logging
 from typing import Any, Protocol
 
 from .exceptions import AmbiguousTransliterationRulesException
-from .rules import TransliterationRule
+from .initialize import _cost_of
+from .types import TransliterationRule
 
 
 # A structural Protocol matching the internal requirements of the Transliterator instance
@@ -71,9 +72,19 @@ def check_for_ambiguity(transliterator: TransliteratorLike) -> bool:
         """Check if intersection is covered by row."""
         return all(not intersection[k].difference(row[k]) for k in range(len(intersection)))
 
+    # Helper function to get safe cost
+    def get_rule_cost(rule: TransliterationRule) -> float | int:
+        cost = rule.get("cost")
+        if cost is None:
+            return _cost_of(rule)
+        return cost
+
+    # Sort enumerated rules by cost before grouping so groupby captures all same-cost rules together
+    sorted_enumerated_rules = sorted(enumerate(transliterator._rules), key=lambda x: get_rule_cost(x[1]))
+
     # Iterate through rules based on cost. If there are ambiguities,
     # check if a less costly rule would match the intersection sequence.
-    for _group_val, group_iter in itertools.groupby(enumerate(transliterator._rules), key=lambda x: x[1].cost):
+    for _group_val, group_iter in itertools.groupby(sorted_enumerated_rules, key=lambda x: get_rule_cost(x[1])):
         group = list(group_iter)
         if len(group) == 1:
             continue
@@ -89,10 +100,11 @@ def check_for_ambiguity(transliterator: TransliteratorLike) -> bool:
                 def covered_by_less_costly() -> bool:
                     if intersection is None:
                         return False
+                    i_cost = get_rule_cost(rules[i_index])
                     for r_i, r_rule in enumerate(rules):
                         if r_i in (i_index, j_index):
                             continue
-                        if r_rule.cost > rules[i_index].cost:
+                        if get_rule_cost(r_rule) > i_cost:
                             continue
                         rule_tokens = matrix[r_i]
                         if covered_by(intersection, rule_tokens):
@@ -124,45 +136,53 @@ def _easyreading_rule(rule: TransliterationRule) -> str:
         return " ".join(["<%s>" % _ for _ in x])
 
     out = ""
-    if rule.prev_classes and rule.prev_tokens:
-        out = "({} {}) ".format(_class_str(rule.prev_classes), _token_str(rule.prev_tokens))
-    elif rule.prev_classes:
-        out = "{} ".format(_class_str(rule.prev_classes))
-    elif rule.prev_tokens:
-        out = "({}) ".format(_token_str(rule.prev_tokens))
+    prev_classes = rule.get("prev_classes")
+    prev_tokens = rule.get("prev_tokens")
+    tokens = rule.get("tokens", [])
+    next_tokens = rule.get("next_tokens")
+    next_classes = rule.get("next_classes")
 
-    out += _token_str(rule.tokens)
+    if prev_classes and prev_tokens:
+        out = "({} {}) ".format(_class_str(prev_classes), _token_str(prev_tokens))
+    elif prev_classes:
+        out = "{} ".format(_class_str(prev_classes))
+    elif prev_tokens:
+        out = "({}) ".format(_token_str(prev_tokens))
 
-    if rule.next_tokens and rule.next_classes:
-        out += " ({} {})".format(_token_str(rule.next_tokens), _class_str(rule.next_classes))
-    elif rule.next_tokens:
-        out += " ({})".format(_token_str(rule.next_tokens))
-    elif rule.next_classes:
-        out += " {}".format(_class_str(rule.next_classes))
+    out += _token_str(tokens)
+
+    if next_tokens and next_classes:
+        out += " ({} {})".format(_token_str(next_tokens), _class_str(next_classes))
+    elif next_tokens:
+        out += " ({})".format(_token_str(next_tokens))
+    elif next_classes:
+        out += " {}".format(_class_str(next_classes))
     return out
 
 
 def _count_of_prev(rule: TransliterationRule) -> int:
     """Count previous tokens to be present before a match in a rule."""
-    return len(rule.prev_classes or []) + len(rule.prev_tokens or [])
+    return len(rule.get("prev_classes") or []) + len(rule.get("prev_tokens") or [])
 
 
 def _count_of_curr_and_next(rule: TransliterationRule) -> int:
     """Count tokens to be matched and those to follow them in rule."""
-    return len(rule.tokens) + len(rule.next_tokens or []) + len(rule.next_classes or [])
+    return len(rule.get("tokens", [])) + len(rule.get("next_tokens") or []) + len(rule.get("next_classes") or [])
 
 
 def _prev_tokens_possible(rule: TransliterationRule, tokens_by_class: dict[str, set[str]]) -> list[set[str]]:
     """`list` of set of possible preceding tokens for a rule."""
-    return [tokens_by_class[_] for _ in rule.prev_classes or []] + [set([_]) for _ in rule.prev_tokens or []]
+    return [tokens_by_class[_] for _ in rule.get("prev_classes") or []] + [
+        set([_]) for _ in rule.get("prev_tokens") or []
+    ]
 
 
 def _curr_and_next_tokens_possible(rule: TransliterationRule, tokens_by_class: dict[str, set[str]]) -> list[set[str]]:
     """`list` of sets of possible current and following tokens for a rule."""
     return (
-        [set([_]) for _ in rule.tokens]
-        + [set([_]) for _ in rule.next_tokens or []]
-        + [tokens_by_class[_] for _ in rule.next_classes or []]
+        [set([_]) for _ in rule.get("tokens", [])]
+        + [set([_]) for _ in rule.get("next_tokens") or []]
+        + [tokens_by_class[_] for _ in rule.get("next_classes") or []]
     )
 
 

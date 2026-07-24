@@ -14,11 +14,11 @@ __version__ = "1.2.4"
 # Core classes
 from .core import CoverageTransliterator, GraphTransliterator
 
-# Constants
-from .compression import (
-    DEFAULT_COMPRESSION_LEVEL,
-    HIGHEST_COMPRESSION_LEVEL,
-)  #  Correct!
+# # Constants
+# from .compression import (
+#     DEFAULT_COMPRESSION_LEVEL,
+#     HIGHEST_COMPRESSION_LEVEL,
+# )  #  Correct!
 
 # Exceptions
 from .exceptions import (
@@ -29,15 +29,10 @@ from .exceptions import (
 )
 
 # Graphs
-from .graphs import (
-    DirectedGraph,
-    VisitLoggingDirectedGraph,
-    VisitLoggingDict,
-    VisitLoggingList,
-)
+from .graphs import DirectedGraph, VisitLoggingDirectedGraph
 
 # Rules
-from .rules import TransliterationRule, OnMatchRule, WhitespaceRules
+from .types import TransliterationRule, OnMatchRule, WhitespaceRule
 
 # Schemas
 from .schemas import (
@@ -56,8 +51,8 @@ __all__ = [
     "GraphTransliterator",
     "CoverageTransliterator",
     # constants
-    "DEFAULT_COMPRESSION_LEVEL",
-    "HIGHEST_COMPRESSION_LEVEL",
+    # "DEFAULT_COMPRESSION_LEVEL",
+    # "HIGHEST_COMPRESSION_LEVEL",
     # exceptions
     "AmbiguousTransliterationRulesException",
     "GraphTransliteratorException",
@@ -66,10 +61,9 @@ __all__ = [
     # graphs
     "DirectedGraph",
     "VisitLoggingDirectedGraph",
-    # rules
     "TransliterationRule",
     "OnMatchRule",
-    "WhitespaceRules",
+    "WhitespaceRule",
     # schemas
     "WhitespaceDictSettingsSchema",
     "WhitespaceSettingsSchema",

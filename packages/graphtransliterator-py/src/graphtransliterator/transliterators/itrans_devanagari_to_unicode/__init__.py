@@ -13,10 +13,10 @@ class ITRANSDevanagariToUnicode(Bundled):
 
         # While testing, initialize from YAML and check ambiguity,
 
-        # self.from_YAML(
-        #     check_ambiguity=check_ambiguity, coverage=coverage
-        # )  # defaults to check_ambiguity=True, check_coverage=True
+        self.from_bundled_YAML(
+            check_ambiguity=check_ambiguity, coverage=coverage
+        )  # defaults to check_ambiguity=True, check_coverage=True
 
         # When ready, cut the previous lines and initialize more quickly from JSON:
 
-        self.from_JSON(check_ambiguity=check_ambiguity, coverage=coverage)
+        # self.from_JSON(check_ambiguity=check_ambiguity, coverage=coverage)

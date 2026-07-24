@@ -58,7 +58,7 @@ Rule Classes
 
 .. autoclass:: graphtransliterator.OnMatchRule
 
-.. autoclass:: graphtransliterator.WhitespaceRules
+.. autoclass:: graphtransliterator.WhitespaceRule
 
 Exceptions
 ----------

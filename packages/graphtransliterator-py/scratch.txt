@@ -1,0 +1,2496 @@
+🎓 seanpue@SLLCLTN045459 ~/new_dev2/graphtransliterator/packages/graphtransliterator-py % cat tests/test_graphtransliterator.py
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""Tests for `graphtransliterator` package."""
+
+import re
+from itertools import combinations
+from typing import cast
+
+import pytest
+import yaml
+from marshmallow.exceptions import ValidationError
+
+import graphtransliterator
+from graphtransliterator import process
+from graphtransliterator.core import CoverageTransliterator, GraphTransliterator
+from graphtransliterator.exceptions import (
+    IncompleteOnMatchRulesCoverageException,
+    NoMatchingTransliterationRuleException,
+    UnrecognizableInputTokenException,
+)
+from graphtransliterator.graphs import DirectedGraph
+from graphtransliterator.initialize import (
+    _onmatch_rule_of,
+    _transliteration_rule_of,
+    _whitespace_rules_of,
+)
+from graphtransliterator.schemas import SettingsSchema
+from graphtransliterator.types import EasyReadingDict, GTEdgeDataType, OnMatchRule, TransliterationRule, WhitespaceRule
+
+yaml_for_test = r"""
+tokens:
+  a: [token, class1]
+  b: [token, class2]
+  u: [token]
+  ' ': [wb]
+rules:
+  a: A
+  b: B
+  <wb> u: \N{DEVANAGARI LETTER U}
+onmatch_rules:
+  -
+    <class1> + <class2>: ","
+  -
+    <class1> + <token>: \N{DEVANAGARI SIGN VIRAMA}
+whitespace:
+  default: ' '
+  token_class: 'wb'
+  consolidate: true
+metadata:
+  author: Author Name
+"""
+
+
+def test_GraphTransliterator_from_YAML():
+    """Test YAML loading of GraphTransliterator."""
+    good_yaml = """
+      tokens:
+        a: [class1]
+        ' ': [wb]
+      rules:
+        a: A
+      whitespace:
+        default: ' '
+        consolidate: true
+        token_class: wb
+    """
+
+    assert GraphTransliterator.from_yaml(good_yaml)
+
+    bad_yaml = """
+      tokens:
+        a: class1
+        ' ': wb
+      rules:
+        a: A
+      whitespace:
+        default: ' '
+        consolidate: true
+        token_class: wb
+    """
+
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+    bad_yaml = """
+      tokens:
+        a: class1
+        ' ': wb
+      rules:
+        a: A
+      whitespace:
+        default: ' '
+        consolidate: true
+        token_class: wb
+    """
+    # tokens values are not lists
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+    bad_yaml = """
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+    bad_yaml = """
+          rules:
+            a: A
+          tokens:
+            a: [token]
+            ' ': [wb]
+          whitespace:
+            default: 'BAD'
+            consolidate: true
+            token_class: bad
+    """
+    # whitespace errors
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+    bad_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+    bad_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            b: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+    bad_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            (b) a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml, ignore_errors=False)
+
+    bad_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            a (b): A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+    bad_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            a <class_nonexisting>: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+    # test for bad tokens
+    bad_yaml = """
+          tokens: '7'
+          rules:
+            a <class_nonexisting>: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+    """
+    with pytest.raises(ValidationError):
+        GraphTransliterator.from_yaml(bad_yaml)
+
+
+def test_graphtransliterator_process():
+    """Test graphtransliterator processing of rules."""
+
+    data = yaml.safe_load(yaml_for_test)
+
+    processed_rule = process._process_rules({"a": "A"})[0]
+    assert processed_rule.get("tokens") == ["a"]
+    assert processed_rule.get("production") == "A"
+
+    processed_onmatch = process._process_onmatch_rules(data["onmatch_rules"])[0]
+    prev_classes = processed_onmatch.get("prev_classes")
+    next_classes = processed_onmatch.get("next_classes")
+
+    assert prev_classes and prev_classes[0] == "class1"
+    assert next_classes and next_classes[0] == "class2"
+
+
+def test_graphtransliterator_models():
+    """Test internal models."""
+    tr = TransliterationRule(
+        production="A",
+        prev_classes=None,
+        prev_tokens=None,
+        tokens=["a"],
+        next_tokens=None,
+        next_classes=None,
+        cost=1,
+    )
+    assert tr["cost"] == 1
+    assert OnMatchRule(prev_classes=["class1"], next_classes=["class2"], production=",")
+    assert WhitespaceRule(default=" ", token_class="wb", consolidate=False)
+
+
+def test_graphtransliterator_structures():
+    # test graph
+    graph = DirectedGraph()
+
+    assert len(graph.nodes) == 0
+    assert len(graph.edges) == 0
+    # test with node data
+    graph.add_node(type="test1")
+    graph.add_node(type="test2")
+    assert graph.nodes[0].get("type") == "test1"
+    assert graph.nodes[1].get("type") == "test2"
+    # test if no node data
+    graph.add_node()  # 2
+    # test add_edge
+    graph.add_edge(0, 1, cast(GTEdgeDataType, {"type": "edge_test1"}))
+    edge = graph.get_edge(0, 1)
+    assert edge is not None
+    assert edge.get("type") == "edge_test1"
+    # test add_edge with no edge data
+    graph.add_edge(1, 2)
+    # edge tail not in graph
+    with pytest.raises(ValueError):
+        graph.add_edge(0, 7, cast(GTEdgeDataType, {}))
+    # edge head not in graph
+    with pytest.raises(ValueError):
+        graph.add_edge(7, 0, cast(GTEdgeDataType, {}))
+    # invalid edge data
+    with pytest.raises(ValueError):
+        graph.add_edge(0, 1, "not a dict")  # type: ignore[arg-type]
+    # invalid edge head type
+    with pytest.raises(ValueError):
+        graph.add_edge("zero", 1)  # type: ignore[arg-type]
+    # invalid edge tail type
+    with pytest.raises(ValueError):
+        graph.add_edge(1, "zero")  # type: ignore[arg-type]
+    # invalid node data
+    with pytest.raises(ValueError):
+        graph.add_node("Not a dict")  # type: ignore[arg-type]
+    # test edge_list
+    assert len(graph.edge_list) > 1
+    # test create graph without node, edges but not edge_list ads edge_list
+    assert DirectedGraph(nodes=graph.nodes, edges=graph.edges).edge_list == graph.edge_list
+
+
+def test_GraphTransliterator_transliterate(tmpdir):
+    """Test GraphTransliterator transliterate."""
+    YAML = r"""
+    tokens:
+        a: [class_a]
+        b: [class_b]
+        c: [class_c]
+        " ": [wb]
+        d: []
+        Aa: [contrained_rule]
+    rules:
+        a: A
+        b: B
+        <class_c> <class_c> a: A(AFTER_CLASS_C_AND_CLASS_C)
+        (<class_c> b) a: A(AFTER_B_AND_CLASS_C)
+        (<class_c> b b) a a: AA(AFTER_BB_AND_CLASS_C)
+        a <class_c>: A(BEFORE_CLASS_C)
+        a b (c <class_b>): AB(BEFORE_C_AND_CLASS_B)
+        c: C
+        c c: C*2
+        a (b b b): A(BEFORE_B_B_B)
+        d (c <class_a>): D(BEFORE_C_AND_CLASS_A)
+        (b b) a: A(AFTER_B_B)
+        <wb> Aa: A(ONLY_A_CONSTRAINED_RULE)
+    onmatch_rules:
+        -
+            <class_a> <class_b> + <class_a> <class_b>: "!"
+        -
+            <class_a> + <class_b>: ","
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    gt = GraphTransliterator.from_yaml(YAML)
+    # rules with single token
+    assert gt.transliterate("a") == "A"
+    # rules with multiple tokens
+    assert gt.transliterate("aa") == "AA"
+    # rules with multiple tokens (for rule_key)
+    assert gt.transliterate("cc") == "C*2"
+
+    # rules with prev class
+    assert gt.transliterate("ca") == "CA"
+    # rules with prev class and prev token
+    assert gt.transliterate("dca") == "D(BEFORE_C_AND_CLASS_A)CA"
+    # rules with prev class and prev tokens
+    assert gt.transliterate("cbba") == "CBBA(AFTER_B_B)"
+    # rules with next class
+    assert gt.transliterate("ac") == "A(BEFORE_CLASS_C)C"
+    # rules with next class and next tokens
+    assert gt.transliterate("acb") == "A(BEFORE_CLASS_C)CB"
+    # rules with onmatch rule of length 1
+    assert gt.transliterate("ab") == "A,B"
+    # rules that only have constraints on first element
+    assert gt.transliterate("Aa") == "A(ONLY_A_CONSTRAINED_RULE)"
+    # test whitespace consolidation
+    assert gt.transliterate(" a") == "A"
+    # test whitespace consolidation following
+    assert gt.transliterate("a ") == "A"
+
+    # rules with longer onmatch rules
+    assert gt.transliterate("abab") == "A,B!A,B"
+
+    # test last_matched_input_tokens
+    assert gt.last_input_tokens == [" ", "a", "b", "a", "b", " "]
+    # test last_matched_tokens
+    assert gt.last_matched_rule_tokens == [["a"], ["b"], ["a"], ["b"]]
+
+    # test last_matched_rules
+    assert len(gt.last_matched_rules) == 4
+
+    # test details
+    assert gt.transliterate("a ") == "A" and gt.rules
+
+
+def test_GraphTransliterator_transliterate_with_details():
+    """Test GraphTransliterator transliterate_with_detials."""
+    YAML = r"""
+    tokens:
+        a: [class_a]
+        b: [class_b]
+        c: [class_c]
+        " ": [wb]
+        d: []
+        Aa: [contrained_rule]
+    rules:
+        a: A
+        b: B
+        <class_c> <class_c> a: A(AFTER_CLASS_C_AND_CLASS_C)
+        (<class_c> b) a: A(AFTER_B_AND_CLASS_C)
+        (<class_c> b b) a a: AA(AFTER_BB_AND_CLASS_C)
+        a <class_c>: A(BEFORE_CLASS_C)
+        a b (c <class_b>): AB(BEFORE_C_AND_CLASS_B)
+        c: C
+        c c: C*2
+        a (b b b): A(BEFORE_B_B_B)
+        d (c <class_a>): D(BEFORE_C_AND_CLASS_A)
+        (b b) a: A(AFTER_B_B)
+        <wb> Aa: A(ONLY_A_CONSTRAINED_RULE)
+    onmatch_rules:
+        -
+            <class_a> <class_b> + <class_a> <class_b>: "!"
+        -
+            <class_a> + <class_b>: ","
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    gt = GraphTransliterator.from_yaml(YAML)
+
+    assert gt.transliterate_with_details("a") == (
+        "A",
+        [{"production": "A", "tokens": ["a"], "cost": -1}],
+        # [
+        #     TransliterationRule(
+        #         production="A",
+        #         prev_classes=None,
+        #         prev_tokens=None,
+        #         tokens=["a"],
+        #         next_tokens=None,
+        #         next_classes=None,
+        #         cost=-1,
+        #     )
+        # ],
+    )
+
+
+def test_serialization():
+    """Test serialization of graphtransliterator"""
+    # Field definitions
+    # required_fields = ["tokens", "rules", "whitespace"]
+    optional_fields = [
+        "onmatch_rules",
+        "metadata",
+        # "ignore_errors",
+        # "onmatch_rules_lookup",
+        # "tokens_by_class",
+        # "graph",
+        # "tokenizer_pattern",
+        # "graphtransliterator_version",
+    ]
+    # ordered_fields = required_fields + optional_fields
+    yaml_ = """
+        tokens:
+          a: [vowel]
+          ' ': [wb]
+        rules:
+          a: A
+          ' ': ' '
+        whitespace:
+          default: " "
+          consolidate: false
+          token_class: wb
+        onmatch_rules:
+          - <vowel> + <vowel>: ','  # add a comma between vowels
+        metadata:
+          author: "Author McAuthorson"
+    """
+    gt = GraphTransliterator.from_yaml(yaml_)
+    # test dump
+    # dump = gt.dump()
+    #    assert dump["graph"]["edges"]
+    # test ordering of dump fields
+    # assert list(dump.keys()) == ordered_fields
+    # test dump version
+    ##assert dump["graphtransliterator_version"] == graphtransliterator.__version__
+    # assert re.match(r"\d+\.\d+\.\d+$", gt.dump()["graphtransliterator_version"])
+    # test dumps
+    x = gt.dumps()
+    # assert "graph" in gt.dumps()
+    assert isinstance(x, str)
+    # test loads
+    new_gt = GraphTransliterator.loads(x)
+    assert GraphTransliterator.loads(gt.dumps()).dumps()
+    assert isinstance(new_gt, GraphTransliterator)
+    # test load
+    settings = gt.dump()
+    assert isinstance(GraphTransliterator.load(settings), GraphTransliterator)
+    # confirm settings not affected by load
+    assert settings == settings
+    # confirm compacting (dropping) optional settings works
+    for length in range(1, len(optional_fields)):
+        for to_drop in combinations(optional_fields, length):
+            settings = gt.dump()
+            for _ in to_drop:
+                settings.pop(_)
+            if settings.get("onmatch_rules_lookup") and not settings.get("onmatch_rules"):
+                with pytest.raises(ValidationError):
+                    assert GraphTransliterator.load(settings)
+            else:
+                assert GraphTransliterator.load(settings)
+    # test IncorrectVersionException
+    _ = gt.dump()
+    # _["graphtransliterator_version"] += "1"  # add 1 e.g. 1.0.11
+    # with pytest.raises(IncorrectVersionException):
+    #     assert GraphTransliterator.load(_)
+
+
+def test_version():
+    """Tests to make sure version is not a mess (e.g. due to Black formatting)"""
+
+    assert re.match(r"\d+\.\d+\.\d+$", graphtransliterator.__version__)
+
+
+def test_match_all():
+    """Test GraphTransliterator transliterate."""
+    YAML = r"""
+    tokens:
+        a: [class_a]
+        " ": [wb]
+    rules:
+        a: A.    # rule 0
+        a a: A*2 # rule 1
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    gt = GraphTransliterator.from_yaml(YAML)
+    print(gt.rules)
+    assert gt.rules[0]["cost"] > gt.rules[1]["cost"]
+
+    tokens = gt.tokenize("aa")
+    assert gt.match_at(1, tokens, match_all=False) == 1
+    assert gt.match_at(1, tokens, match_all=True) == [1, 0]
+
+
+def test_GraphTransliterator(tmpdir):
+    """Test GraphTransliterator."""
+    yaml_str = r"""
+    tokens:
+      a: [token, class1]
+      b: [token, class2]
+      u: [token]
+      ' ': [wb]
+    rules:
+      a: A
+      b: B
+      <wb> u: \N{DEVANAGARI LETTER U}
+    onmatch_rules:
+      -
+        <class1> + <class2>: ","
+      -
+        <class1> + <token>: \N{DEVANAGARI SIGN VIRAMA}
+    whitespace:
+      default: ' '
+      token_class: 'wb'
+      consolidate: true
+    metadata:
+      author: Author
+    """
+
+    input_dict = yaml.safe_load(yaml_str)
+    assert "a" in GraphTransliterator.from_easyreading_dict(input_dict).tokens.keys()
+    gt = GraphTransliterator.from_easyreading_dict(input_dict)
+    # Assert gt.metadata is present to satisfy type checkers
+    assert gt.onmatch_rules is not None
+    assert gt.onmatch_rules[0]["production"] == ","
+    assert gt.tokens
+    assert gt.rules
+    assert gt.whitespace
+    assert gt.whitespace["default"]
+    assert gt.whitespace["token_class"]
+    assert gt.whitespace["consolidate"]
+    assert gt.metadata is not None
+    assert gt.metadata["author"] == "Author"
+    assert isinstance(gt.graph, DirectedGraph)
+    yaml_file = tmpdir.join("yaml_test.yaml")
+    yaml_filename = str(yaml_file)
+    yaml_file.write(yaml_str)
+
+    assert yaml_file.read() == yaml_str
+
+    assert GraphTransliterator.from_yaml_file(yaml_filename)
+
+    assert len(set(GraphTransliterator.from_easyreading_dict(input_dict).tokens)) == 4
+
+    assert GraphTransliterator.from_yaml(yaml_str).transliterate("ab") == "A,B"
+    assert GraphTransliterator.from_yaml_file(yaml_filename).transliterate("ab") == "A,B"
+    assert (
+        GraphTransliterator.from_easyreading_dict(
+            {
+                "tokens": {"a": ["class_a"], "b": ["class_b"], " ": ["wb"]},
+                "onmatch_rules": [{"<class_a> + <class_b>": ","}],
+                "whitespace": {
+                    "default": " ",
+                    "token_class": "wb",
+                    "consolidate": True,
+                },
+                "rules": {"a": "A", "b": "B"},
+            }
+        ).transliterate("ab")
+        == "A,B"
+    )
+
+
+def test_GraphTransliterator_ignore_errors():
+    # if ignore_errors is not set and no matching transliteration rule
+    # raise NoMatchingTransliterationRule exception
+    yaml_str = """
+        tokens:
+           a: [class1]
+           b: [class1]
+           ' ': [wb]
+        rules:
+           a a: B2
+           b: B
+        whitespace:
+           default: ' '
+           consolidate: true
+           token_class: wb
+           """
+    # check that ignore_errors works
+    assert GraphTransliterator.from_yaml(yaml_str, ignore_errors=True).transliterate("a") == ""
+
+    with pytest.raises(NoMatchingTransliterationRuleException):
+        gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
+        assert gt.ignore_errors is False
+        gt.transliterate("a")
+
+    with pytest.raises(UnrecognizableInputTokenException):
+        gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
+        assert gt.ignore_errors is False
+        gt.transliterate("!")
+
+    gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=True)
+    assert gt.ignore_errors is True
+    assert gt.tokenize("b!b") == [" ", "b", "b", " "]
+    assert gt.transliterate("b!b") == "BB"
+
+    with pytest.raises(UnrecognizableInputTokenException):
+        gt = GraphTransliterator.from_yaml(yaml_str, ignore_errors=False)
+        assert gt.ignore_errors is False
+        gt.transliterate("b!")
+
+    # test ignore_errors setter and property
+    gt.ignore_errors = True
+    assert gt.ignore_errors is True
+    gt.ignore_errors = False
+    assert gt.ignore_errors is False
+
+
+def test_GraphTransliterator_types():
+    """Test internal types."""
+    pr = TransliterationRule(
+        production="A",
+        prev_classes=None,
+        prev_tokens=None,
+        tokens=["a"],
+        next_tokens=None,
+        next_classes=None,
+        cost=1,
+    )
+    assert pr["cost"] == 1
+    assert OnMatchRule(prev_classes=["class1"], next_classes=["class2"], production=",")
+    assert WhitespaceRule(default=" ", token_class="wb", consolidate=False)
+
+    graph = DirectedGraph()
+
+    assert len(graph.nodes) == 0
+    assert len(graph.edges) == 0
+
+    graph.add_node(type="test1")
+    graph.add_node(type="test2")
+    assert graph.nodes[0].get("type") == "test1"
+    assert graph.nodes[1].get("type") == "test2"
+
+    graph.add_edge(0, 1, cast(GTEdgeDataType, {"type": "edge_test1"}))
+    assert graph.edges and graph.edges[0]["data"].get("type") == "edge_test1"
+
+
+def test_GraphTransliterator_productions():
+    """Test productions."""
+    tokens = {"ab": ["class_ab"], " ": ["wb"]}
+    whitespace = {"default": " ", "token_class": "wb", "consolidate": True}
+    rules = {"ab": "AB", " ": "_"}
+    settings = {"tokens": tokens, "rules": rules, "whitespace": whitespace}
+    assert set(GraphTransliterator.from_easyreading_dict(settings).productions) == set(["AB", "_"])
+
+
+def test_GraphTransliterator_pruned_of():
+    gt = GraphTransliterator.from_yaml(
+        """
+            tokens:
+               a: [class1]
+               b: [class2]
+               ' ': [wb]
+            rules:
+               a: A
+               b: B
+            whitespace:
+               default: ' '
+               consolidate: true
+               token_class: wb
+        """
+    )
+    assert len(gt.rules) == 2
+    assert len(gt.pruned_of("B").rules) == 1
+    assert gt.pruned_of("B").rules[0]["production"] == "A"
+    assert gt.pruned_of(["A", "B"])  # if no rules present will still work
+
+
+def test_GraphTransliterator_graph():
+    """Test graph."""
+    tokens = {"ab": ["class_ab"], " ": ["wb"]}
+    whitespace = {"default": " ", "token_class": "wb", "consolidate": True}
+    rules = {"ab": "AB", " ": "_"}
+    settings = {"tokens": tokens, "rules": rules, "whitespace": whitespace}
+    gt = GraphTransliterator.from_easyreading_dict(settings)
+    assert gt._graph
+    assert gt._graph.nodes[0].get("type") == "Start"  # test for Start
+    assert gt
+
+
+def test_graph_transliterator_settings_property():
+    """Verify that the .settings property outputs a perfectly structured dict
+
+    that matches the expectations of SettingsSchema.
+    """
+    setup = {
+        "tokens": {"a": ["vowel"], " ": ["wb"]},
+        "rules": [{"tokens": ["a"], "production": "A"}],
+        "whitespace": {"default": " ", "token_class": "wb", "consolidate": True},
+        "metadata": {"author": "Alice"},
+    }
+    gt = GraphTransliterator.from_dict(setup)
+
+    # Fetch the generated introspection settings dictionary
+    current_settings = gt.settings
+
+    # 1. Structural assertions on the generated dictionary layout
+    assert "tokens" in current_settings
+    assert "rules" in current_settings
+    assert "whitespace" in current_settings
+    assert current_settings["metadata"] == {"author": "Alice"}
+    assert current_settings["whitespace"]["default"] == " "
+
+    # Verify rules conversion maps appropriately
+    assert len(current_settings["rules"]) == 1
+    assert current_settings["rules"][0]["production"] == "A"
+    assert current_settings["rules"][0]["tokens"] == ["a"]
+
+    # 2. Schema Round-trip validation check
+    # This guarantees that the dictionary perfectly matches SettingsSchema requirements.
+    validated_data = SettingsSchema().load(current_settings)
+    assert validated_data is not None
+
+
+def test_lookahead_and_lookbehind_edge_cases():
+    """Direct programmatic test for negative matches, combined constraints, and fallbacks."""
+    YAML = r"""
+    tokens:
+        a: [vowel]
+        b: [consonant]
+        x: [prefix]
+        y: [suffix]
+        " ": [wb]
+    rules:
+        # Fallback rules
+        a: A
+        b: B
+        x: X
+        y: Y
+
+        # Combined lookbehind AND lookahead constraint
+        (x) a (y): A_CENTERED
+
+        # Multi-class lookahead
+        b <vowel> <consonant>: B_BEFORE_VOWEL_CONSONANT
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    gt = GraphTransliterator.from_yaml(YAML)
+
+    # 1. Combined lookbehind + lookahead succeeds
+    assert gt.transliterate("xay") == "XA_CENTEREDY"
+
+    # 2. Combined lookbehind + lookahead fails when suffix missing (falls back to 'A')
+    assert gt.transliterate("xab") == "XAB"
+
+    # 3. Combined lookbehind + lookahead fails when prefix missing
+    assert gt.transliterate("bay") == "BAY"
+
+    # 4. Multi-class lookahead
+    assert gt.transliterate("bab") == "B_BEFORE_VOWEL_CONSONANTAB"
+
+
+# # ---------------------------------------------------------------------------
+# # 1. Test Compression Level Validation
+# # ---------------------------------------------------------------------------
+# def test_dump_invalid_compression_level():
+#     gt = GraphTransliterator.from_yaml(
+#         """
+#         tokens: {a: [c1], ' ': [wb]}
+#         rules: {a: A}
+#         whitespace: {default: ' ', consolidate: true, token_class: wb}
+#         """
+#     )
+#     with pytest.raises(ValueError, match="Compression level must be between 0 and 2"):
+#         gt.dump(compression_level=99)
+
+
+def test_merge_mismatched_whitespace_and_operator_add():
+    gt1 = GraphTransliterator.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """
+    )
+    gt2 = GraphTransliterator.from_yaml(
+        """
+        tokens: {b: [c2], '_': [wb]}
+        rules: {b: B}
+        whitespace: {default: '_', consolidate: false, token_class: wb}
+        """
+    )
+
+    # Whitespace mismatch should raise ValueError on merge
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
+        gt1.merge(gt2)
+
+    # Adding non-GraphTransliterator should return NotImplemented
+    assert gt1.__add__("not_a_gt_instance") == NotImplemented  # type: ignore[arg-type]
+
+    # Successful merge with new tokens in gt3
+    gt3 = GraphTransliterator.from_yaml(
+        """
+        tokens: {b: [c2], ' ': [wb]}
+        rules: {b: B}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """
+    )
+    merged = gt1 + gt3
+    assert "b" in merged.tokens
+
+
+# ---------------------------------------------------------------------------
+# 3. Test Static Method `merge_easyreading_configs`
+# ---------------------------------------------------------------------------
+def test_merge_easyreading_configs_coverage():
+    cfg1 = cast(
+        EasyReadingDict,
+        {
+            "tokens": {"a": ["c1"]},
+            "rules": {"a": "A"},
+            "whitespace": {"default": " ", "consolidate": True, "token_class": "wb"},
+            "onmatch_rules": [{"<c1> + <c1>": ","}],
+            "metadata": {"author": "Alice"},
+        },
+    )
+    cfg2 = cast(
+        EasyReadingDict,
+        {
+            "tokens": {"a": ["c2"], "b": ["c1"]},
+            "rules": {"b": "B"},
+            "whitespace": {"default": " ", "consolidate": True, "token_class": "wb"},
+            "onmatch_rules": [{"<c1> + <c1>": ","}, {"<c1> + <c2>": ";"}],
+            "metadata": {"version": "1.0"},
+        },
+    )
+
+    # Test clean merging and deduplication
+    merged = GraphTransliterator.merge_easyreading_configs(cfg1, cfg2)
+    assert set(merged["tokens"]["a"]) == {"c1", "c2"}
+    assert "b" in merged["tokens"]
+    assert merged.get("onmatch_rules") and len(merged.get("onmatch_rules", [])) == 2
+    assert merged.get("metadata") and merged.get("metadata", {}).get("author") == "Alice"
+
+    # Test whitespace mismatch validation
+    bad_cfg = cast(EasyReadingDict, dict(cfg2))
+    bad_cfg["whitespace"] = {"default": "_", "consolidate": False, "token_class": "wb"}
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
+        GraphTransliterator.merge_easyreading_configs(cfg1, bad_cfg)
+
+
+# ---------------------------------------------------------------------------
+# 4. Test Subclass Instantiation Wrappers (`__new__` and `__init_subclass__`)
+# ---------------------------------------------------------------------------
+def test_subclass_init_wrappers():
+    class CustomGT(GraphTransliterator):
+        pass
+
+    class CustomCoverage(CoverageTransliterator):
+        pass
+
+    # Instantiate custom GT with extra keyword arguments (triggers __new__ wrapper)
+    gt = CustomGT.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """,
+        ignore_errors=True,
+    )
+    assert gt.ignore_errors is True
+
+    # Instantiate custom CoverageTransliterator with extra keyword arguments
+    cov = CustomCoverage.from_yaml(
+        """
+        tokens: {a: [c1], ' ': [wb]}
+        rules: {a: A}
+        whitespace: {default: ' ', consolidate: true, token_class: wb}
+        """,
+        ignore_errors=True,
+    )
+    assert cov.ignore_errors is True
+
+
+# ---------------------------------------------------------------------------
+# 5. Test CoverageTransliterator OnMatch Coverage Check
+# ---------------------------------------------------------------------------
+def test_coverage_transliterator_onmatch_checks():
+    YAML = r"""
+    tokens:
+        a: [class1]
+        b: [class2]
+        " ": [wb]
+    rules:
+        a: A
+        b: B
+    onmatch_rules:
+        - <class1> + <class2>: ","
+    whitespace:
+        default: ' '
+        consolidate: True
+        token_class: wb
+    """
+    easyreading_dict = yaml.safe_load(YAML)
+
+    # 1. Process settings into raw dictionaries
+    gt_dict = process._process_easyreading_settings(easyreading_dict)
+
+    # 2. Convert raw dictionaries to class instances
+    rules = [_transliteration_rule_of(r) for r in gt_dict.get("rules", [])]
+    onmatch_rules = [_onmatch_rule_of(r) for r in gt_dict.get("onmatch_rules", [])]
+    whitespace = _whitespace_rules_of(gt_dict["whitespace"])  # type: ignore[arg-type]
+
+    # 3. Instantiate CoverageTransliterator directly
+    cov = CoverageTransliterator(
+        tokens=gt_dict.get("tokens", {}),
+        rules=rules,
+        onmatch_rules=onmatch_rules,
+        whitespace=whitespace,
+        metadata=gt_dict.get("metadata", {}),
+    )
+
+    # Process 'a' and 'b' individually so graph rules pass edge coverage,
+    # but the combined sequence triggering onmatch rule <class1> + <class2> is NEVER run.
+    cov.transliterate("a")
+    cov.transliterate("b")
+
+    # Checking coverage should now fail specifically on missing OnMatchRules coverage
+    with pytest.raises(IncompleteOnMatchRulesCoverageException, match="Missed OnMatchRules: 0"):
+        cov.check_coverage(raise_exception=True)
+
+    # Check returns False when raise_exception=False
+    assert cov.check_coverage(raise_exception=False) is False
+
+    # Clear visited flags
+    cov.clear_visited()
+🎓 seanpue@SLLCLTN045459 ~/new_dev2/graphtransliterator/packages/graphtransliterator-py % make test
+🚀 Testing code: Running pytest
+poetry run pytest --cov --cov-config=pyproject.toml --cov-report=xml
+================================================================= test session starts =================================================================
+platform darwin -- Python 3.10.20, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py
+configfile: pyproject.toml
+plugins: cov-4.1.0
+collected 51 items
+
+src/graphtransliterator/transliterators/example/tests/test_example.py .                                                                         [  1%]
+tests/test_ambiguity.py ..                                                                                                                      [  5%]
+tests/test_cli.py .......                                                                                                                       [ 19%]
+tests/test_coverage.py .                                                                                                                        [ 21%]
+tests/test_graphtransliterator.py F....................                                                                                         [ 62%]
+tests/test_merge.py .....                                                                                                                       [ 72%]
+tests/test_subgraph_injection.py ......                                                                                                         [ 84%]
+tests/test_transliterators.py ........                                                                                                          [100%]
+
+====================================================================== FAILURES =======================================================================
+_________________________________________________________ test_GraphTransliterator_from_YAML __________________________________________________________
+
+    def test_GraphTransliterator_from_YAML():
+        """Test YAML loading of GraphTransliterator."""
+        good_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+        """
+
+        assert GraphTransliterator.from_yaml(good_yaml)
+
+        bad_yaml = """
+          tokens:
+            a: class1
+            ' ': wb
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+        """
+
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+
+        bad_yaml = """
+          tokens:
+            a: class1
+            ' ': wb
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+        """
+        # tokens values are not lists
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+
+        bad_yaml = """
+              rules:
+                a: A
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+        bad_yaml = """
+              rules:
+                a: A
+              tokens:
+                a: [token]
+                ' ': [wb]
+              whitespace:
+                default: 'BAD'
+                consolidate: true
+                token_class: bad
+        """
+        # whitespace errors
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+        bad_yaml = """
+              tokens:
+                a: [class1]
+                ' ': [wb]
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+        bad_yaml = """
+              tokens:
+                a: [class1]
+                ' ': [wb]
+              rules:
+                b: A
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+
+        bad_yaml = """
+              tokens:
+                a: [class1]
+                ' ': [wb]
+              rules:
+                (b) a: A
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+>       with pytest.raises(ValidationError):
+E       Failed: DID NOT RAISE ValidationError
+
+tests/test_graphtransliterator.py:161: Failed
+
+--------- coverage: platform darwin, python 3.10.20-final-0 ----------
+Coverage XML written to file coverage.xml
+
+=============================================================== short test summary info ===============================================================
+FAILED tests/test_graphtransliterator.py::test_GraphTransliterator_from_YAML - Failed: DID NOT RAISE ValidationError
+============================================================ 1 failed, 50 passed in 0.70s =============================================================
+make: *** [test] Error 1
+🎓 seanpue@SLLCLTN045459 ~/new_dev2/graphtransliterator/packages/graphtransliterator-py % cat src/graphtransliterator/initialize.py
+# -*- coding: utf-8 -*-
+
+"""
+Functions used to initialize a GraphTransliterator.
+"""
+
+import re
+import unicodedata
+from collections import defaultdict
+from typing import Any, Union, cast
+
+from .graphs import DirectedGraph
+from .types import (
+    ConstraintDict,
+    OnMatchRule,
+    RawOnMatchDict,
+    RawRuleDict,
+    RawWhitespaceDict,
+    Token,
+    TokenClass,
+    TransliterationRule,
+    WhitespaceRule,
+)
+
+# ---------- initialize tokens ----------
+
+
+def _tokens_by_class_of(tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]]) -> dict[TokenClass, set[Token]]:
+    """Generates lookup table of tokens in each class."""
+
+    out: dict[TokenClass, set[Token]] = defaultdict(set)
+    for token, token_classes in tokens.items():
+        for token_class in token_classes:
+            out[token_class].add(token)
+    return out
+
+
+# ---------- initialize rules ----------
+
+
+def _transliteration_rule_of(rule: RawRuleDict | TransliterationRule) -> TransliterationRule:
+    """Converts rule dict into a TransliterationRule."""
+
+    cost = rule.get("cost")
+    if cost is None:
+        cost = _cost_of(rule)
+
+    transliteration_rule: TransliterationRule = {
+        "production": rule.get("production", ""),
+        "tokens": rule.get("tokens") or [],
+        "cost": cost,
+    }
+
+    if rule.get("prev_classes"):
+        transliteration_rule["prev_classes"] = rule.get("prev_classes")
+    if rule.get("prev_tokens"):
+        transliteration_rule["prev_tokens"] = rule.get("prev_tokens")
+    if rule.get("next_tokens"):
+        transliteration_rule["next_tokens"] = rule.get("next_tokens")
+    if rule.get("next_classes"):
+        transliteration_rule["next_classes"] = rule.get("next_classes")
+
+    return transliteration_rule
+
+
+def _num_tokens_of(rule: Union[RawRuleDict, TransliterationRule]) -> int:
+    """Calculate the total number of tokens in a rule."""
+    tokens_field = rule.get("tokens")
+    total = len(tokens_field) if tokens_field else 0
+
+    # Check each optional list field directly to avoid loop type-checking conflicts
+    for val in (
+        rule.get("prev_classes"),
+        rule.get("prev_tokens"),
+        rule.get("next_tokens"),
+        rule.get("next_classes"),
+    ):
+        if val:
+            total += len(val)
+    return total
+
+
+def _cost_of(rule: Union[RawRuleDict, TransliterationRule]) -> float:
+    """Calculate the cost of a rule based on the number of constraints.
+
+    Rules requiring more tokens to match are made less costly and tried first.
+    """
+
+    return 0 - _num_tokens_of(rule)  # math.log2(1 + 1 / (1 + _num_tokens_of(rule)))
+
+
+# ---------- initialize onmatch rules ----------
+
+
+def _onmatch_rule_of(onmatch_rule: RawOnMatchDict) -> OnMatchRule:
+    """Converts onmatch_rule into OnMatchRule."""
+
+    return {
+        "prev_classes": onmatch_rule["prev_classes"],
+        "next_classes": onmatch_rule["next_classes"],
+        "production": onmatch_rule["production"],
+    }
+
+
+def _onmatch_rules_lookup(
+    tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]],
+    onmatch_rules: list[OnMatchRule],
+) -> dict[Token, dict[Token, list[int]]]:
+    """Creates a dict lookup from current to previous token.
+
+    Returns
+    -------
+    dict of {str: dict of {str: list of int}}
+        Dictionary keyed by current token to previous token containing a list of
+        :class:`OnMatchRule` in order that would apply
+    """
+
+    onmatch_lookup: dict[Token, dict[Token, list[int]]] = {}
+
+    # Iterate through onmatch rules
+    for rule_i, rule in enumerate(onmatch_rules):
+        # Iterate through all tokens
+        for token_key, token_classes in tokens.items():
+            # if the onmatch rule's next is of that class
+            if rule["next_classes"][0] in token_classes:
+                # iterate through all tokens again
+                for prev_token_key, prev_token_classes in tokens.items():
+                    # if second token is of class of onmatch rule's last prev
+                    # add the rule to curr -> prev
+                    if rule["prev_classes"][-1] in prev_token_classes:
+                        if token_key not in onmatch_lookup:
+                            onmatch_lookup[token_key] = {}
+                        curr_token = onmatch_lookup[token_key]
+                        if prev_token_key not in curr_token:
+                            curr_token[prev_token_key] = []
+                        rule_list = curr_token[prev_token_key]
+                        rule_list.append(rule_i)
+    return onmatch_lookup
+
+
+# ---------- initialize whitespace ---------
+
+
+def _whitespace_rules_of(whitespace: RawWhitespaceDict) -> WhitespaceRule:
+    """Converts whitespace into WhiteSpace"""
+    return {
+        "default": whitespace["default"],
+        "token_class": whitespace["token_class"],
+        "consolidate": whitespace["consolidate"],
+    }
+
+
+# ---------- initialize tokenizer ----------
+
+
+def _tokenizer_pattern_from(tokens: list[Token]) -> str:
+    """Generates regular expression tokenizer pattern from token list.
+
+    Sorts by length and then tokens.
+    """
+
+    tokens.sort(key=lambda x: (len(x), x), reverse=True)
+    regex_str = "(" + "|".join([re.escape(_) for _ in tokens]) + ")"
+    return regex_str
+
+
+def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph[Any, Any, Any]:
+    """Generates a parsing graph from the given rules."""
+
+    graph: DirectedGraph[Any, Any, Any] = DirectedGraph()
+
+    nodes = cast(list[dict[str, Any]], graph.nodes)
+    edges = cast(list[dict[str, Any]], graph.edges)
+
+    # Temporary lookup mapping: source_id -> target_id -> edge_data_dict
+    edge_map: dict[int, dict[int, dict[str, Any]]] = defaultdict(dict)
+
+    nodes.append({"type": "Start", "id": 0, "token": "", "label": "Start", "data": {}})
+
+    for rule_key, rule in enumerate(rules):
+        rule_cost = rule.get("cost")
+        if rule_cost is None:
+            rule_cost = _cost_of(rule)
+
+        parent_key = 0
+        for token in rule["tokens"]:
+            parent_node = nodes[parent_key]
+            token_children = parent_node.setdefault("token_children", {})
+            token_node_key = token_children.get(token)
+
+            if token_node_key is None:
+                token_node_key = len(nodes)
+                nodes.append(
+                    {
+                        "id": token_node_key,
+                        "type": "Token",
+                        "token": token,
+                        "label": token,
+                        "data": {},
+                    }
+                )
+                edge_map[parent_key][token_node_key] = {"token": token, "cost": rule_cost}
+                token_children[token] = token_node_key
+
+            curr_edge = edge_map[parent_key][token_node_key]
+            curr_cost = curr_edge.get("cost")
+            if curr_cost is None or rule_cost < curr_cost:
+                curr_edge["cost"] = rule_cost
+
+            parent_key = token_node_key
+
+        rule_node_key = len(nodes)
+        nodes.append(
+            {
+                "id": rule_node_key,
+                "type": "Rule",
+                "token": "",
+                "label": f"rule_{rule_key}",
+                "rule_key": rule_key,
+                "accepting": True,
+                "data": {},
+            }
+        )
+
+        parent_node = nodes[parent_key]
+        rule_children = parent_node.setdefault("rule_children", [])
+        rule_children.append(rule_node_key)
+
+        edge_map[parent_key][rule_node_key] = {"cost": rule_cost}
+        edge_to_rule = edge_map[parent_key][rule_node_key]
+
+        prev_classes = rule.get("prev_classes")
+        prev_tokens = rule.get("prev_tokens")
+        next_tokens = rule.get("next_tokens")
+        next_classes = rule.get("next_classes")
+
+        has_constraints = prev_classes or prev_tokens or next_tokens or next_classes
+        if has_constraints:
+            constraints: ConstraintDict = {}
+            if prev_classes:
+                constraints["prev_classes"] = prev_classes
+            if prev_tokens:
+                constraints["prev_tokens"] = prev_tokens
+            if next_tokens:
+                constraints["next_tokens"] = next_tokens
+            if next_classes:
+                constraints["next_classes"] = next_classes
+            edge_to_rule["constraints"] = constraints
+
+    for node_key, node in enumerate(nodes):
+        ordered_children: dict[str, list[int]] = {}
+        rule_children_keys = node.get("rule_children")
+
+        def get_edge_cost(target_key: int) -> float:
+            rule_idx = nodes[target_key].get("rule_key")
+            if rule_idx is not None:
+                r = rules[cast(int, rule_idx)]
+                return r.get("cost") if r.get("cost") is not None else _cost_of(r)
+            return edge_map[node_key].get(target_key, {}).get("cost", 0.0)
+
+        # Sort rules so the lowest cost (most specific) comes FIRST in the list
+        if rule_children_keys:
+            ordered_children["__rules__"] = sorted(
+                rule_children_keys,
+                key=get_edge_cost,
+            )
+            node.pop("rule_children", None)
+
+        token_children = node.get("token_children")
+
+        if token_children:
+            for token, token_key in token_children.items():
+                ordered_children[token] = [token_key]
+
+                if rule_children_keys:
+                    ordered_children[token] += rule_children_keys
+
+                ordered_children[token].sort(key=get_edge_cost)
+
+            node.pop("token_children", None)
+
+        node["ordered_children"] = ordered_children
+
+    for source_id, targets in edge_map.items():
+        for target_id, edge_data in targets.items():
+            edges.append(
+                {
+                    "source": source_id,
+                    "target": target_id,
+                    "data": edge_data,
+                }
+            )
+
+    return graph
+
+
+# ---------- unicode adjustments during initialization ----------
+
+
+def _unescape_charnames(input_str: str) -> str:
+    r"""Convert \\N{Unicode charname}-escaped str to unicode characters."""
+
+    def get_unicode_char(matchobj: re.Match[str]) -> str:
+        """Get Unicode character value from escaped character sequences."""
+        charname = matchobj.group(0)
+        match = re.match(r"\\N{([-A-Z ]+)}", charname)
+        if not match:
+            return charname
+        char = unicodedata.lookup(match.group(1))  # KeyError if invalid
+        return cast(str, char)
+
+    return re.sub(r"\\N{[-A-Z ]+}", get_unicode_char, input_str)
+🎓 seanpue@SLLCLTN045459 ~/new_dev2/graphtransliterator/packages/graphtransliterator-py % cat src/graphtransliterator/schemas.py
+# -*- coding: utf-8 -*-
+
+import copy
+from collections import defaultdict
+from typing import Any, Iterable, Union, cast
+
+from marshmallow import (
+    Schema,
+    ValidationError,
+    fields,
+    post_load,
+    validate,
+    validates_schema,
+)
+
+from .graphs import DirectedGraph
+from .initialize import (
+    _onmatch_rule_of,
+    _whitespace_rules_of,
+)
+from .process import ONMATCH_RE, RULE_RE
+from .types import (
+    LoadedGraphDict,
+    LoadedSettingsDict,
+    OnMatchRule,
+    RawOnMatchDict,
+    RawWhitespaceDict,
+    TransliterationRule,
+    WhitespaceRule,
+)
+
+
+class WhitespaceDictSettingsSchema(Schema):
+    """Schema for Whitespace definition as a `dict`."""
+
+    default = fields.Str(required=True)
+    token_class = fields.Str(required=True)
+    consolidate = fields.Boolean(required=True)
+
+
+class WhitespaceSettingsSchema(WhitespaceDictSettingsSchema):
+    """Schema for Whitespace definition that loads as a WhitespaceRule."""
+
+    @post_load
+    def make_whitespace_rules(self, data: RawWhitespaceDict, **kwargs: Any) -> WhitespaceRule:
+        return _whitespace_rules_of(data)
+
+
+class EasyReadingSettingsSchema(Schema):
+    """Schema for easy reading settings format."""
+
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
+    rules = fields.Dict(
+        keys=fields.Str(validate=validate.Regexp(RULE_RE)),
+        values=fields.Str(),
+        required=True,
+    )
+    onmatch_rules = fields.List(
+        fields.Dict(
+            keys=fields.Str(validate=validate.Regexp(ONMATCH_RE)),
+            values=fields.Str(),
+            required=False,
+        )
+    )
+    metadata = fields.Dict(keys=fields.Str(), required=False)
+    whitespace = fields.Nested(WhitespaceDictSettingsSchema)
+
+    @validates_schema
+    def validate_whitespace(self, data: dict[str, Any], **kwargs: Any) -> None:
+        tokens = data.get("tokens", {})
+        whitespace = data.get("whitespace", {})
+
+        if not whitespace:
+            return
+
+        default_ws = whitespace.get("default")
+        token_class_ws = whitespace.get("token_class")
+
+        if default_ws and default_ws not in tokens:
+            raise ValidationError(
+                f"Default whitespace token '{default_ws}' not found in tokens.",
+                field_name="whitespace",
+            )
+
+        all_classes = {cls for classes in tokens.values() if isinstance(classes, (list, set, tuple)) for cls in classes}
+        if token_class_ws and token_class_ws not in all_classes:
+            raise ValidationError(
+                f"Whitespace token class '{token_class_ws}' not found in defined token classes.",
+                field_name="whitespace",
+            )
+
+    @validates_schema
+    def validate_rules_tokens(self, data: dict[str, Any], **kwargs: Any) -> None:
+        """Validate that tokens specified in easy-reading rules exist in defined tokens."""
+        tokens = data.get("tokens", {})
+        rules = data.get("rules", {})
+
+        if not rules or not tokens:
+            return
+
+        # Extract tokens referenced inside rule keys (parsing simple strings or complex rule patterns)
+        # For simple keys (like 'b: A'), 'b' must be present in tokens or be part of token definitions
+        for rule_key in rules.keys():
+            # Match tokens in rule key (tokens in easy reading rules are matched against defined tokens)
+            # Check basic tokens or tokens wrapped in rule expressions
+            referenced_tokens = [t for t in tokens.keys() if t in rule_key]
+            if not referenced_tokens:
+                raise ValidationError(
+                    f"Rule pattern '{rule_key}' contains tokens not defined in 'tokens'.",
+                    field_name="rules",
+                )
+
+
+class TransliterationRuleSchema(Schema):
+    production = fields.Str(required=True)
+    tokens = fields.List(fields.Str(), required=True)
+    prev_classes = fields.List(fields.Str(), allow_none=True)
+    next_classes = fields.List(fields.Str(), allow_none=True)
+    prev_tokens = fields.List(fields.Str(), allow_none=True)
+    next_tokens = fields.List(fields.Str(), allow_none=True)
+    cost = fields.Float(required=False, allow_none=True)
+
+
+class OnMatchRuleSchema(Schema):
+    """Schema for OnMatchRule."""
+
+    prev_classes = fields.List(fields.Str())
+    next_classes = fields.List(fields.Str())
+    production = fields.Str()
+
+    @post_load
+    def make_onmatch_rule(self, data: RawOnMatchDict, **kwargs: Any) -> OnMatchRule:
+        return _onmatch_rule_of(data)
+
+
+class SettingsSchema(Schema):
+    """Schema for full transliterator settings."""
+
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
+    rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
+    whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
+    metadata = fields.Dict(keys=fields.Str(), required=False)
+    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
+
+    @post_load
+    def sort_rules_by_cost(self, data: LoadedSettingsDict, **kwargs: Any) -> LoadedSettingsDict:
+        """Sort rules by cost."""
+        data["rules"] = sorted(data["rules"], key=lambda rule: rule.get("cost", 1.0))
+        return data
+
+    @post_load
+    def token_classes_to_sets(self, data: LoadedSettingsDict, **kwargs: Any) -> LoadedSettingsDict:
+        data["tokens"] = {k: set(cast(list[str], v)) for k, v in data["tokens"].items()}
+        return data
+
+    @validates_schema
+    def validate_token_classes(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
+        class_errors: dict[str, list[str]] = defaultdict(list)
+        token_classes = list(set().union(*data["tokens"].values()))
+
+        for rule_type in ("onmatch_rules", "rules"):
+            rules_list = cast(list[Union[TransliterationRule, OnMatchRule]], data.get(rule_type))
+            if not rules_list:
+                continue
+            for rule in rules_list:
+                for property_name in ("prev_classes", "next_classes"):
+                    values = rule.get(property_name)  # Dict access
+                    if not values:
+                        continue
+                    for val in cast(Iterable[Any], values):
+                        if val not in token_classes:
+                            class_errors[rule_type].append(f'Invalid token class "{val}" in {property_name} of {rule}')
+
+        whitespace = data["whitespace"]
+        whitespace_token_class = whitespace["token_class"] if isinstance(whitespace, dict) else whitespace.token_class
+        if whitespace_token_class not in token_classes:
+            class_errors["whitespace"].append(
+                f'Invalid token class "{whitespace_token_class}" in whitespace "{whitespace}".'
+            )
+        if class_errors:
+            raise ValidationError(dict(class_errors))
+
+    # @validates_schema
+    # def validate_tokens(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
+    #     token_errors: dict[str, list[str]] = defaultdict(list)
+    #     token_types = data["tokens"].keys()
+
+    #     whitespace = data["whitespace"]
+    #     default_whitespace = whitespace["default"] if isinstance(whitespace, dict) else whitespace.default
+    #     if default_whitespace not in token_types:
+    #         token_errors["whitespace"].append(f'Invalid default token "{default_whitespace}" in whitespace.')
+
+    #     rules = cast(list[TransliterationRule], data.get("rules"))
+    #     if rules:
+    #         for rule in rules:
+    #             for property_name in ("tokens", "prev_tokens", "next_tokens"):
+    #                 values = rule.get(property_name)  # Dict access
+    #                 if not values:
+    #                     continue
+    #                 for val in cast(Iterable[Any], values):
+    #                     if val not in token_types:
+    #                         token_errors["rules"].append(f'Invalid token "{val}" in {property_name} of rule {rule}')
+    #     if token_errors:
+    #         raise ValidationError(dict(token_errors))
+    @validates_schema
+    def validate_tokens(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
+        token_errors: dict[str, list[str]] = defaultdict(list)
+        token_types = set(data["tokens"].keys())
+
+        whitespace = data["whitespace"]
+        default_whitespace = whitespace["default"] if isinstance(whitespace, dict) else whitespace.default
+        if default_whitespace not in token_types:
+            token_errors["whitespace"].append(f'Invalid default token "{default_whitespace}" in whitespace.')
+
+        rules = data.get("rules")
+        if rules:
+            for rule in rules:
+                for property_name in ("tokens", "prev_tokens", "next_tokens"):
+                    # Safely support both dict and object instances
+                    if isinstance(rule, dict):
+                        values = rule.get(property_name)
+                    else:
+                        values = getattr(rule, property_name, None)
+
+                    if not values:
+                        continue
+
+                    for val in values:
+                        if val not in token_types:
+                            token_errors["rules"].append(f'Invalid token "{val}" in {property_name} of rule {rule}')
+
+        if token_errors:
+            raise ValidationError(dict(token_errors))
+
+
+# =============================================================================
+# HARMONIZED GRAPH SERIALIZATION SCHEMAS
+# =============================================================================
+
+
+class EdgeSchema(Schema):
+    source = fields.Int(required=True)
+    target = fields.Int(required=True)
+    data = fields.Dict(required=True)
+
+
+class NodeSchema(Schema):
+    id = fields.Int(required=True)
+    token = fields.Str(required=False)
+    type = fields.Str(required=True)
+    label = fields.Str(required=False)
+    data = fields.Dict(required=True)
+
+
+class DirectedGraphSchema(Schema):
+    """Canonical schema for DirectedGraph matching TypeScript LoadedGraphDict."""
+
+    nodes = fields.Nested(NodeSchema, many=True, required=True)
+    edges = fields.Nested(EdgeSchema, many=True, required=True)
+
+    @post_load
+    def make_graph(self, data: LoadedGraphDict, **kwargs: Any) -> DirectedGraph:
+        _data = copy.deepcopy(data)
+        return DirectedGraph(
+            nodes=_data.get("nodes", []),
+            edges=_data.get("edges", []),
+        )
+
+
+class GraphTransliteratorSchema(Schema):
+    """Schema for GraphTransliterator engine dump/load."""
+
+    settings = fields.Nested(SettingsSchema, required=True)
+    graph = fields.Nested(DirectedGraphSchema, required=True)
+🎓 seanpue@SLLCLTN045459 ~/new_dev2/graphtransliterator/packages/graphtransliterator-py % cat src/graphtransliterator/core.py
+# -*- coding: utf-8 -*-
+
+"""
+GraphTransliterator core classes.
+"""
+
+import json
+import logging
+import re
+from collections import deque
+from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, Union, cast
+
+import yaml
+from marshmallow import (
+    Schema,
+    ValidationError,
+    fields,
+    post_load,
+    pre_load,
+    validates_schema,
+)
+
+from graphtransliterator import __version__ as __version__
+
+from .ambiguity import check_for_ambiguity
+from .exceptions import (
+    IncompleteOnMatchRulesCoverageException,
+    IncorrectVersionException,
+    NoMatchingTransliterationRuleException,
+    UnrecognizableInputTokenException,
+)
+from .graphs import DirectedGraph, VisitLoggingDirectedGraph, VisitLoggingList
+from .initialize import (
+    _graph_from,
+    _onmatch_rules_lookup,
+    _tokenizer_pattern_from,
+    _tokens_by_class_of,
+    _transliteration_rule_of,
+    _unescape_charnames,
+)
+from .process import EasyReadingInput, ProcessedSettingsDict, _process_easyreading_settings
+from .schemas import (
+    DirectedGraphSchema,
+    EasyReadingSettingsSchema,
+    OnMatchRuleSchema,
+    SettingsSchema,
+    TransliterationRuleSchema,
+    WhitespaceSettingsSchema,
+)
+from .types import (
+    EasyReadingDict,
+    GTEdgeDataType,
+    GTNodeDataType,
+    GTNodeType,
+    NodeId,
+    OnMatchRule,
+    RawRuleDict,
+    Token,
+    TokenClass,
+    TransliterationRule,
+    WhitespaceRule,
+)
+
+logger = logging.getLogger("graphtransliterator")
+fields_to_dump = ("tokens", "rules", "metadata", "onmatch_rules", "whitespace")
+
+
+class GraphTransliteratorSchema(Schema):
+    """Schema for Graph Transliterator."""
+
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
+    rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
+    whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
+    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False, allow_none=True)
+    metadata = fields.Dict(
+        keys=fields.Str(),
+        required=False,
+    )
+    ignore_errors = fields.Bool(required=False)
+    onmatch_rules_lookup = fields.Dict(required=False, allow_none=True)
+    tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=False)
+    graph = fields.Nested(DirectedGraphSchema, many=False, allow_none=True, required=False)
+    tokenizer_pattern = fields.Str(required=False)
+    graphtransliterator_version = fields.Str(required=False)
+    check_ambiguity = fields.Bool(required=False)
+    coverage = fields.Bool(required=False)
+
+    @pre_load
+    def check_version(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+        """Raises error if serialized GraphTransliterator is from a later version."""
+        version = data.get("graphtransliterator_version")
+        if version and version > __version__:
+            raise IncorrectVersionException
+        return data
+
+    @post_load
+    def make_GraphTransliterator(self, data: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
+        for key in ("tokens", "tokens_by_class"):
+            if data.get(key):
+                data[key] = {k: set(v) for k, v in data[key].items()}
+        if "check_ambiguity" not in data:
+            data["check_ambiguity"] = kwargs.get("check_ambiguity", kwargs.get("check_for_ambiguity", False))
+        return GraphTransliterator(**data)
+
+    @validates_schema
+    def validate_onmatch_rules_lookup(self, data: Dict[str, Any], **kwargs: Any) -> None:
+        """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
+        if data.get("onmatch_rules_lookup") and not data.get("onmatch_rules"):
+            raise ValidationError("Contains onmatch_rules_lookup but not onmatch_rules.")
+
+
+class GraphTransliterator:
+    _tokens: Dict[str, Set[str]]
+    _rules: List[TransliterationRule]
+    _tokens_by_class: Dict[str, Set[str]]
+    _check_ambiguity: bool
+    _whitespace: WhitespaceRule
+    _onmatch_rules: Optional[Union[List[OnMatchRule], VisitLoggingList[Any]]]
+    _onmatch_rules_lookup: Optional[Dict[str, Dict[str, List[int]]]]
+    _metadata: Optional[Dict[str, Any]]
+    _ignore_errors: bool
+    _tokenizer_pattern: str
+    _tokenizer: re.Pattern
+    _graph: DirectedGraph[GTNodeType, GTNodeDataType, GTEdgeDataType]
+    _rule_keys: List[int]
+    _graphtransliterator_version: str
+    _input_tokens: List[str]
+
+    def __init__(
+        self,
+        tokens: Mapping[str, Union[List[str], Set[str]]],
+        rules: List[TransliterationRule],
+        whitespace: WhitespaceRule,
+        onmatch_rules: Optional[Union[List[OnMatchRule], VisitLoggingList[Any]]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        ignore_errors: bool = False,
+        check_ambiguity: bool = False,
+        onmatch_rules_lookup: Optional[Dict[str, Dict[str, List[int]]]] = None,
+        tokens_by_class: Optional[Dict[str, Set[str]]] = None,
+        graph: Optional[DirectedGraph[GTNodeType, GTNodeDataType, GTEdgeDataType]] = None,
+        tokenizer_pattern: Optional[str] = None,
+        graphtransliterator_version: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        self._tokens = {k: set(v) for k, v in tokens.items()}
+        self._rules = [_transliteration_rule_of(r) for r in rules]
+
+        self._tokens_by_class = tokens_by_class or _tokens_by_class_of(
+            cast(Dict[str, Union[List[str], Set[str]]], self._tokens)
+        )
+        self._check_ambiguity = check_ambiguity or kwargs.get("check_for_ambiguity", False)
+        if self._check_ambiguity:
+            check_for_ambiguity(self)
+        self._whitespace = whitespace
+
+        if onmatch_rules:
+            self._onmatch_rules = onmatch_rules
+            if onmatch_rules_lookup:
+                self._onmatch_rules_lookup = onmatch_rules_lookup
+            else:
+                raw_onmatch = onmatch_rules.data if isinstance(onmatch_rules, VisitLoggingList) else onmatch_rules
+                self._onmatch_rules_lookup = _onmatch_rules_lookup(
+                    cast(Dict[str, Union[List[str], Set[str]]], self._tokens),
+                    cast(List[OnMatchRule], raw_onmatch),
+                )
+        else:
+            self._onmatch_rules = None
+            self._onmatch_rules_lookup = None
+
+        self._metadata = metadata
+        self._ignore_errors = ignore_errors or kwargs.get("ignore_errors", False)
+
+        if not tokenizer_pattern:
+            tokenizer_pattern = _tokenizer_pattern_from(list(tokens.keys()))
+        self._tokenizer_pattern = tokenizer_pattern
+        self._tokenizer = re.compile(tokenizer_pattern, flags=re.S)
+
+        if not graph:
+            graph = _graph_from(rules)
+        self._graph = graph
+
+        self._rule_keys = []
+        self._input_tokens = []
+
+        if not graphtransliterator_version:
+            graphtransliterator_version = __version__
+        self._graphtransliterator_version = graphtransliterator_version
+
+    def __new__(cls, *args: Any, **kwargs: Any) -> Any:
+        obj = super().__new__(cls)
+        if "ignore_errors" in kwargs:
+            obj._ignore_errors = kwargs["ignore_errors"]
+        return obj
+
+    def _match_constraints(
+        self,
+        rule: TransliterationRule,
+        token_i: int,
+        t_idx: int,
+        tokens: List[str],
+    ) -> bool:
+        prev_tokens = rule.get("prev_tokens")
+        if prev_tokens:
+            start_at = token_i - len(prev_tokens)
+            if not self._match_tokens(start_at, prev_tokens, tokens, check_prev=True, check_next=False, by_class=False):
+                return False
+
+        next_tokens = rule.get("next_tokens")
+        if next_tokens:
+            if not self._match_tokens(t_idx, next_tokens, tokens, check_prev=False, check_next=True, by_class=False):
+                return False
+
+        prev_classes = rule.get("prev_classes")
+        if prev_classes:
+            start_at = token_i - (len(prev_tokens) if prev_tokens else 0) - len(prev_classes)
+            if not self._match_tokens(start_at, prev_classes, tokens, check_prev=True, check_next=False, by_class=True):
+                return False
+
+        next_classes = rule.get("next_classes")
+        if next_classes:
+            offset = len(next_tokens) if next_tokens else 0
+            start_at = t_idx + offset
+            if not self._match_tokens(start_at, next_classes, tokens, check_prev=False, check_next=True, by_class=True):
+                return False
+
+        return True
+
+    def _match_tokens(
+        self,
+        start_i: int,
+        constraint_values: List[str],
+        tokens: List[str],
+        check_prev: bool = True,
+        check_next: bool = True,
+        by_class: bool = False,
+    ) -> bool:
+        if check_prev and start_i < 0:
+            return False
+        if check_next and start_i + len(constraint_values) > len(tokens):
+            return False
+        for i in range(0, len(constraint_values)):
+            if by_class:
+                if constraint_values[i] not in self._tokens[tokens[start_i + i]]:
+                    return False
+            elif tokens[start_i + i] != constraint_values[i]:
+                return False
+        return True
+
+    @property
+    def graph(self) -> DirectedGraph[GTNodeType, GTNodeDataType, GTEdgeDataType]:
+        return self._graph
+
+    @property
+    def graphtransliterator_version(self) -> str:
+        return self._graphtransliterator_version
+
+    @property
+    def ignore_errors(self) -> bool:
+        return self._ignore_errors
+
+    @ignore_errors.setter
+    def ignore_errors(self, value: bool) -> None:
+        self._ignore_errors = value
+
+    @property
+    def last_input_tokens(self) -> List[str]:
+        return self._input_tokens
+
+    @property
+    def last_matched_rule_tokens(self) -> List[List[str]]:
+        return [self._rules[_]["tokens"] for _ in self._rule_keys]
+
+    @property
+    def last_matched_rules(self) -> List[TransliterationRule]:
+        return [self._rules[_] for _ in self._rule_keys]
+
+    @property
+    def metadata(self) -> Optional[Dict[str, Any]]:
+        return self._metadata
+
+    @property
+    def onmatch_rules_lookup(self) -> Optional[Dict[str, Dict[str, List[int]]]]:
+        return self._onmatch_rules_lookup
+
+    @property
+    def tokenizer_pattern(self) -> str:
+        return self._tokenizer_pattern
+
+    @property
+    def tokens_by_class(self) -> Dict[str, Set[str]]:
+        return self._tokens_by_class
+
+    @property
+    def onmatch_rules(self) -> Optional[List[OnMatchRule]]:
+        if isinstance(self._onmatch_rules, VisitLoggingList):
+            return cast(List[OnMatchRule], self._onmatch_rules.data)
+        return self._onmatch_rules
+
+    @property
+    def productions(self) -> List[str]:
+        return [_.get("production", "") for _ in self.rules]
+
+    @property
+    def rules(self) -> List[TransliterationRule]:
+        return self._rules
+
+    @property
+    def tokens(self) -> Dict[str, Set[str]]:
+        return self._tokens
+
+    @property
+    def whitespace(self) -> WhitespaceRule:
+        return self._whitespace
+
+    def dump(self) -> Dict[str, Any]:
+        return cast(Dict[str, Any], GraphTransliteratorSchema(only=fields_to_dump).dump(self))
+
+    def dumps(self) -> str:
+        return cast(
+            str,
+            GraphTransliteratorSchema(only=fields_to_dump).dumps(self),
+        )
+
+    def match_at(self, token_i: int, tokens: List[str], match_all: bool = False) -> Union[Optional[int], List[int]]:
+        graph = self._graph
+        matches: List[int] = []
+        stack: deque[Tuple[NodeId, int]] = deque()
+
+        is_coverage = isinstance(graph, VisitLoggingDirectedGraph)
+
+        def _append_children(parent_id: NodeId, t_idx: int) -> None:
+            parent_node = graph.get_node(parent_id)
+            if not parent_node:
+                return
+
+            ordered_children = parent_node.get("ordered_children", {})
+
+            rule_child_ids = ordered_children.get("__rules__", [])
+            for child_id in reversed(rule_child_ids):
+                if is_coverage:
+                    cast(VisitLoggingDirectedGraph, graph).visit_edge(parent_id, child_id)
+                    cast(VisitLoggingDirectedGraph, graph).visit_node(child_id)
+                stack.appendleft((child_id, t_idx))
+
+            if t_idx < len(tokens):
+                curr_token = tokens[t_idx]
+                if curr_token in ordered_children:
+                    token_child_ids = ordered_children[curr_token]
+                    for child_id in reversed(token_child_ids):
+                        child_node = graph.get_node(child_id)
+                        if child_node and child_node.get("type") == "Token":
+                            if is_coverage:
+                                cast(VisitLoggingDirectedGraph, graph).visit_edge(parent_id, child_id)
+                                cast(VisitLoggingDirectedGraph, graph).visit_node(child_id)
+                            stack.appendleft((child_id, t_idx + 1))
+
+        if is_coverage:
+            cast(VisitLoggingDirectedGraph, graph).visit_node(0)
+
+        _append_children(0, token_i)
+
+        while stack:
+            node_id, t_idx = stack.popleft()
+
+            curr_node = graph.get_node(node_id)
+
+            assert curr_node is not None, "Missing curr_node"
+
+            if curr_node.get("type") == "Rule" and curr_node.get("accepting"):
+                rule_id = curr_node.get("rule_key")
+
+                assert rule_id is not None, "Missing rule_key on accepting Rule node"
+                rule = self.rules[rule_id]
+
+                if self._match_constraints(rule, token_i, t_idx, tokens):
+                    if match_all:
+                        matches.append(int(rule_id))
+                        continue
+                    else:
+                        return cast(int, rule_id)
+            else:
+                _append_children(node_id, t_idx)
+
+        return matches if match_all else None
+
+    def pruned_of(self, productions: Union[str, List[str]]) -> "GraphTransliterator":
+        prod_set = {productions} if isinstance(productions, str) else set(productions)
+        pruned_rules = [_ for _ in self._rules if _["production"] not in prod_set]
+        return GraphTransliterator(
+            self._tokens,
+            pruned_rules,
+            self._whitespace,
+            onmatch_rules=self.onmatch_rules,
+            metadata=self._metadata,
+            ignore_errors=self._ignore_errors,
+            check_ambiguity=self._check_ambiguity,
+        )
+
+    def tokenize(self, input_: str) -> List[str]:
+        def is_whitespace(tok: str) -> bool:
+            return self.whitespace["token_class"] in self.tokens[tok]
+
+        tokens = [self.whitespace["default"]]
+        prev_whitespace = True
+        match_at = 0
+
+        while match_at < len(input_):
+            match = self._tokenizer.match(input_, match_at)
+            if match:
+                match_at = match.end()
+                token = match.group(0)
+                if is_whitespace(token):
+                    if prev_whitespace and self.whitespace["consolidate"]:
+                        continue
+                    else:
+                        prev_whitespace = True
+                else:
+                    prev_whitespace = False
+                tokens.append(token)
+            else:
+                logger.warning("Unrecognizable token %s at pos %s of %s" % (input_[match_at], match_at, input_))
+                if not self.ignore_errors:
+                    raise UnrecognizableInputTokenException
+                else:
+                    match_at += 1
+
+        if self.whitespace["consolidate"]:
+            while len(tokens) > 1 and is_whitespace(tokens[-1]):
+                tokens.pop()
+
+        tokens.append(self.whitespace["default"])
+        return tokens
+
+    def transliterate(self, input_: str) -> str:
+        output, _ = self._transliterate_core(input_)
+        return output
+
+    def transliterate_with_details(self, input_: str) -> Tuple[str, List[TransliterationRule]]:
+        return self._transliterate_core(input_)
+
+    def _transliterate_core(self, input_: str) -> Tuple[str, List[TransliterationRule]]:
+        tokens = self.tokenize(input_)
+        self._input_tokens = tokens
+        self._rule_keys = []
+        output = ""
+        token_i = 1
+        matches: List[TransliterationRule] = []
+
+        while token_i < len(tokens) - 1:
+            rule_key = cast(Optional[int], self.match_at(token_i, tokens))
+
+            if rule_key is None:
+                logger.warning("No matching transliteration rule at token pos %s of %s" % (token_i, tokens))
+                if self.ignore_errors:
+                    token_i += 1
+                    continue
+                else:
+                    raise NoMatchingTransliterationRuleException
+            self._rule_keys.append(rule_key)
+
+            rule = self.rules[rule_key]
+            matches.append(rule)
+            tokens_matched = rule["tokens"]
+            onmatch_rules_obj = self._onmatch_rules
+            if onmatch_rules_obj and self._onmatch_rules_lookup:
+                curr_match_rules = None
+                prev_t = tokens[token_i - 1]
+                curr_t = tokens[token_i]
+                curr_t_rules = self._onmatch_rules_lookup.get(curr_t)
+                if curr_t_rules:
+                    curr_match_rules = curr_t_rules.get(prev_t)
+                if curr_match_rules:
+                    for onmatch_i in curr_match_rules:
+                        onmatch = (
+                            onmatch_rules_obj.data[onmatch_i]
+                            if isinstance(onmatch_rules_obj, VisitLoggingList)
+                            else onmatch_rules_obj[onmatch_i]
+                        )
+                        if self._match_tokens(
+                            token_i - len(onmatch["prev_classes"]),
+                            onmatch["prev_classes"],
+                            tokens,
+                            check_prev=True,
+                            check_next=False,
+                            by_class=True,
+                        ) and self._match_tokens(
+                            token_i,
+                            onmatch["next_classes"],
+                            tokens,
+                            check_prev=False,
+                            check_next=True,
+                            by_class=True,
+                        ):
+                            if isinstance(onmatch_rules_obj, VisitLoggingList):
+                                onmatch_rules_obj.visit(onmatch_i)
+                            output += onmatch["production"]
+                            break
+            output += rule["production"]
+            token_i += len(tokens_matched)
+
+        return output, matches
+
+    @staticmethod
+    def from_dict(dict_settings: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
+        check_ambiguity = kwargs.get("check_ambiguity", kwargs.get("check_for_ambiguity", False))
+        ignore_errors = kwargs.get("ignore_errors", False)
+
+        if "tokens" in dict_settings and "rules" in dict_settings and "whitespace" in dict_settings:
+            rules = dict_settings.get("rules")
+            if isinstance(rules, list) and len(rules) > 0:
+                first_rule = rules[0]
+                if isinstance(first_rule, dict) and "production" in first_rule and "tokens" in first_rule:
+                    loaded_gt = cast("GraphTransliterator", GraphTransliteratorSchema().load(dict_settings))
+                    if ignore_errors:
+                        loaded_gt.ignore_errors = True
+                    if check_ambiguity:
+                        check_for_ambiguity(loaded_gt)
+                    return loaded_gt
+
+        settings = cast(Dict[str, Any], SettingsSchema().load(dict_settings))
+
+        # Check default whitespace token validity
+        ws_default = settings["whitespace"]["default"]
+        if ws_default not in settings["tokens"]:
+            raise ValidationError(f"Default whitespace token '{ws_default}' is not in tokens.")
+
+        args = [settings["tokens"], settings["rules"], settings["whitespace"]]
+
+        kw = {
+            "onmatch_rules": settings.get("onmatch_rules"),
+            "metadata": settings.get("metadata"),
+            "tokens_by_class": settings.get("tokens_by_class"),
+            "graph": settings.get("graph"),
+            "tokenizer_pattern": settings.get("tokenizer_pattern"),
+            "ignore_errors": ignore_errors,
+            "check_ambiguity": check_ambiguity,
+        }
+        return GraphTransliterator(*args, **kw)
+
+    @staticmethod
+    def from_easyreading_dict(easyreading_settings: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
+        loaded = cast(Dict[str, Any], EasyReadingSettingsSchema().load(easyreading_settings))
+        processed: ProcessedSettingsDict = _process_easyreading_settings(cast(EasyReadingInput, loaded))
+        return GraphTransliterator.from_dict(cast(Dict[str, Any], processed), **kwargs)
+
+    @staticmethod
+    def from_yaml(yaml_str: str, charnames_escaped: bool = True, **kwargs: Any) -> "GraphTransliterator":
+        if charnames_escaped:
+            yaml_str = _unescape_charnames(yaml_str)
+        settings = yaml.safe_load(yaml_str)
+        return GraphTransliterator.from_easyreading_dict(settings, **kwargs)
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+        with open(yaml_filename, "r") as f:
+            yaml_string = f.read()
+        return GraphTransliterator.from_yaml(yaml_string, **kwargs)
+
+    @staticmethod
+    def from_json(json_str: str, **kwargs: Any) -> "GraphTransliterator":
+        """Load a GraphTransliterator from a JSON string."""
+        data = json.loads(json_str)
+        return GraphTransliterator.from_dict(data, **kwargs)
+
+    @staticmethod
+    def from_json_file(json_filename: str, **kwargs: Any) -> "GraphTransliterator":
+        """Load a GraphTransliterator from a JSON file."""
+        with open(json_filename, "r", encoding="utf-8") as f:
+            return GraphTransliterator.from_json(f.read(), **kwargs)
+
+    @staticmethod
+    def from_dict_file(dict_filename: str, **kwargs: Any) -> "GraphTransliterator":
+        """Alias or file loader for dictionary/json files."""
+        return GraphTransliterator.from_json_file(dict_filename, **kwargs)
+
+    @staticmethod
+    def load(settings: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
+        return GraphTransliterator.from_dict(settings, **kwargs)
+
+    @staticmethod
+    def loads(settings: str, **kwargs: Any) -> "GraphTransliterator":
+        _settings = json.loads(settings)
+        return GraphTransliterator.from_dict(_settings, **kwargs)
+
+    def merge(self, other: "GraphTransliterator") -> "GraphTransliterator":
+        """Merges another GraphTransliterator context cleanly into this one."""
+        if (
+            self.whitespace["consolidate"] != other.whitespace["consolidate"]
+            or self.whitespace["default"] != other.whitespace["default"]
+            or self.whitespace["token_class"] != other.whitespace["token_class"]
+        ):
+            raise ValueError("Configuration Mismatch: The whitespace configurations must be identical to merge.")
+
+        unified_tokens = {k: set(v) for k, v in self.tokens.items()}
+        for k, v in other.tokens.items():
+            if k in unified_tokens:
+                unified_tokens[k].update(v)
+            else:
+                unified_tokens[k] = set(v)
+
+        unified_rules = list(self.rules) + list(other.rules)
+
+        unified_metadata = {}
+        if self.metadata:
+            unified_metadata.update(self.metadata)
+        if other.metadata:
+            unified_metadata.update(other.metadata)
+
+        unified_onmatch = None
+        if self.onmatch_rules or other.onmatch_rules:
+            unified_onmatch = []
+            if self.onmatch_rules:
+                unified_onmatch.extend(self.onmatch_rules)
+            if other.onmatch_rules:
+                unified_onmatch.extend(other.onmatch_rules)
+
+        return GraphTransliterator(
+            tokens=unified_tokens,
+            rules=unified_rules,
+            whitespace=self.whitespace,
+            onmatch_rules=unified_onmatch,
+            metadata=unified_metadata if unified_metadata else None,
+            ignore_errors=self.ignore_errors,
+            check_ambiguity=self._check_ambiguity,
+        )
+
+    @property
+    def settings(self) -> Dict[str, Any]:
+        """Returns the structural dictionary of current state matching SettingsSchema."""
+        return {
+            "tokens": {k: list(v) for k, v in self.tokens.items()},
+            "rules": [
+                {
+                    "tokens": rule["tokens"],
+                    "production": rule["production"],
+                }
+                for rule in self.rules
+            ],
+            "whitespace": {
+                "default": self.whitespace["default"],
+                "token_class": self.whitespace["token_class"],
+                "consolidate": self.whitespace["consolidate"],
+            },
+            "metadata": self.metadata,
+        }
+
+    @staticmethod
+    def merge_easyreading_configs(config1: EasyReadingDict, config2: EasyReadingDict) -> EasyReadingDict:
+        """Combines two raw Easy Reading configurations together."""
+        w1 = config1["whitespace"]
+        w2 = config2["whitespace"]
+
+        if (
+            w1.get("consolidate") != w2.get("consolidate")
+            or w1.get("default") != w2.get("default")
+            or w1.get("token_class") != w2.get("token_class")
+        ):
+            raise ValueError(
+                "Configuration Mismatch: The whitespace settings in both easy reading profiles must match exactly to merge."
+            )
+
+        merged_tokens: Dict[Token, List[TokenClass]] = {}
+        for token, classes in config1["tokens"].items():
+            merged_tokens[token] = list(classes)
+        for token, classes in config2["tokens"].items():
+            if token in merged_tokens:
+                merged_tokens[token] = list(set(merged_tokens[token] + classes))
+            else:
+                merged_tokens[token] = list(classes)
+
+        merged_rules: Dict[str, str] = dict(config1["rules"])
+        merged_rules.update(config2["rules"])
+
+        result: EasyReadingDict = {
+            "tokens": merged_tokens,
+            "rules": merged_rules,
+            "whitespace": {
+                "default": w1["default"],
+                "token_class": w1["token_class"],
+                "consolidate": w1["consolidate"],
+            },
+        }
+
+        onmatch1 = config1.get("onmatch_rules", [])
+        onmatch2 = config2.get("onmatch_rules", [])
+        if onmatch1 or onmatch2:
+            merged_onmatch: List[Dict[str, str]] = []
+            seen_onmatch = []
+            for item in onmatch1 + onmatch2:
+                if item not in seen_onmatch:
+                    seen_onmatch.append(item)
+                    merged_onmatch.append(dict(item))
+            result["onmatch_rules"] = merged_onmatch
+
+        meta1 = config1.get("metadata", {})
+        meta2 = config2.get("metadata", {})
+        if meta1 or meta2:
+            merged_metadata: Dict[str, Any] = {}
+            if meta1:
+                merged_metadata.update(meta1)
+            if meta2:
+                merged_metadata.update(meta2)
+            result["metadata"] = merged_metadata
+
+        return result
+
+    def __add__(self, other: "GraphTransliterator") -> "GraphTransliterator":
+        if not isinstance(other, GraphTransliterator):
+            return NotImplemented
+        return self.merge(other)
+
+    def inject_subgraph(
+        self, other: "GraphTransliterator", prefix_tokens: Optional[List[str]] = None
+    ) -> "GraphTransliterator":
+        """Injects another GraphTransliterator's ruleset as a subgraph extension."""
+        if (
+            self.whitespace["consolidate"] != other.whitespace["consolidate"]
+            or self.whitespace["default"] != other.whitespace["default"]
+            or self.whitespace["token_class"] != other.whitespace["token_class"]
+        ):
+            raise ValueError(
+                "Graph Injection Mismatch: The whitespace settings of the injected subgraph must match the base configuration exactly."
+            )
+
+        merged_tokens = {k: set(v) for k, v in self.tokens.items()}
+        for k, v in other.tokens.items():
+            if k in merged_tokens:
+                merged_tokens[k].update(v)
+            else:
+                merged_tokens[k] = set(v)
+
+        merged_rules = list(self.rules)
+
+        for rule in other.rules:
+            if prefix_tokens:
+                new_prev_tokens = prefix_tokens + (rule.get("prev_tokens") or [])
+                raw_rule_dict = {
+                    "production": rule["production"],
+                    "prev_classes": rule.get("prev_classes"),
+                    "prev_tokens": new_prev_tokens,
+                    "tokens": rule["tokens"],
+                    "next_tokens": rule.get("next_tokens"),
+                    "next_classes": rule.get("next_classes"),
+                }
+
+                from .initialize import _transliteration_rule_of
+
+                merged_rules.append(_transliteration_rule_of(cast(RawRuleDict, raw_rule_dict)))
+            else:
+                merged_rules.append(rule)
+
+        merged_onmatch = None
+        if self.onmatch_rules or other.onmatch_rules:
+            merged_onmatch = []
+            if self.onmatch_rules:
+                merged_onmatch.extend(self.onmatch_rules)
+            if other.onmatch_rules:
+                for o_rule in other.onmatch_rules:
+                    if o_rule not in merged_onmatch:
+                        merged_onmatch.append(o_rule)
+
+        merged_metadata = {}
+        if self.metadata:
+            merged_metadata.update(self.metadata)
+        if other.metadata:
+            merged_metadata.update(other.metadata)
+
+        return GraphTransliterator(
+            tokens=merged_tokens,
+            rules=merged_rules,
+            whitespace=self.whitespace,
+            onmatch_rules=merged_onmatch if merged_onmatch else None,
+            metadata=merged_metadata if merged_metadata else None,
+            ignore_errors=self.ignore_errors,
+            check_ambiguity=self._check_ambiguity,
+        )
+
+    def __rshift__(self, other: "GraphTransliterator") -> "GraphTransliterator":
+        if not isinstance(other, GraphTransliterator):
+            return NotImplemented
+        return self.inject_subgraph(other)
+
+
+class CoverageTransliterator(GraphTransliterator):
+    """Subclass of GraphTransliterator logging graph and onmatch rule traversal."""
+
+    _graph: VisitLoggingDirectedGraph
+    _onmatch_rules: Optional[VisitLoggingList[Any]]
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        GraphTransliterator.__init__(self, *args, **kwargs)
+        self._graph = VisitLoggingDirectedGraph(self._graph)
+        if self._onmatch_rules is not None:
+            self._onmatch_rules = cast(Any, VisitLoggingList(self._onmatch_rules))
+
+    def clear_visited(self) -> None:
+        self._graph.clear_visited()
+        if self._onmatch_rules:
+            self._onmatch_rules.clear_visited()
+
+    def check_onmatchrules_coverage(self, raise_exception: bool = True) -> bool:
+        errors = []
+        onmatch_rules = self._onmatch_rules
+        if not onmatch_rules:
+            return True
+        for i, onmatch_rule in enumerate(onmatch_rules.data):
+            if i not in onmatch_rules.visited:
+                logger.warning("On Match Rule {} [{}] has not been visited.".format(i, onmatch_rule))
+                errors.append(i)
+        if errors and raise_exception:
+            error_msg = "Missed OnMatchRules: " + ",".join([str(i) for i in errors])
+            raise IncompleteOnMatchRulesCoverageException(error_msg)
+        return not errors
+
+    def check_coverage(self, raise_exception: bool = True) -> bool:
+        return self._graph.check_coverage(raise_exception=raise_exception) and self.check_onmatchrules_coverage(
+            raise_exception=raise_exception
+        )
+🎓 seanpue@SLLCLTN045459 ~/new_dev2/graphtransliterator/packages/graphtransliterator-py % cat src/graphtransliterator/core.py

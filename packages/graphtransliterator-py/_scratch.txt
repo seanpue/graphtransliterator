@@ -1,0 +1,367 @@
+🚀 Testing code: Running pytest
+poetry run pytest --cov --cov-config=pyproject.toml --cov-report=xml
+============================= test session starts ==============================
+platform darwin -- Python 3.10.20, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py
+configfile: pyproject.toml
+plugins: cov-4.1.0
+collected 54 items
+
+src/graphtransliterator/transliterators/example/tests/test_example.py F  [  1%]
+tests/test_ambiguity.py ..                                               [  5%]
+tests/test_cli.py .FFF.F.                                                [ 18%]
+tests/test_coverage.py F                                                 [ 20%]
+tests/test_graphtransliterator.py F....................                  [ 59%]
+tests/test_merge.py .....                                                [ 68%]
+tests/test_special.py .                                                  [ 70%]
+tests/test_subgraph_injection.py ......                                  [ 81%]
+tests/test_tmp.py ..                                                     [ 85%]
+tests/test_transliterators.py F..FF.FF                                   [100%]
+
+=================================== FAILURES ===================================
+_________________________________ test_example _________________________________
+
+    def test_example() -> None:
+        """Example tests for transliterator."""
+        # Generate a Visit-Logging Transliterator`
+>       transliterator = transliterators.Example(coverage=True)  # type: ignore[attr-defined]
+
+src/graphtransliterator/transliterators/example/tests/test_example.py:8:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src/graphtransliterator/transliterators/bundled.py:46: in __init__
+    self._load_bundled(
+src/graphtransliterator/transliterators/bundled.py:29: in _load_bundled
+    gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+yaml_filename = '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+kwargs = {'check_ambiguity': False, 'coverage': True}
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+>       with open(yaml_filename, "r") as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+
+src/graphtransliterator/core.py:551: FileNotFoundError
+_________________________ test_cli_transliterate_tests _________________________
+
+tmpdir = local('/private/var/folders/n5/8ky40wl507935s4k8nlf4hlr0000gq/T/pytest-of-seanpue/pytest-251/test_cli_transliterate_tests0')
+
+    def test_cli_transliterate_tests(tmpdir):
+        """Tests transliterate command, and loading of all formats."""
+        transliterator = GraphTransliterator.from_yaml(test_yaml)
+
+        runner = CliRunner()
+
+        # test bundled
+        bundled_result = runner.invoke(cli.main, ["transliterate", "--from", "bundled", "Example", "a"])
+>       assert bundled_result.exit_code == 0
+E       AssertionError: assert 1 == 0
+E        +  where 1 = <Result FileNotFoundError(2, 'No such file or directory')>.exit_code
+
+tests/test_cli.py:49: AssertionError
+___________________________ test_cli_generate_tests ____________________________
+
+    def test_cli_generate_tests():
+        """Test tests command."""
+        runner = CliRunner()
+        gen_tests_result = runner.invoke(cli.main, ["generate-tests", "--from", "bundled", "Example"])
+>       assert gen_tests_result.exit_code == 0
+E       AssertionError: assert 1 == 0
+E        +  where 1 = <Result FileNotFoundError(2, 'No such file or directory')>.exit_code
+
+tests/test_cli.py:90: AssertionError
+________________________________ test_cli_dump _________________________________
+
+    def test_cli_dump():
+        """Test `dump` command."""
+        runner = CliRunner()
+        dump_result = runner.invoke(cli.main, ["dump", "--from", "bundled", "Example"])
+>       assert dump_result.exit_code == 0
+E       AssertionError: assert 1 == 0
+E        +  where 1 = <Result FileNotFoundError(2, 'No such file or directory')>.exit_code
+
+tests/test_cli.py:99: AssertionError
+_______________________________ test_dump_tests ________________________________
+
+    def test_dump_tests():
+        runner = CliRunner()
+        test_result = runner.invoke(cli.main, ["dump-tests", "Example"])  # yaml
+>       assert "a: A" in test_result.output
+E       AssertionError: assert 'a: A' in ''
+E        +  where '' = <Result FileNotFoundError(2, 'No such file or directory')>.output
+
+tests/test_cli.py:151: AssertionError
+_________________________ test_CoverageTransliterator __________________________
+
+    def test_CoverageTransliterator():
+        """Test coverage using transliterators.Example"""
+        # tokens:
+        #   a: [vowel]
+        #   ' ': [whitespace]
+        #   b: [consonant]
+        # rules:
+        #   a: A
+        #   b: B
+        #   ' ': ' '
+        #   (<consonant> a) b (a <consonant>):  "!B!"
+        # -----
+>       covt = transliterators.Example(coverage=True)
+
+tests/test_coverage.py:23:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src/graphtransliterator/transliterators/bundled.py:46: in __init__
+    self._load_bundled(
+src/graphtransliterator/transliterators/bundled.py:29: in _load_bundled
+    gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+yaml_filename = '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+kwargs = {'check_ambiguity': False, 'coverage': True}
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+>       with open(yaml_filename, "r") as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+
+src/graphtransliterator/core.py:551: FileNotFoundError
+______________________ test_GraphTransliterator_from_YAML ______________________
+
+    def test_GraphTransliterator_from_YAML():
+        """Test YAML loading of GraphTransliterator."""
+        good_yaml = """
+          tokens:
+            a: [class1]
+            ' ': [wb]
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+        """
+
+        assert GraphTransliterator.from_yaml(good_yaml)
+
+        bad_yaml = """
+          tokens:
+            a: class1
+            ' ': wb
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+
+        bad_yaml = """
+          tokens:
+            a: class1
+            ' ': wb
+          rules:
+            a: A
+          whitespace:
+            default: ' '
+            consolidate: true
+            token_class: wb
+        """
+        # tokens values are not lists
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+
+        bad_yaml = """
+              rules:
+                a: A
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+        bad_yaml = """
+              rules:
+                a: A
+              tokens:
+                a: [token]
+                ' ': [wb]
+              whitespace:
+                default: 'BAD'
+                consolidate: true
+                token_class: bad
+        """
+        # whitespace errors
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+        bad_yaml = """
+              tokens:
+                a: [class1]
+                ' ': [wb]
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+        bad_yaml = """
+              tokens:
+                a: [class1]
+                ' ': [wb]
+              rules:
+                b: A
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+        with pytest.raises(ValidationError):
+            GraphTransliterator.from_yaml(bad_yaml)
+
+        bad_yaml = """
+              tokens:
+                a: [class1]
+                ' ': [wb]
+              rules:
+                (b) a: A
+              whitespace:
+                default: ' '
+                consolidate: true
+                token_class: wb
+        """
+>       with pytest.raises(ValidationError):
+E       Failed: DID NOT RAISE ValidationError
+
+tests/test_graphtransliterator.py:161: Failed
+_________________________ test_bundled_transliterators _________________________
+
+    def test_bundled_transliterators():
+>       for transliterator in transliterators.iter_transliterators():
+
+tests/test_transliterators.py:42:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src/graphtransliterator/transliterators/__init__.py:72: in iter_transliterators
+    yield cls(**kwds)
+src/graphtransliterator/transliterators/bundled.py:46: in __init__
+    self._load_bundled(
+src/graphtransliterator/transliterators/bundled.py:29: in _load_bundled
+    gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+yaml_filename = '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+kwargs = {'check_ambiguity': False, 'coverage': False}
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+>       with open(yaml_filename, "r") as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+
+src/graphtransliterator/core.py:551: FileNotFoundError
+__________________________ test_iter_transliterators ___________________________
+
+    def test_iter_transliterators():
+        """Test transliterators.iter_transliterators()."""
+        print("$$$$$$$")
+>       print("Transltierater are:", [_ for _ in transliterators.iter_transliterators()])
+
+tests/test_transliterators.py:60:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests/test_transliterators.py:60: in <listcomp>
+    print("Transltierater are:", [_ for _ in transliterators.iter_transliterators()])
+src/graphtransliterator/transliterators/__init__.py:72: in iter_transliterators
+    yield cls(**kwds)
+src/graphtransliterator/transliterators/bundled.py:46: in __init__
+    self._load_bundled(
+src/graphtransliterator/transliterators/bundled.py:29: in _load_bundled
+    gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+yaml_filename = '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+kwargs = {'check_ambiguity': False, 'coverage': False}
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+>       with open(yaml_filename, "r") as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+
+src/graphtransliterator/core.py:551: FileNotFoundError
+----------------------------- Captured stdout call -----------------------------
+$$$$$$$
+________________________ test_transliterators_metadata _________________________
+
+    def test_transliterators_metadata():
+        """Confirm that metadata of bundled transliterators matches schema."""
+>       for _ in transliterators.iter_transliterators():
+
+tests/test_transliterators.py:67:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src/graphtransliterator/transliterators/__init__.py:72: in iter_transliterators
+    yield cls(**kwds)
+src/graphtransliterator/transliterators/bundled.py:46: in __init__
+    self._load_bundled(
+src/graphtransliterator/transliterators/bundled.py:29: in _load_bundled
+    gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+yaml_filename = '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+kwargs = {'check_ambiguity': False, 'coverage': False}
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+>       with open(yaml_filename, "r") as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+
+src/graphtransliterator/core.py:551: FileNotFoundError
+_______________________________ test_bundled_new _______________________________
+
+    def test_bundled_new():
+        """Test new() function of Bundled."""
+        example_cls = getattr(transliterators, "Example")
+>       assert example_cls.new(method="yaml")
+E       AttributeError: type object 'Example' has no attribute 'new'
+
+tests/test_transliterators.py:79: AttributeError
+_______________________________ test_no_coverage _______________________________
+
+    def test_no_coverage():
+        """Test no coverage option."""
+>       x = transliterators.Example()
+
+tests/test_transliterators.py:84:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src/graphtransliterator/transliterators/bundled.py:46: in __init__
+    self._load_bundled(
+src/graphtransliterator/transliterators/bundled.py:29: in _load_bundled
+    gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+yaml_filename = '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+kwargs = {'check_ambiguity': False, 'coverage': False}
+
+    @staticmethod
+    def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
+>       with open(yaml_filename, "r") as f:
+E       FileNotFoundError: [Errno 2] No such file or directory: '/Users/seanpue/new_dev2/graphtransliterator/packages/graphtransliterator-py/src/graphtransliterator/transliterators/example.yaml'
+
+src/graphtransliterator/core.py:551: FileNotFoundError
+
+--------- coverage: platform darwin, python 3.10.20-final-0 ----------
+Coverage XML written to file coverage.xml
+
+=========================== short test summary info ============================
+FAILED src/graphtransliterator/transliterators/example/tests/test_example.py::test_example
+FAILED tests/test_cli.py::test_cli_transliterate_tests - AssertionError: asse...
+FAILED tests/test_cli.py::test_cli_generate_tests - AssertionError: assert 1 ...
+FAILED tests/test_cli.py::test_cli_dump - AssertionError: assert 1 == 0
+FAILED tests/test_cli.py::test_dump_tests - AssertionError: assert 'a: A' in ''
+FAILED tests/test_coverage.py::test_CoverageTransliterator - FileNotFoundErro...
+FAILED tests/test_graphtransliterator.py::test_GraphTransliterator_from_YAML
+FAILED tests/test_transliterators.py::test_bundled_transliterators - FileNotF...
+FAILED tests/test_transliterators.py::test_iter_transliterators - FileNotFoun...
+FAILED tests/test_transliterators.py::test_transliterators_metadata - FileNot...
+FAILED tests/test_transliterators.py::test_bundled_new - AttributeError: type...
+FAILED tests/test_transliterators.py::test_no_coverage - FileNotFoundError: [...
+======================== 12 failed, 42 passed in 0.63s =========================

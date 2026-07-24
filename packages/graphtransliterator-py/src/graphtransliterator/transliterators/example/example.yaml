@@ -19,7 +19,7 @@ metadata:
   description: "An Example Bundled Transliterator"
   url: https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample
   author: Author McAuthorson
-  author_email: author_mcauthorson@msu.edu
+  author_email: author_mcauthorson@author.author
   license: MIT License
   keywords:
     - example

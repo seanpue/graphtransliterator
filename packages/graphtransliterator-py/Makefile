@@ -15,13 +15,29 @@ install: ## Install the poetry environment and install the pre-commit hooks
 	@echo "✅ Setup complete! Run 'poetry shell' to activate your environment."
 
 .PHONY: check
-check: ## Run code quality tools
-	@echo "🚀 Checking Poetry lock file consistency: Running poetry check"
+check: ## Run all strict Python code quality and validation checks
+	@echo "🚀 Checking Poetry lock file consistency..."
 	poetry check --lock
-	@echo "🚀 Linting code: Running pre-commit"
-	poetry run pre-commit run -a
-	@echo "🚀 Checking for obsolete dependencies: Running deptry"
-	poetry run deptry .
+
+	@echo "\n🚀 Linting code with Ruff..."
+	poetry run ruff check .
+
+	@echo "\n🚀 Validating code formatting with Ruff..."
+	poetry run ruff format --check .
+
+	@echo "\n🚀 Running static type validation with Mypy..."
+	poetry run mypy src
+
+	@echo "\n🚀 Scanning for obsolete or untracked package dependencies..."
+	poetry run deptry src --exclude .venv
+
+fix: ## Automatically fix lint errors and format code
+	@echo "🚀 Automatically fixing lint rules with Ruff..."
+	poetry run ruff check --fix .
+
+	@echo "\n🚀 Formatting code with Ruff..."
+	poetry run ruff format .
+
 
 .PHONY: test
 test: ## Test the code with pytest

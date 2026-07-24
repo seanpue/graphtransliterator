@@ -4,66 +4,106 @@
 Graph classes for GraphTransliterator.
 """
 
-from collections import UserList
 import logging
-from typing import Any, TypeVar, Union, cast
-from .types import NodeData, EdgeData
+from collections import UserList
+from typing import Any, Dict, Generic, Optional, TypeVar, Union, cast
+
+from .types import E, Edge, LoadedGraphDict, N, Node, NodeId, NodeLabel, T
 
 logger = logging.getLogger("graphtransliterator")
 
 _T = TypeVar("_T")
 
 
-class DirectedGraph:
-    """A directed graph representation containing nodes and edges."""
+class DirectedGraph(Generic[T, N, E]):
+    """A directed graph representation storing nodes and edges in a flat structure."""
 
     def __init__(
         self,
-        node: list[NodeData] | None = None,
-        edge: dict[int, dict[int, EdgeData]] | None = None,
-        edge_list: list[tuple[int, int]] | None = None,
+        nodes: list[Node[T, N]] | None = None,
+        edges: list[Edge[E]] | None = None,
     ) -> None:
-        self.node = node if node is not None else []
-        self.edge = edge if edge is not None else {}
+        self.nodes: list[Node[T, N]] = nodes if nodes is not None else []
+        self.edges: list[Edge[E]] = edges if edges is not None else []
 
-    def add_edge(self, source: int, target: int, edge_data: EdgeData | None = None) -> None:
-        """Add a directed edge with associated metadata between source and target."""
+    def add_node(
+        self,
+        data: N | None = None,
+        token: Any = None,
+        type: Any = None,
+        label: NodeLabel | None = None,
+        **kwargs: Any,
+    ) -> NodeId:
+        """Append a node to the graph and return its generated integer NodeId."""
+        next_id: NodeId = len(self.nodes)
+        if data is not None and not isinstance(data, dict):
+            raise ValueError("Node data must be a dictionary or None.")
+
+        new_node: Node[T, N] = cast(
+            Node[T, N],
+            {"id": next_id, "data": data, "token": token, "type": type, "label": label, **kwargs},
+        )
+        self.nodes.append(new_node)
+        return next_id
+
+    def add_edge(
+        self,
+        source: NodeId,
+        target: NodeId,
+        data: E | None = None,
+    ) -> None:
+        """Add a directed edge connecting a source NodeId to a target NodeId."""
         if not isinstance(source, int) or not isinstance(target, int):
             raise ValueError("Source and target node indices must be integers.")
 
-        if source < 0 or source >= len(self.node) or target < 0 or target >= len(self.node):
+        if source < 0 or source >= len(self.nodes) or target < 0 or target >= len(self.nodes):
             raise ValueError(f"Source node {source} or target node {target} not found in graph.")
 
-        if edge_data is not None and not isinstance(edge_data, dict):
+        if data is not None and not isinstance(data, dict):
             raise ValueError("Edge data must be a dictionary or None.")
 
-        if source not in self.edge:
-            self.edge[source] = {}
-        data = edge_data if edge_data is not None else cast(EdgeData, {})
-        self.edge[source][target] = data
+        actual_data: E = cast(E, data if data is not None else {})
 
-    def add_node(self, node_data: NodeData | None = None) -> int:
-        """Append a node to the graph and return its index."""
-        if node_data is not None and not isinstance(node_data, dict):
-            raise ValueError("Node data must be a dictionary or None.")
+        new_edge: Edge[E] = {
+            "source": source,
+            "target": target,
+            "data": actual_data,
+        }
+        self.edges.append(new_edge)
 
-        data = node_data if node_data is not None else cast(NodeData, {})
-        self.node.append(data)
-        return len(self.node) - 1
+    def get_node(self, node_id: NodeId) -> Node[T, N] | None:
+        """Return node by numeric NodeId if present."""
+        if 0 <= node_id < len(self.nodes):
+            return self.nodes[node_id]
+        return None
+
+    def get_edge(self, source: NodeId, target: NodeId) -> Optional[Dict[str, Any]]:
+        for edge in self.edges:
+            if edge["source"] == source and edge["target"] == target:
+                data = edge.get("data")
+                if isinstance(data, dict):
+                    return cast(Dict[str, Any], data)
+                return cast(Dict[str, Any], edge)
+        return None
 
     @property
-    def edge_list(self) -> list[tuple[int, int]]:
-        """Return a list of all edges as (source, target) pairs."""
-        return [(int(source), int(target)) for source, targets in self.edge.items() for target in targets]
+    def edge_list(self) -> list[tuple[NodeId, NodeId]]:
+        """Return a list of all edge connection coordinates as (source, target) tuples."""
+        return [(edge["source"], edge["target"]) for edge in self.edges]
 
-    @property
-    def edges(self) -> list[tuple[int, int]]:
-        """Return a list of all edges as (source, target) pairs."""
-        return [(int(source), int(target)) for source, targets in self.edge.items() for target in targets]
+    def to_dict(self) -> LoadedGraphDict[T, N, E]:
+        """Export graph layout as canonical flat dictionary matching TypeScript."""
+        return cast(
+            LoadedGraphDict[T, N, E],
+            {
+                "nodes": self.nodes,
+                "edges": self.edges,
+            },
+        )
 
 
 class OnMatchRuleProxy:
-    """A transparent proxy wrapper to log when an OnMatchRule is successfully matched."""
+    """A transparent proxy wrapper to log when an OnMatchRule is matched."""
 
     def __init__(self, obj: Any, idx: int, visited_set: set[int]) -> None:
         object.__setattr__(self, "_obj", obj)
@@ -82,7 +122,7 @@ class OnMatchRuleProxy:
         val = object.__getattribute__(self, "_obj")[item]
         if (
             hasattr(object.__getattribute__(self, "_obj"), "production")
-            and val == object.__getattribute__(self, "_obj").production
+            and val == object.__getattribute__(self, "_obj")["production"]
         ):
             object.__getattribute__(self, "_visited_set").add(object.__getattribute__(self, "_idx"))
         return val
@@ -98,10 +138,14 @@ class OnMatchRuleProxy:
 
 
 class VisitLoggingList(UserList[_T]):
-    """A UserList wrapper that tracks indices of visited elements."""
+    """A UserList wrapper tracking visited element indices."""
+
+    def visit(self, index: int) -> None:
+        """Mark an index as visited."""
+        self.visited.add(index)
 
     def __init__(self, initlist: Union[list[_T], "VisitLoggingList[_T]", None] = None) -> None:
-        self.visited: set[int]  # Explicitly declare type before conditional assignments
+        self.visited: set[int]
         if isinstance(initlist, VisitLoggingList):
             super().__init__(initlist.data)
             self.visited = set(initlist.visited)
@@ -109,47 +153,28 @@ class VisitLoggingList(UserList[_T]):
             super().__init__(initlist)
             self.visited = set()
 
-        # Wrap each rule inside a proxy to log the visit on successful match
         self.data = [cast(_T, OnMatchRuleProxy(item, i, self.visited)) for i, item in enumerate(self.data)]
 
     def clear_visited(self) -> None:
-        """Reset the visited log tracking."""
+        """Reset visited log entries."""
         self.visited.clear()
 
 
-class VisitLoggingDict(dict[Any, Any]):
-    """A dictionary wrapper that tracks visited keys across nested lookups."""
+class VisitLoggingDirectedGraph(DirectedGraph[T, N, E]):
+    """Subclass monitoring runtime traversal over nodes and edges."""
 
-    def __init__(
-        self,
-        data: dict[Any, Any],
-        visited_edges: set[tuple[int, int]],
-        parent_key: int | None = None,
-    ) -> None:
-        super().__init__(data)
-        self._visited_edges = visited_edges
-        self._parent_key = parent_key
+    def __init__(self, graph: DirectedGraph[T, N, E]) -> None:
+        super().__init__(graph.nodes, graph.edges)
+        self.visited_nodes: set[NodeId] = set()
+        self.visited_edges: set[tuple[NodeId, NodeId]] = set()
 
-    def __getitem__(self, key: Any) -> Any:
-        val = super().__getitem__(key)
-        if self._parent_key is None:
-            if isinstance(val, dict) and not isinstance(val, VisitLoggingDict):
-                wrapped = VisitLoggingDict(val, self._visited_edges, parent_key=int(key))
-                self[key] = wrapped
-                return wrapped
-        else:
-            self._visited_edges.add((self._parent_key, int(key)))
-        return val
+    def visit_node(self, node_id: NodeId) -> None:
+        """Log traversal of a node."""
+        self.visited_nodes.add(node_id)
 
-
-class VisitLoggingDirectedGraph(DirectedGraph):
-    """A DirectedGraph subclass that monitors runtime traversal over nodes and edges."""
-
-    def __init__(self, graph: DirectedGraph) -> None:
-        super().__init__(graph.node, graph.edge)
-        self.visited_nodes: set[int] = set()
-        self.visited_edges: set[tuple[int, int]] = set()
-        self.edge = VisitLoggingDict(graph.edge, self.visited_edges)
+    def visit_edge(self, source: NodeId, target: NodeId) -> None:
+        """Log traversal of an edge connection."""
+        self.visited_edges.add((source, target))
 
     def clear_visited(self) -> None:
         """Reset tracked graph metadata."""
@@ -157,12 +182,12 @@ class VisitLoggingDirectedGraph(DirectedGraph):
         self.visited_edges.clear()
 
     def check_coverage(self, raise_exception: bool = True) -> bool:
-        """Check if all edges present in the underlying graph configuration were traversed."""
-        missing_edges: list[tuple[int, int]] = []
-        for u, v in self.edges:
-            if (u, v) not in self.visited_edges:
-                logger.warning(f"Edge ({u} -> {v}) was never visited during runtime.")
-                missing_edges.append((u, v))
+        """Validate if all edges in graph configuration were traversed."""
+        missing_edges: list[tuple[NodeId, NodeId]] = []
+        for source, target in self.edge_list:
+            if (source, target) not in self.visited_edges:
+                logger.warning(f"Edge ({source} -> {target}) was never visited during runtime.")
+                missing_edges.append((source, target))
 
         if missing_edges and raise_exception:
             from .exceptions import IncompleteGraphCoverageException

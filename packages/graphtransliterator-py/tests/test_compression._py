@@ -2,11 +2,11 @@
 
 """Tests for compression/decompression."""
 
-import graphtransliterator
 import graphtransliterator.compression as compression
-from graphtransliterator import GraphTransliterator
 import pytest
 
+import graphtransliterator
+from graphtransliterator import GraphTransliterator
 
 test_config = """
 tokens:

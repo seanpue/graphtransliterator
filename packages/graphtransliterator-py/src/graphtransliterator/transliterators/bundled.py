@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
 import os
 import sys
+from collections import OrderedDict
 from typing import Any, Dict, Optional, Type, Union, cast
+
 import yaml
 
-from graphtransliterator.core import GraphTransliterator, CoverageTransliterator
+from graphtransliterator.core import CoverageTransliterator, GraphTransliterator
 
 
 class Bundled(CoverageTransliterator, GraphTransliterator):
@@ -76,25 +77,25 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
             coverage=kwargs.get("coverage", True),
         )
 
-    def from_YAML(self, check_ambiguity: bool = True, coverage: bool = True, **kwargs: Any) -> "Bundled":
+    def from_bundled_YAML(self, check_ambiguity: bool = True, coverage: bool = True, **kwargs: Any) -> "Bundled":
         """Initialize from bundled YAML file (best for development)."""
         self._init_from(method="yaml", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs)
         return self
 
-    def from_JSON(self, check_ambiguity: bool = False, coverage: bool = False, **kwargs: Any) -> "Bundled":
+    def from_bundled_JSON(self, check_ambiguity: bool = False, coverage: bool = False, **kwargs: Any) -> "Bundled":
         """Initialize from bundled JSON file (best for speed)."""
         self._init_from(method="json", check_ambiguity=check_ambiguity, coverage=coverage, **kwargs)
         return self
 
     @classmethod
-    def new(cls, method: str = "json", **kwargs: Any) -> "Bundled":
+    def new(cls, method: str = "yaml", **kwargs: Any) -> "Bundled":
         """Return a new class instance from method (json/yaml)."""
         assert method in ("json", "yaml"), "Unknown method."
         new_ = cast("Bundled", cls.__new__(cls))
         if method == "json":
-            new_.from_JSON(**kwargs)
+            new_.from_bundled_JSON(**kwargs)
         elif method == "yaml":
-            new_.from_YAML(**kwargs)
+            new_.from_bundled_YAML(**kwargs)
         return new_
 
     @property
@@ -140,32 +141,45 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
 
         for rule in self.rules:
             input_ = ""
-            if rule.prev_classes:
-                for _ in rule.prev_classes:
-                    input_ += sample_token(_)
-            if rule.prev_tokens:
-                for _ in rule.prev_tokens:
-                    input_ += _
-            for _ in rule.tokens:
-                input_ += _
-            if rule.next_tokens:
-                for _ in rule.next_tokens:
-                    input_ += _
-            if rule.next_classes:
-                for _ in rule.next_classes:
-                    input_ += sample_token(_)
+            prev_classes = rule.get("prev_classes")
+            if prev_classes:
+                for cls_name in prev_classes:
+                    input_ += sample_token(cls_name)
+
+            prev_tokens = rule.get("prev_tokens")
+            if prev_tokens:
+                for tok in prev_tokens:
+                    input_ += tok
+
+            for tok in rule.get("tokens", []):
+                input_ += tok
+
+            next_tokens = rule.get("next_tokens")
+            if next_tokens:
+                for tok in next_tokens:
+                    input_ += tok
+
+            next_classes = rule.get("next_classes")
+            if next_classes:
+                for cls_name in next_classes:
+                    input_ += sample_token(cls_name)
+
             tests[input_] = self.transliterate(input_)
 
         if self.onmatch_rules:
             for om_rule in self.onmatch_rules:
                 input_ = ""
-                if om_rule.prev_classes:
-                    for _ in om_rule.prev_classes:
-                        token = sample_token(_)
-                        input_ += token
-                    for _ in om_rule.prev_classes:
-                        token = sample_token(_)
-                        input_ += token
-                tests[input_] = self.transliterate(input_)
+                prev_classes = om_rule.get("prev_classes")
+                if prev_classes:
+                    for cls_name in prev_classes:
+                        input_ += sample_token(cls_name)
+
+                next_classes = om_rule.get("next_classes")
+                if next_classes:
+                    for cls_name in next_classes:
+                        input_ += sample_token(cls_name)
+
+                if input_:
+                    tests[input_] = self.transliterate(input_)
 
         return cast(str, yaml.dump(dict(tests), allow_unicode=True))

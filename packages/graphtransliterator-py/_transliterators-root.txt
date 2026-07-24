@@ -1,0 +1,665 @@
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/itrans_devanagari_to_unicode/itrans_devanagari_to_unicode.yaml ===[0m
+tokens:
+  k: [consonant]
+  kh: [consonant]
+  g: [consonant]
+  gh: [consonant]
+  ~N: [consonant]
+  "\N{LATIN SMALL LETTER N WITH DOT ABOVE}": [consonant]
+  ch: [consonant]
+  chh: [consonant]
+  Ch: [consonant]
+  j: [consonant]
+  jh: [consonant]
+  ~n: [consonant]
+  T: [consonant]
+  Th: [consonant]
+  D: [consonant]
+  Dh: [consonant]
+  N: [consonant]
+  t: [consonant]
+  th: [consonant]
+  d: [consonant]
+  dh: [consonant]
+  n: [consonant]
+  ^n: [consonant]
+  p: [consonant]
+  ph: [consonant]
+  b: [consonant]
+  bh: [consonant]
+  m: [consonant]
+  y: [consonant]
+  r: [consonant]
+  R: [consonant]
+  l: [consonant]
+  ld: [consonant]
+  L: [consonant]
+  zh: [consonant]
+  v: [consonant]
+  sh: [consonant]
+  Sh: [consonant]
+  s: [consonant]
+  h: [consonant]
+  x: [consonant]
+  kSh: [consonant]
+  GY: [consonant]
+  j~n: [consonant]
+  dny: [consonant]
+  q: [consonant]
+  K: [consonant]
+  G: [consonant]
+  J: [consonant]
+  z: [consonant]
+  .D: [consonant]
+  .Dh: [consonant]
+  f: [consonant]
+  Y: [consonant]
+  a: [vowel]
+  aa: [vowel]
+  A: [vowel]
+  i: [vowel]
+  ii: [vowel]
+  I: [vowel]
+  ee: [vowel]
+  u: [vowel]
+  uu: [vowel]
+  U: [vowel]
+  RRi: [vowel]
+  R^i: [vowel]
+  LLi: [vowel]
+  L^i: [vowel]
+  RRI: [vowel]
+  LLI: [vowel]
+  a.c: [vowel]
+  ^e: [vowel]
+  e: [vowel]
+  ai: [vowel]
+  A.c: [vowel]
+  ^o: [vowel]
+  o: [vowel]
+  au: [vowel]
+  ' ': [wb,whitespace]
+  "\t": [wb,whitespace]
+  ',': [wb]
+  .h: [wb]
+  H: [wb]
+  OM: [wb]
+  AUM: [wb]
+  '|': [wb]
+  '||': [wb]
+  '0': [wb]
+  '1': [wb]
+  '2': [wb]
+  '3': [wb]
+  '4': [wb]
+  '5': [wb]
+  '6': [wb]
+  '7': [wb]
+  '8': [wb]
+  '9': [wb]
+  Rs.: [wb]
+  ~Rs.: [wb]
+  .a: [wb]
+  a.e: [vowel_sign]
+  .N: [vowel_sign]
+  .n: [vowel_sign]
+  M: [vowel_sign]
+  .m: [vowel_sign]
+rules:
+  "\t": "\t"
+  ' ': ' '
+  ',': ','
+  .D: "\N{DEVANAGARI LETTER DDDHA}"
+  .Dh: "\N{DEVANAGARI LETTER RHA}"
+  .N: "\N{DEVANAGARI SIGN CANDRABINDU}"
+  .a: "\N{DEVANAGARI SIGN AVAGRAHA}"
+  .h: "\N{DEVANAGARI SIGN VIRAMA}\N{ZERO WIDTH NON-JOINER}"
+  .m: "\N{DEVANAGARI SIGN ANUSVARA}"
+  .n: "\N{DEVANAGARI SIGN ANUSVARA}"
+  '0': "\N{DEVANAGARI DIGIT ZERO}"
+  '1': "\N{DEVANAGARI DIGIT ONE}"
+  '2': "\N{DEVANAGARI DIGIT TWO}"
+  '3': "\N{DEVANAGARI DIGIT THREE}"
+  '4': "\N{DEVANAGARI DIGIT FOUR}"
+  '5': "\N{DEVANAGARI DIGIT FIVE}"
+  '6': "\N{DEVANAGARI DIGIT SIX}"
+  '7': "\N{DEVANAGARI DIGIT SEVEN}"
+  '8': "\N{DEVANAGARI DIGIT EIGHT}"
+  '9': "\N{DEVANAGARI DIGIT NINE}"
+  <consonant> A: "\N{DEVANAGARI VOWEL SIGN AA}"
+  <consonant> A.c: "\N{DEVANAGARI VOWEL SIGN CANDRA O}"
+  <consonant> I: "\N{DEVANAGARI VOWEL SIGN II}"
+  <consonant> LLI: "\N{DEVANAGARI VOWEL SIGN VOCALIC LL}"
+  <consonant> LLi: "\N{DEVANAGARI VOWEL SIGN VOCALIC L}"
+  <consonant> L^i: "\N{DEVANAGARI VOWEL SIGN VOCALIC L}"
+  <consonant> RRI: "\N{DEVANAGARI VOWEL SIGN VOCALIC RR}"
+  <consonant> RRi: "\N{DEVANAGARI VOWEL SIGN VOCALIC R}"
+  <consonant> R^i: "\N{DEVANAGARI VOWEL SIGN VOCALIC R}"
+  <consonant> U: "\N{DEVANAGARI VOWEL SIGN UU}"
+  <consonant> ^e: "\N{DEVANAGARI VOWEL SIGN SHORT E}"
+  <consonant> ^o: "\N{DEVANAGARI VOWEL SIGN SHORT O}"
+  <consonant> a: ''
+  <consonant> a.c: "\N{DEVANAGARI VOWEL SIGN CANDRA E}"
+  <consonant> aa: "\N{DEVANAGARI VOWEL SIGN AA}"
+  <consonant> ai: "\N{DEVANAGARI VOWEL SIGN AI}"
+  <consonant> au: "\N{DEVANAGARI VOWEL SIGN AU}"
+  <consonant> e: "\N{DEVANAGARI VOWEL SIGN E}"
+  <consonant> ee: "\N{DEVANAGARI VOWEL SIGN II}"
+  <consonant> i: "\N{DEVANAGARI VOWEL SIGN I}"
+  <consonant> ii: "\N{DEVANAGARI VOWEL SIGN II}"
+  <consonant> o: "\N{DEVANAGARI VOWEL SIGN O}"
+  <consonant> u: "\N{DEVANAGARI VOWEL SIGN U}"
+  <consonant> uu: "\N{DEVANAGARI VOWEL SIGN UU}"
+  A: "\N{DEVANAGARI LETTER AA}"
+  A.c: "\N{DEVANAGARI LETTER CANDRA O}"
+  AUM: "\N{DEVANAGARI OM}"
+  Ch: "\N{DEVANAGARI LETTER CHA}"
+  D: "\N{DEVANAGARI LETTER DDA}"
+  Dh: "\N{DEVANAGARI LETTER DDHA}"
+  G: "\N{DEVANAGARI LETTER GHHA}"
+  GY: "\N{DEVANAGARI LETTER JA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER NYA}"
+  H: "\N{DEVANAGARI SIGN VISARGA}"
+  I: "\N{DEVANAGARI LETTER II}"
+  J: "\N{DEVANAGARI LETTER ZA}"
+  K: "\N{DEVANAGARI LETTER KHHA}"
+  L: "\N{DEVANAGARI LETTER LLA}"
+  LLI: "\N{DEVANAGARI LETTER VOCALIC LL}"
+  LLi: "\N{DEVANAGARI LETTER VOCALIC L}"
+  L^i: "\N{DEVANAGARI LETTER VOCALIC L}"
+  M: "\N{DEVANAGARI SIGN ANUSVARA}"
+  N: "\N{DEVANAGARI LETTER NNA}"
+  OM: "\N{DEVANAGARI OM}"
+  R: "\N{DEVANAGARI LETTER RRA}"
+  RRI: "\N{DEVANAGARI LETTER VOCALIC RR}"
+  RRi: "\N{DEVANAGARI LETTER VOCALIC R}"
+  R^i: "\N{DEVANAGARI LETTER VOCALIC R}"
+  Rs.: "\N{INDIAN RUPEE SIGN}"
+  Sh: "\N{DEVANAGARI LETTER SSA}"
+  T: "\N{DEVANAGARI LETTER TTA}"
+  Th: "\N{DEVANAGARI LETTER TTHA}"
+  U: "\N{DEVANAGARI LETTER UU}"
+  Y: "\N{DEVANAGARI LETTER YYA}"
+  ^e: "\N{DEVANAGARI LETTER SHORT E}"
+  ^n: "\N{DEVANAGARI LETTER NNNA}"
+  ^o: "\N{DEVANAGARI LETTER SHORT O}"
+  a: "\N{DEVANAGARI LETTER A}"
+  a.c: "\N{DEVANAGARI LETTER CANDRA E}"
+  a.e: "\N{DEVANAGARI LETTER CANDRA A}"
+  aa: "\N{DEVANAGARI LETTER AA}"
+  ai: "\N{DEVANAGARI LETTER AI}"
+  au: "\N{DEVANAGARI LETTER AU}"
+  b: "\N{DEVANAGARI LETTER BA}"
+  bh: "\N{DEVANAGARI LETTER BHA}"
+  ch: "\N{DEVANAGARI LETTER CA}"
+  chh: "\N{DEVANAGARI LETTER CHA}"
+  d: "\N{DEVANAGARI LETTER DA}"
+  dh: "\N{DEVANAGARI LETTER DHA}"
+  dny: "\N{DEVANAGARI LETTER JA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER NYA}"
+  e: "\N{DEVANAGARI LETTER E}"
+  ee: "\N{DEVANAGARI LETTER II}"
+  f: "\N{DEVANAGARI LETTER FA}"
+  g: "\N{DEVANAGARI LETTER GA}"
+  gh: "\N{DEVANAGARI LETTER GHA}"
+  h: "\N{DEVANAGARI LETTER HA}"
+  i: "\N{DEVANAGARI LETTER I}"
+  ii: "\N{DEVANAGARI LETTER II}"
+  j: "\N{DEVANAGARI LETTER JA}"
+  jh: "\N{DEVANAGARI LETTER JHA}"
+  j~n: "\N{DEVANAGARI LETTER JA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER NYA}"
+  k: "\N{DEVANAGARI LETTER KA}"
+  kSh: "\N{DEVANAGARI LETTER KA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER SSA}"
+  kh: "\N{DEVANAGARI LETTER KHA}"
+  l: "\N{DEVANAGARI LETTER LA}"
+  ld: "\N{DEVANAGARI LETTER LLA}"
+  m: "\N{DEVANAGARI LETTER MA}"
+  n: "\N{DEVANAGARI LETTER NA}"
+  o: "\N{DEVANAGARI LETTER O}"
+  p: "\N{DEVANAGARI LETTER PA}"
+  ph: "\N{DEVANAGARI LETTER PHA}"
+  q: "\N{DEVANAGARI LETTER QA}"
+  r: "\N{DEVANAGARI LETTER RA}"
+  s: "\N{DEVANAGARI LETTER SA}"
+  sh: "\N{DEVANAGARI LETTER SHA}"
+  t: "\N{DEVANAGARI LETTER TA}"
+  th: "\N{DEVANAGARI LETTER THA}"
+  u: "\N{DEVANAGARI LETTER U}"
+  uu: "\N{DEVANAGARI LETTER UU}"
+  v: "\N{DEVANAGARI LETTER VA}"
+  x: "\N{DEVANAGARI LETTER KA}\N{DEVANAGARI SIGN VIRAMA}\N{DEVANAGARI LETTER SSA}"
+  y: "\N{DEVANAGARI LETTER YA}"
+  z: "\N{DEVANAGARI LETTER ZA}"
+  zh: "\N{DEVANAGARI LETTER LLLA}"
+  '|': "\N{DEVANAGARI DANDA}"
+  '||': "\N{DEVANAGARI DOUBLE DANDA}"
+  ~N: "\N{DEVANAGARI LETTER NGA}"
+  ~Rs.: "\N{INDIAN RUPEE SIGN}"
+  ~n: "\N{DEVANAGARI LETTER NYA}"
+  "\N{LATIN SMALL LETTER N WITH DOT ABOVE}": "\N{DEVANAGARI LETTER NGA}"
+onmatch_rules:
+- <consonant> + <consonant>: "\N{DEVANAGARI SIGN VIRAMA}"
+whitespace:
+  consolidate: false
+  default: ' '
+  token_class: whitespace
+metadata:
+  name: ITRANSDevanagariToUnicode
+  description: ITRANS Devanagari to Unicode Transliterator
+  version: 0.1.0
+  url: https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/itrans_devanagari_to_unicode
+  author: A. Sean Pue
+  author_email: pue@msu.edu
+  license: MIT
+  keywords: [devanagari, ITRANS, Hindi, Sanskrit]
+  project_urls:
+    Documentation: https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/itrans_devanagari_to_unicode
+    Source: https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/itrans_devanagari_to_unicode
+    Tracker: https://github.com/seanpue/graphtransliterator/issues
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/itrans_devanagari_to_unicode/tests/itrans_devanagari_to_unicode_tests.yaml ===[0m
+"\t": "\t"
+' ': ' '
+',': ','
+.D: ड़
+.Dh: ढ़
+.N: ँ
+.a: ऽ
+.h: ्‌
+.m: ं
+.n: ं
+'0': ०
+'1': १
+'2': २
+'3': ३
+'4': ४
+'5': ५
+'6': ६
+'7': ७
+'8': ८
+'9': ९
+A: आ
+A.c: ऑ
+AUM: ॐ
+Ch: छ
+D: ड
+Dh: ढ
+G: ग़
+GY: ज्ञ
+H: ः
+I: ई
+J: ज़
+K: ख़
+L: ळ
+LLI: ॡ
+LLi: ऌ
+L^i: ऌ
+M: ं
+N: ण
+OM: ॐ
+R: ऱ
+RRI: ॠ
+RRi: ऋ
+R^i: ऋ
+Rs.: ₹
+Sh: ष
+T: ट
+Th: ठ
+U: ऊ
+Y: य़
+^e: ऎ
+^n: ऩ
+^o: ऒ
+a: अ
+a.c: ऍ
+a.e: ॲ
+aa: आ
+ai: ऐ
+au: औ
+b: ब
+bh: भ
+ch: च
+chh: छ
+d: द
+dh: ध
+dny: ज्ञ
+dnyA: ज्ञा
+dnyA.c: ज्ञॉ
+dnyI: ज्ञी
+dnyLLI: ज्ञॣ
+dnyLLi: ज्ञॢ
+dnyL^i: ज्ञॢ
+dnyRRI: ज्ञॄ
+dnyRRi: ज्ञृ
+dnyR^i: ज्ञृ
+dnyU: ज्ञू
+dny^e: ज्ञॆ
+dny^o: ज्ञॊ
+dnya: ज्ञ
+dnya.c: ज्ञॅ
+dnyaa: ज्ञा
+dnyai: ज्ञै
+dnyau: ज्ञौ
+dnydny: ज्ञ्ज्ञ
+dnye: ज्ञे
+dnyee: ज्ञी
+dnyi: ज्ञि
+dnyii: ज्ञी
+dnyo: ज्ञो
+dnyu: ज्ञु
+dnyuu: ज्ञू
+e: ए
+ee: ई
+f: फ़
+g: ग
+gh: घ
+h: ह
+i: इ
+ii: ई
+j: ज
+jh: झ
+j~n: ज्ञ
+k: क
+kSh: क्ष
+kh: ख
+l: ल
+ld: ळ
+m: म
+n: न
+o: ओ
+p: प
+ph: फ
+q: क़
+r: र
+s: स
+sh: श
+t: त
+th: थ
+u: उ
+uu: ऊ
+v: व
+x: क्ष
+y: य
+z: ज़
+zh: ऴ
+'|': ।
+'||': ॥
+~N: ङ
+~Rs.: ₹
+~n: ञ
+ṅ: ङ
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/itrans_devanagari_to_unicode/__init__.py ===[0m
+# -*- coding: utf-8 -*-
+
+from graphtransliterator.transliterators import Bundled
+
+
+class ITRANSDevanagariToUnicode(Bundled):
+    """
+    ITRANS Devanagari to Unicode Transliterator.
+    """
+
+    def __init__(self, check_ambiguity: bool = False, coverage: bool = False) -> None:
+        """Initialize transliterator [from YAML or JSON (quicker)]."""
+
+        # While testing, initialize from YAML and check ambiguity,
+
+        self.from_YAML(
+            check_ambiguity=check_ambiguity, coverage=coverage
+        )  # defaults to check_ambiguity=True, check_coverage=True
+
+        # When ready, cut the previous lines and initialize more quickly from JSON:
+
+        # self.from_JSON(check_ambiguity=check_ambiguity, coverage=coverage)
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/example/example.yaml ===[0m
+tokens:
+  a: [vowel]
+  ' ': [whitespace]
+  b: [consonant]
+rules:
+  a: A
+  b: B
+  ' ': ' '
+  (<consonant> a) b (a <consonant>):  "!B!"
+onmatch_rules:
+  - <vowel> + <vowel>: ","
+whitespace:
+  consolidate: False
+  default: " "
+  token_class: whitespace
+metadata:
+  name: example
+  version: 1.0.0
+  description: "An Example Bundled Transliterator"
+  url: https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample
+  author: Author McAuthorson
+  author_email: author_mcauthorson@author.author
+  license: MIT License
+  keywords:
+    - example
+  project_urls:
+    Documentation: https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example
+    Source: https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example
+    Tracker: https://github.com/seanpue/graphtransliterator/issues
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/example/tests/test_example.py ===[0m
+# -*- coding: utf-8 -*-
+import graphtransliterator.transliterators as transliterators
+
+
+def test_example() -> None:
+    """Example tests for transliterator."""
+    # Generate a Visit-Logging Transliterator`
+    transliterator = transliterators.Example(coverage=True)  # type: ignore[attr-defined]
+    # Run YAML tests (in example.yaml)
+    assert transliterator.run_yaml_tests()
+    # Check coverage of graph nodes and edges, as well as onmatch rules.
+    assert transliterator.check_coverage()
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/example/tests/example_tests.yaml ===[0m
+# YAML declaration of tests for bundled Graph Transliterator
+# These are in the form of a dictionary.
+# The key is the source text, and the value is the correct transliteration.
+' ': ' '
+a: A
+aa: A,A
+babab: BA!B!AB
+b: B
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/example/__init__.py ===[0m
+from typing import Any
+
+from graphtransliterator.transliterators.bundled import Bundled
+
+
+class Example(Bundled):
+    """
+    Example Bundled Graph Transliterator.
+    """
+
+    class Example(Bundled):
+        def __init__(
+            self, check_ambiguity: bool = False, coverage: bool = False, ignore_errors: bool = False, **kwargs: Any
+        ) -> None:
+            """Initialize transliterator from YAML or JSON."""
+
+            self.from_yaml(check_ambiguity=check_ambiguity, coverage=coverage)
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/example/example.json ===[0m
+{"tokens": {"a": ["vowel"], " ": ["whitespace"], "b": ["consonant"]}, "rules": [{"production": "A", "tokens": ["a"], "cost": -1.0}, {"production": "B", "tokens": ["b"], "cost": -1.0}, {"production": " ", "tokens": [" "], "cost": -1.0}, {"production": "!B!", "tokens": ["b"], "prev_classes": ["consonant"], "next_classes": ["consonant"], "prev_tokens": ["a"], "next_tokens": ["a"], "cost": -5.0}], "whitespace": {"default": " ", "token_class": "whitespace", "consolidate": false}, "onmatch_rules": [{"prev_classes": ["vowel"], "next_classes": ["vowel"], "production": ","}], "metadata": {"name": "example", "version": "1.0.0", "description": "An Example Bundled Transliterator", "url": "https://github.com/seanpue/graphtransliterator/tree/master/transliterator/sample", "author": "Author McAuthorson", "author_email": "author_mcauthorson@author.author", "license": "MIT License", "keywords": ["example"], "project_urls": {"Documentation": "https://github.com/seanpue/graphtransliterator/tree/master/graphtransliterator/transliterators/example", "Source": "https://github.com/seanpue/graphtransliterator/tree/graphtransliterator/transliterators/example", "Tracker": "https://github.com/seanpue/graphtransliterator/issues"}}, "ignore_errors": false, "onmatch_rules_lookup": {"a": {"a": [0]}}, "tokens_by_class": {"vowel": ["a"], "whitespace": [" "], "consonant": ["b"]}, "graph": {"nodes": [{"id": 0, "token": "", "type": "Start", "label": "Start", "data": {}}, {"id": 1, "token": "a", "type": "Token", "label": "a", "data": {}}, {"id": 2, "token": "", "type": "Rule", "label": "rule_0", "data": {}}, {"id": 3, "token": "b", "type": "Token", "label": "b", "data": {}}, {"id": 4, "token": "", "type": "Rule", "label": "rule_1", "data": {}}, {"id": 5, "token": " ", "type": "Token", "label": " ", "data": {}}, {"id": 6, "token": "", "type": "Rule", "label": "rule_2", "data": {}}, {"id": 7, "token": "", "type": "Rule", "label": "rule_3", "data": {}}], "edges": [{"source": 0, "target": 1, "data": {"token": "a", "cost": -1}}, {"source": 0, "target": 3, "data": {"token": "b", "cost": -5}}, {"source": 0, "target": 5, "data": {"token": " ", "cost": -1}}, {"source": 1, "target": 2, "data": {"cost": -1}}, {"source": 3, "target": 4, "data": {"cost": -1}}, {"source": 3, "target": 7, "data": {"cost": -5, "constraints": {"prev_classes": ["consonant"], "prev_tokens": ["a"], "next_tokens": ["a"], "next_classes": ["consonant"]}}}, {"source": 5, "target": 6, "data": {"cost": -1}}]}, "tokenizer_pattern": "(b|a|\\ )", "graphtransliterator_version": "1.2.4"}
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/bundled.py ===[0m
+# src/graphtransliterator/transliterators/bundled.py
+
+import os
+from typing import Any
+
+from graphtransliterator.core import GraphTransliterator
+
+
+class Bundled(GraphTransliterator):
+    """Base class for bundled transliterators."""
+
+    yaml_filename: str = "example.yaml"
+    json_filename: str = "example.json"
+
+    def _load_bundled(
+        self,
+        check_ambiguity: bool = False,
+        coverage: bool = False,
+        ignore_errors: bool = False,
+    ) -> None:
+        """Load bundled transliterator from JSON or YAML files."""
+        dir_path = os.path.dirname(os.path.abspath(self.__module_file__))
+        json_path = os.path.join(dir_path, self.json_filename)
+        yaml_path = os.path.join(dir_path, self.yaml_filename)
+
+        if os.path.exists(json_path):
+            gt = GraphTransliterator.from_json_file(json_path, check_ambiguity=check_ambiguity, coverage=coverage)
+        else:
+            gt = GraphTransliterator.from_yaml_file(yaml_path, check_ambiguity=check_ambiguity, coverage=coverage)
+
+        if ignore_errors:
+            gt.ignore_errors = ignore_errors
+
+        # Copy initialized GraphTransliterator attributes to self
+        self.__dict__.update(gt.__dict__)
+
+    def __init__(
+        self,
+        check_ambiguity: bool = False,
+        coverage: bool = False,
+        ignore_errors: bool = False,
+        **kwargs: Any,
+    ) -> None:
+        # Dynamically inspect module file path of child class
+        self.__module_file__ = getattr(self.__class__, "__file__", os.path.abspath(__file__))
+        self._load_bundled(
+            check_ambiguity=check_ambiguity,
+            coverage=coverage,
+            ignore_errors=ignore_errors,
+        )
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/__init__.py ===[0m
+# -*- coding: utf-8 -*-
+"""
+graphtransliterator.transliterators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
+
+import importlib.util
+import inspect
+import pkgutil
+import sys
+from typing import Any, Iterator, List, Union, cast
+
+from .bundled import Bundled  # noqa
+from .schemas import MetadataSchema  # noqa
+
+__all__ = ["Bundled", "MetadataSchema", "iter_names", "iter_transliterators"]
+
+# FIX: Add explicit type annotation to satisfy [var-annotated]
+_transliterators: List[str] = []
+
+
+def _skip_class_name(name: str) -> bool:
+    """Determine if the class name should be skipped."""
+    return name == "Bundled" or name.startswith("_")
+
+
+def add_transliterators(path: Union[List[str], Any] = None) -> None:
+    """Walk submodules and loads bundled transliterators into namespace."""
+    if path is None:
+        path = __path__
+
+    for loader, module_name, is_pkg in pkgutil.walk_packages(path):
+        if not is_pkg:
+            continue
+
+        # FIX: Type check loader to satisfy MetaPathFinderProtocol and avoid union-attr issues
+        if hasattr(loader, "find_spec"):
+            # Provide the optional second argument to pass strict Mypy checks
+            spec = loader.find_spec(module_name, None)
+            if spec is None or spec.loader is None:
+                continue
+
+            _module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = _module
+            spec.loader.exec_module(_module)
+
+            for name, _obj in inspect.getmembers(_module, inspect.isclass):
+                if _skip_class_name(name):
+                    continue
+                if name in __all__:
+                    raise ValueError('A transliterator named "{}" already exists'.format(name))
+
+                assert len(cast(Any, _module).__path__) == 1
+                globals()[name] = getattr(_module, name)
+                __all__.append(name)
+                _transliterators.append(name)
+
+
+add_transliterators()
+
+
+def iter_names() -> Iterator[str]:
+    """Iterate through bundled bundled transliterator names."""
+    for _ in _transliterators:
+        yield _
+
+
+def iter_transliterators(**kwds: Any) -> Iterator[Any]:
+    for name in iter_names():
+        cls = globals().get(name)
+        if cls:
+            yield cls(**kwds)
+
+
+def __getattr__(name: str) -> type[Bundled]:
+    """Fallback for dynamically loaded transliterator classes."""
+    if name in globals():
+        return cast(type[Bundled], globals()[name])
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/schemas.py ===[0m
+from marshmallow import fields, Schema
+
+
+class MetadataSchema(Schema):
+    """Schema for Bundled metadata."""
+
+    name = fields.Str(required=True)
+    description = fields.Str(required=True)
+    version = fields.Str(required=True)
+    url = fields.Url(required=False)
+    author = fields.Str(required=False)
+    author_email = fields.Email(required=False)
+    maintainer = fields.Str(required=False)
+    maintainer_email = fields.Email(required=False)
+    license = fields.Str(required=False)
+    keywords = fields.List(fields.Str(), required=False)
+    project_urls = fields.Dict(keys=fields.Str(), values=fields.Url, required=False)
+
+
+[1;34m=== FILE: src/graphtransliterator/transliterators/README.rst ===[0m
+=======================
+Bundled Transliterators
+=======================
+
+Bundled transliterators are found here, in subdirectories of
+``graphtransliterator/transliterators``.
+
+See the documentation for information on how to use and create them, or take a look in
+``graphtransliterator/transliterators/example``.
+
+Your contributions are most welcome!

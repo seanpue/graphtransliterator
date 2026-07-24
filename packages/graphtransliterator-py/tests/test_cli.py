@@ -3,15 +3,16 @@
 
 """Tests for `graphtransliterator` package."""
 
-from click.testing import CliRunner
-from graphtransliterator import cli
-from graphtransliterator import GraphTransliterator
-from graphtransliterator import __version__ as version
-from graphtransliterator.transliterators import Example
-from io import StringIO
 import json
 import os
+from io import StringIO
+
 import yaml
+from click.testing import CliRunner
+
+from graphtransliterator import GraphTransliterator, cli
+from graphtransliterator import __version__ as version
+from graphtransliterator.transliterators import Example  # type: ignore
 
 
 # inside tests/test_cli.py
@@ -47,6 +48,7 @@ def test_cli_transliterate_tests(tmpdir):
     # test bundled
     bundled_result = runner.invoke(cli.main, ["transliterate", "--from", "bundled", "Example", "a"])
     assert bundled_result.exit_code == 0
+
     assert bundled_result.output.strip() == "A"
 
     # test multiple inputs with python output
@@ -63,8 +65,19 @@ def test_cli_transliterate_tests(tmpdir):
     assert bundled_multiple_json_result.output.strip() == json.dumps(["A", "A"])
 
     # test transliterate from JSON
+
     json_ = transliterator.dumps()
-    json_result = runner.invoke(cli.main, ["transliterate", "--from", "json", json_, "a"])
+
+    json_result = runner.invoke(
+        cli.main,
+        [
+            "transliterate",
+            "--from",
+            "json",
+            json_,
+            "a",
+        ],
+    )
     assert json_result.exit_code == 0
     assert json_result.output.strip() == "A"
 
@@ -97,24 +110,25 @@ def test_cli_dump():
     runner = CliRunner()
     dump_result = runner.invoke(cli.main, ["dump", "--from", "bundled", "Example"])
     assert dump_result.exit_code == 0
+
     json_ = dump_result.output
-    assert GraphTransliterator.loads(json_).transliterate("a") == "A"
+
+    gt = GraphTransliterator.loads(json_)
+    assert gt.transliterate("a") == "A"
 
     # check that dump remains the same (important for version control)
     for i in range(0, 50):
         _ = runner.invoke(cli.main, ["dump", "--from", "bundled", "Example"])
         assert _.output == json_, "JSON dump varies"
 
-
-def test_cli_test():
+    # def test_cli_test():
     """Test `test` command."""
     runner = CliRunner()
     test_result = runner.invoke(cli.main, ["test", "Example"])
     assert test_result.exit_code == 0
     assert test_result.output.strip() == "True"
 
-
-def test_make_json():
+    # def test_make_json():
     """Tests `make-json` command."""
     runner = CliRunner()
     # Because make-json generates a JSON file, which may differ slightly from original,

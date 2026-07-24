@@ -4,21 +4,24 @@
 Functions used to initialize a GraphTransliterator.
 """
 
-from .graphs import DirectedGraph
-from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
-from .types import (
-    Token,
-    TokenClass,
-    RawRuleDict,
-    RawOnMatchDict,
-    RawWhitespaceDict,
-    ConstraintDict,
-)
-from collections import defaultdict
 import math
 import re
 import unicodedata
+from collections import defaultdict
 from typing import Any, Union, cast
+
+from .graphs import DirectedGraph
+from .types import (
+    ConstraintDict,
+    OnMatchRule,
+    RawOnMatchDict,
+    RawRuleDict,
+    RawWhitespaceDict,
+    Token,
+    TokenClass,
+    TransliterationRule,
+    WhitespaceRule,
+)
 
 # ---------- initialize tokens ----------
 
@@ -36,22 +39,32 @@ def _tokens_by_class_of(tokens: dict[Token, Union[list[TokenClass], set[TokenCla
 # ---------- initialize rules ----------
 
 
-def _transliteration_rule_of(rule: RawRuleDict) -> TransliterationRule:
+def _transliteration_rule_of(rule: RawRuleDict | TransliterationRule) -> TransliterationRule:
     """Converts rule dict into a TransliterationRule."""
 
-    transliteration_rule = TransliterationRule(
-        production=rule.get("production", ""),
-        prev_classes=rule.get("prev_classes"),
-        prev_tokens=rule.get("prev_tokens"),
-        tokens=rule.get("tokens", []),
-        next_tokens=rule.get("next_tokens"),
-        next_classes=rule.get("next_classes"),
-        cost=rule.get("cost", _cost_of(rule)),
-    )
+    cost = rule.get("cost")
+    if cost is None:
+        cost = _cost_of(rule)
+
+    transliteration_rule: TransliterationRule = {
+        "production": rule.get("production", ""),
+        "tokens": rule.get("tokens") or [],
+        "cost": cost,
+    }
+
+    if rule.get("prev_classes"):
+        transliteration_rule["prev_classes"] = rule.get("prev_classes")
+    if rule.get("prev_tokens"):
+        transliteration_rule["prev_tokens"] = rule.get("prev_tokens")
+    if rule.get("next_tokens"):
+        transliteration_rule["next_tokens"] = rule.get("next_tokens")
+    if rule.get("next_classes"):
+        transliteration_rule["next_classes"] = rule.get("next_classes")
+
     return transliteration_rule
 
 
-def _num_tokens_of(rule: RawRuleDict) -> int:
+def _num_tokens_of(rule: Union[RawRuleDict, TransliterationRule]) -> int:
     """Calculate the total number of tokens in a rule."""
     tokens_field = rule.get("tokens")
     total = len(tokens_field) if tokens_field else 0
@@ -68,12 +81,11 @@ def _num_tokens_of(rule: RawRuleDict) -> int:
     return total
 
 
-def _cost_of(rule: RawRuleDict) -> float:
+def _cost_of(rule: Union[RawRuleDict, TransliterationRule]) -> float:
     """Calculate the cost of a rule based on the number of constraints.
 
     Rules requiring more tokens to match are made less costly and tried first.
     """
-
     return math.log2(1 + 1 / (1 + _num_tokens_of(rule)))
 
 
@@ -83,11 +95,11 @@ def _cost_of(rule: RawRuleDict) -> float:
 def _onmatch_rule_of(onmatch_rule: RawOnMatchDict) -> OnMatchRule:
     """Converts onmatch_rule into OnMatchRule."""
 
-    return OnMatchRule(
-        prev_classes=onmatch_rule["prev_classes"],
-        next_classes=onmatch_rule["next_classes"],
-        production=onmatch_rule["production"],
-    )
+    return {
+        "prev_classes": onmatch_rule["prev_classes"],
+        "next_classes": onmatch_rule["next_classes"],
+        "production": onmatch_rule["production"],
+    }
 
 
 def _onmatch_rules_lookup(
@@ -110,12 +122,12 @@ def _onmatch_rules_lookup(
         # Iterate through all tokens
         for token_key, token_classes in tokens.items():
             # if the onmatch rule's next is of that class
-            if rule.next_classes[0] in token_classes:
+            if rule["next_classes"][0] in token_classes:
                 # iterate through all tokens again
                 for prev_token_key, prev_token_classes in tokens.items():
                     # if second token is of class of onmatch rule's last prev
                     # add the rule to curr -> prev
-                    if rule.prev_classes[-1] in prev_token_classes:
+                    if rule["prev_classes"][-1] in prev_token_classes:
                         if token_key not in onmatch_lookup:
                             onmatch_lookup[token_key] = {}
                         curr_token = onmatch_lookup[token_key]
@@ -129,13 +141,13 @@ def _onmatch_rules_lookup(
 # ---------- initialize whitespace ---------
 
 
-def _whitespace_rules_of(whitespace: RawWhitespaceDict) -> WhitespaceRules:
+def _whitespace_rules_of(whitespace: RawWhitespaceDict) -> WhitespaceRule:
     """Converts whitespace into WhiteSpace"""
-    return WhitespaceRules(
-        default=whitespace["default"],
-        token_class=whitespace["token_class"],
-        consolidate=whitespace["consolidate"],
-    )
+    return {
+        "default": whitespace["default"],
+        "token_class": whitespace["token_class"],
+        "consolidate": whitespace["consolidate"],
+    }
 
 
 # ---------- initialize tokenizer ----------
@@ -152,92 +164,137 @@ def _tokenizer_pattern_from(tokens: list[Token]) -> str:
     return regex_str
 
 
-# ---------- initialize graph ----------
-
-
-def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph:
+def _graph_from(rules: list[TransliterationRule]) -> DirectedGraph[Any, Any, Any]:
     """Generates a parsing graph from the given rules."""
 
-    graph = DirectedGraph(node=[], edge={})
+    graph: DirectedGraph[Any, Any, Any] = DirectedGraph()
 
-    # Use standard dict operations for internal assembly modifications safely
-    nodes = cast(list[dict[str, Any]], graph.node)
-    edges = cast(dict[int, dict[int, dict[str, Any]]], graph.edge)
+    nodes = cast(list[dict[str, Any]], graph.nodes)
+    edges = cast(list[dict[str, Any]], graph.edges)
 
-    nodes.append({"type": "Start"})
+    # Temporary lookup mapping: source_id -> target_id -> edge_data_dict
+    edge_map: dict[int, dict[int, dict[str, Any]]] = defaultdict(dict)
+
+    nodes.append({"type": "Start", "id": 0, "token": "", "label": "Start", "data": {}})
 
     for rule_key, rule in enumerate(rules):
+        rule_cost = rule.get("cost")
+        if rule_cost is None:
+            rule_cost = _cost_of(rule)
+
         parent_key = 0
-        for token in rule.tokens:
+        for token in rule["tokens"]:
             parent_node = nodes[parent_key]
             token_children = parent_node.setdefault("token_children", {})
             token_node_key = token_children.get(token)
 
             if token_node_key is None:
                 token_node_key = len(nodes)
-                nodes.append({"type": "token", "token": token})
-                edges.setdefault(parent_key, {})[token_node_key] = {"token": token}
+                nodes.append(
+                    {
+                        "id": token_node_key,
+                        "type": "Token",
+                        "token": token,
+                        "label": token,
+                        "data": {},
+                    }
+                )
+                edge_map[parent_key][token_node_key] = {"token": token, "cost": rule_cost}
                 token_children[token] = token_node_key
 
-            curr_edge = edges[parent_key][token_node_key]
-            curr_cost = curr_edge.get("cost", 1.0)
-            if curr_cost > rule.cost:
-                curr_edge["cost"] = rule.cost
+            curr_edge = edge_map[parent_key][token_node_key]
+            curr_cost = curr_edge.get("cost")
+            if curr_cost is None or rule_cost < curr_cost:
+                curr_edge["cost"] = rule_cost
 
             parent_key = token_node_key
 
         rule_node_key = len(nodes)
-        nodes.append({"type": "rule", "rule_key": rule_key, "accepting": True})
+        nodes.append(
+            {
+                "id": rule_node_key,
+                "type": "Rule",
+                "token": "",
+                "label": f"rule_{rule_key}",
+                "rule_key": rule_key,
+                "accepting": True,
+                "data": {},
+            }
+        )
 
         parent_node = nodes[parent_key]
         rule_children = parent_node.setdefault("rule_children", [])
         rule_children.append(rule_node_key)
-        rule_children.sort(key=lambda x: rules[cast(int, nodes[x]["rule_key"])].cost)
 
-        edges.setdefault(parent_key, {})[rule_node_key] = {"cost": rule.cost}
-        edge_to_rule = edges[parent_key][rule_node_key]
+        edge_map[parent_key][rule_node_key] = {"cost": rule_cost}
+        edge_to_rule = edge_map[parent_key][rule_node_key]
 
-        has_constraints = rule.prev_classes or rule.prev_tokens or rule.next_tokens or rule.next_classes
+        prev_classes = rule.get("prev_classes")
+        prev_tokens = rule.get("prev_tokens")
+        next_tokens = rule.get("next_tokens")
+        next_classes = rule.get("next_classes")
+
+        has_constraints = prev_classes or prev_tokens or next_tokens or next_classes
         if has_constraints:
             constraints: ConstraintDict = {}
-            if rule.prev_classes:
-                constraints["prev_classes"] = rule.prev_classes
-            if rule.prev_tokens:
-                constraints["prev_tokens"] = rule.prev_tokens
-            if rule.next_tokens:
-                constraints["next_tokens"] = rule.next_tokens
-            if rule.next_classes:
-                constraints["next_classes"] = rule.next_classes
+            if prev_classes:
+                constraints["prev_classes"] = prev_classes
+            if prev_tokens:
+                constraints["prev_tokens"] = prev_tokens
+            if next_tokens:
+                constraints["next_tokens"] = next_tokens
+            if next_classes:
+                constraints["next_classes"] = next_classes
             edge_to_rule["constraints"] = constraints
 
     for node_key, node in enumerate(nodes):
         ordered_children: dict[str, list[int]] = {}
         rule_children_keys = node.get("rule_children")
 
-        # Add rule children to ordered_children dict under '__rules__'
+        def get_edge_cost(target_key: int) -> float:
+            rule_idx = nodes[target_key].get("rule_key")
+            if rule_idx is not None:
+                r = rules[cast(int, rule_idx)]
+                cost = r.get("cost")
+                if cost is not None:
+                    return float(cost)
+                return _cost_of(r)
+
+            raw_cost = edge_map[node_key].get(target_key, {}).get("cost", 0.0)
+            return float(raw_cost)
+
+        # Sort rules so the lowest cost (most specific) comes FIRST in the list
         if rule_children_keys:
             ordered_children["__rules__"] = sorted(
                 rule_children_keys,
-                key=lambda x: rules[cast(int, nodes[x]["rule_key"])].cost,
+                key=get_edge_cost,
             )
             node.pop("rule_children", None)
 
         token_children = node.get("token_children")
 
-        # Add token children to ordered_children dict by token
         if token_children:
             for token, token_key in token_children.items():
                 ordered_children[token] = [token_key]
 
-                # Add rule children there as well
                 if rule_children_keys:
                     ordered_children[token] += rule_children_keys
 
-                # Sort both by cost
-                ordered_children[token].sort(key=lambda _new_tkn_key: edges[node_key][_new_tkn_key]["cost"])
-            # Remove token_children
+                ordered_children[token].sort(key=get_edge_cost)
+
             node.pop("token_children", None)
+
         node["ordered_children"] = ordered_children
+
+    for source_id, targets in edge_map.items():
+        for target_id, edge_data in targets.items():
+            edges.append(
+                {
+                    "source": source_id,
+                    "target": target_id,
+                    "data": edge_data,
+                }
+            )
 
     return graph
 

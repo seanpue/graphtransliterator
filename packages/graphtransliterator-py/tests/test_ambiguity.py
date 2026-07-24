@@ -4,13 +4,13 @@
 Tests for ambiguity checking and reporting.
 """
 
+import pytest
+
 from graphtransliterator import (
     AmbiguousTransliterationRulesException,
     GraphTransliterator,
-    TransliterationRule,
 )
-from graphtransliterator.ambiguity import _easyreading_rule
-import pytest
+from graphtransliterator.ambiguity import _easyreading_rule, check_for_ambiguity
 
 
 def test_GraphParser_check_ambiguity():
@@ -59,15 +59,77 @@ def test_GraphParser_check_ambiguity():
 
 def test_GraphTransliterator_easy_reading():
     assert (
-        _easyreading_rule(TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0))
+        _easyreading_rule(
+            {
+                "production": "",
+                "prev_classes": ["class_a"],
+                "prev_tokens": [],
+                "tokens": ["a"],
+                "next_tokens": [],
+                "next_classes": ["class_a"],
+                "cost": 0.0,
+            }
+        )
         == "<class_a> a <class_a>"
     )
     assert (
-        _easyreading_rule(TransliterationRule("", ["class_a"], [], ["a"], [], ["class_a"], 0))
+        _easyreading_rule(
+            {
+                "production": "",
+                "prev_classes": ["class_a"],
+                "prev_tokens": [],
+                "tokens": ["a"],
+                "next_tokens": [],
+                "next_classes": ["class_a"],
+                "cost": 0.0,
+            }
+        )
         == "<class_a> a <class_a>"
     )
-    assert _easyreading_rule(TransliterationRule("", [], ["b"], ["a"], ["b"], [], 0)) == "(b) a (b)"
     assert (
-        _easyreading_rule(TransliterationRule("", ["class_a"], ["b"], ["a"], ["b"], ["class_a"], 0))
+        _easyreading_rule(
+            {
+                "production": "",
+                "prev_classes": [],
+                "prev_tokens": ["b"],
+                "tokens": ["a"],
+                "next_tokens": ["b"],
+                "next_classes": [],
+                "cost": 0.0,
+            }
+        )
+        == "(b) a (b)"
+    )
+    assert (
+        _easyreading_rule(
+            {
+                "production": "",
+                "prev_classes": ["class_a"],
+                "prev_tokens": ["b"],
+                "tokens": ["a"],
+                "next_tokens": ["b"],
+                "next_classes": ["class_a"],
+                "cost": 0.0,
+            }
+        )
         == "(<class_a> b) a (b <class_a>)"
     )
+
+
+class DummyTransliterator:
+    _tokens = {}
+    _rules = []
+    _tokens_by_class = {}
+
+
+def test_check_ambiguity_empty_rules():
+    assert check_for_ambiguity(DummyTransliterator()) is True
+
+
+def test_ambiguity_empty_rules_and_explicit_cost():
+    class DummyEmptyTransliterator:
+        _tokens = {}
+        _rules = []
+        _tokens_by_class = {}
+
+    assert check_for_ambiguity(DummyEmptyTransliterator()) is True

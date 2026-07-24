@@ -1,40 +1,34 @@
 # -*- coding: utf-8 -*-
 
+import copy
+import re
+from collections import defaultdict
+from typing import Any, Iterable, Union, cast
+
 from marshmallow import (
+    Schema,
+    ValidationError,
     fields,
     post_load,
-    pre_dump,
-    Schema,
     validate,
-    ValidationError,
     validates_schema,
 )
 
-from collections import defaultdict
-from typing import Any, Union, cast
-from typing_extensions import TypedDict  # Clear import for TypedDict
 from .graphs import DirectedGraph
-from .rules import TransliterationRule, WhitespaceRules, OnMatchRule
-from .types import NodeData, LoadedGraphDict
 from .initialize import (
     _onmatch_rule_of,
-    _transliteration_rule_of,
     _whitespace_rules_of,
-    RawRuleDict,
+)
+from .process import ONMATCH_RE, RULE_RE
+from .types import (
+    LoadedGraphDict,
+    LoadedSettingsDict,
+    OnMatchRule,
     RawOnMatchDict,
     RawWhitespaceDict,
+    TransliterationRule,
+    WhitespaceRule,
 )
-from .process import RULE_RE, ONMATCH_RE
-import copy
-
-
-# Defined here to prevent circular loops in types.py
-class LoadedSettingsDict(TypedDict):
-    tokens: dict[str, Union[list[str], set[str]]]
-    rules: list[TransliterationRule]
-    whitespace: WhitespaceRules
-    metadata: dict[str, Any]
-    onmatch_rules: list[OnMatchRule]
 
 
 class WhitespaceDictSettingsSchema(Schema):
@@ -46,18 +40,15 @@ class WhitespaceDictSettingsSchema(Schema):
 
 
 class WhitespaceSettingsSchema(WhitespaceDictSettingsSchema):
-    """Schema for Whitespace definition that loads as :class:`WhitespaceRules.`"""
+    """Schema for Whitespace definition that loads as a WhitespaceRule."""
 
     @post_load
-    def make_whitespace_rules(self, data: RawWhitespaceDict, **kwargs: Any) -> WhitespaceRules:
+    def make_whitespace_rules(self, data: RawWhitespaceDict, **kwargs: Any) -> WhitespaceRule:
         return _whitespace_rules_of(data)
 
 
 class EasyReadingSettingsSchema(Schema):
-    """Schema for easy reading settings.
-
-    Provides initial validation based on easy reading format.
-    """
+    """Schema for easy reading settings format."""
 
     tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
     rules = fields.Dict(
@@ -72,54 +63,94 @@ class EasyReadingSettingsSchema(Schema):
             required=False,
         )
     )
-    metadata = fields.Dict(
-        keys=fields.Str(),
-        # no restriction on values
-        required=False,
-    )
+    metadata = fields.Dict(keys=fields.Str(), required=False)
     whitespace = fields.Nested(WhitespaceDictSettingsSchema)
+
+    @validates_schema
+    def validate_whitespace(self, data: dict[str, Any], **kwargs: Any) -> None:
+        tokens = data.get("tokens", {})
+        whitespace = data.get("whitespace", {})
+
+        if not whitespace:
+            return
+
+        default_ws = whitespace.get("default")
+        token_class_ws = whitespace.get("token_class")
+
+        if default_ws and default_ws not in tokens:
+            raise ValidationError(
+                f"Default whitespace token '{default_ws}' not found in tokens.",
+                field_name="whitespace",
+            )
+
+        all_classes = {cls for classes in tokens.values() if isinstance(classes, (list, set, tuple)) for cls in classes}
+        if token_class_ws and token_class_ws not in all_classes:
+            raise ValidationError(
+                f"Whitespace token class '{token_class_ws}' not found in defined token classes.",
+                field_name="whitespace",
+            )
+
+    @validates_schema
+    @validates_schema
+    def validate_rules_tokens(self, data: dict[str, Any], **kwargs: Any) -> None:
+        """Validate that tokens and token classes specified in easy-reading rules exist in defined tokens."""
+        tokens = data.get("tokens", {})
+        rules = data.get("rules", {})
+
+        if not rules or not tokens:
+            return
+
+        all_tokens = set(tokens.keys())
+        all_classes = {cls for classes in tokens.values() if isinstance(classes, (list, set, tuple)) for cls in classes}
+
+        # Match token classes like <class_name>
+        class_pattern = re.compile(r"<([^>]+)>")
+        # Match tokens (strings outside of <> and stripped of constraint parentheses ())
+        token_clean_pattern = re.compile(r"[()<>]")
+
+        for rule_key in rules.keys():
+            # 1. Validate Token Classes referenced in rule_key (e.g., <class_nonexisting>)
+            referenced_classes = class_pattern.findall(rule_key)
+            for cls in referenced_classes:
+                if cls not in all_classes:
+                    raise ValidationError(
+                        f"Rule pattern '{rule_key}' contains undefined token class '<{cls}>'.",
+                        field_name="rules",
+                    )
+
+            # 2. Extract and validate Tokens referenced in rule_key
+            # Remove class brackets <...> first so class names aren't confused with tokens
+            key_without_classes = class_pattern.sub(" ", rule_key)
+            # Remove rule structure brackets ( )
+            cleaned_key = token_clean_pattern.sub(" ", key_without_classes)
+
+            # Split tokens by whitespace
+            rule_tokens = [t for t in cleaned_key.split() if t]
+
+            for tok in rule_tokens:
+                if tok not in all_tokens:
+                    raise ValidationError(
+                        f"Rule pattern '{rule_key}' contains undefined token '{tok}'.",
+                        field_name="rules",
+                    )
 
 
 class TransliterationRuleSchema(Schema):
-    """Schema for :class:`TransliterationRule`."""
-
     production = fields.Str(required=True)
     tokens = fields.List(fields.Str(), required=True)
     prev_classes = fields.List(fields.Str(), allow_none=True)
     next_classes = fields.List(fields.Str(), allow_none=True)
     prev_tokens = fields.List(fields.Str(), allow_none=True)
     next_tokens = fields.List(fields.Str(), allow_none=True)
-
-    class Meta:
-        fields = (
-            "production",
-            "prev_classes",
-            "prev_tokens",
-            "tokens",
-            "next_classes",
-            "next_tokens",
-            "cost",
-        )
-
-    @pre_dump
-    def remove_nulls(self, data: TransliterationRule, **kwargs: Any) -> dict[str, Any]:
-        """Removes None values from TransliterationRule to compress JSON."""
-        return {k: v for k, v in data._asdict().items() if v is not None}
-
-    @post_load
-    def make_transliteration_rule(self, data: RawRuleDict, **kwargs: Any) -> TransliterationRule:
-        return _transliteration_rule_of(data)
+    cost = fields.Float(required=False, allow_none=True)
 
 
 class OnMatchRuleSchema(Schema):
-    """Schema for :class:`OnMatchRule`."""
+    """Schema for OnMatchRule."""
 
     prev_classes = fields.List(fields.Str())
     next_classes = fields.List(fields.Str())
     production = fields.Str()
-
-    class Meta:
-        fields = ("prev_classes", "next_classes", "production")
 
     @post_load
     def make_onmatch_rule(self, data: RawOnMatchDict, **kwargs: Any) -> OnMatchRule:
@@ -127,24 +158,18 @@ class OnMatchRuleSchema(Schema):
 
 
 class SettingsSchema(Schema):
-    """Schema for settings in dictionary format.
-
-    Performs validation.
-    """
+    """Schema for full transliterator settings."""
 
     tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
-    metadata = fields.Dict(
-        keys=fields.Str(),
-        required=False,
-    )
+    metadata = fields.Dict(keys=fields.Str(), required=False)
     onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False)
 
     @post_load
     def sort_rules_by_cost(self, data: LoadedSettingsDict, **kwargs: Any) -> LoadedSettingsDict:
         """Sort rules by cost."""
-        data["rules"] = sorted(data["rules"], key=lambda rule: rule.cost)
+        data["rules"] = sorted(data["rules"], key=lambda rule: rule.get("cost", 1.0))
         return data
 
     @post_load
@@ -163,111 +188,111 @@ class SettingsSchema(Schema):
                 continue
             for rule in rules_list:
                 for property_name in ("prev_classes", "next_classes"):
-                    values = getattr(rule, property_name)
+                    values = rule.get(property_name)  # Dict access
                     if not values:
                         continue
-                    for _ in values:
-                        if _ not in token_classes:
-                            class_errors[rule_type].append(
-                                'Invalid token class "{}" in {} of {}'.format(_, property_name, rule)
-                            )
+                    for val in cast(Iterable[Any], values):
+                        if val not in token_classes:
+                            class_errors[rule_type].append(f'Invalid token class "{val}" in {property_name} of {rule}')
 
         whitespace = data["whitespace"]
-        whitespace_token_class = whitespace.token_class
+        whitespace_token_class = whitespace["token_class"] if isinstance(whitespace, dict) else whitespace.token_class
         if whitespace_token_class not in token_classes:
             class_errors["whitespace"].append(
-                'Invalid token class "{}" in whitespace "{}".'.format(whitespace_token_class, whitespace)
+                f'Invalid token class "{whitespace_token_class}" in whitespace "{whitespace}".'
             )
         if class_errors:
             raise ValidationError(dict(class_errors))
 
+    # @validates_schema
+    # def validate_tokens(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
+    #     token_errors: dict[str, list[str]] = defaultdict(list)
+    #     token_types = data["tokens"].keys()
+
+    #     whitespace = data["whitespace"]
+    #     default_whitespace = whitespace["default"] if isinstance(whitespace, dict) else whitespace.default
+    #     if default_whitespace not in token_types:
+    #         token_errors["whitespace"].append(f'Invalid default token "{default_whitespace}" in whitespace.')
+
+    #     rules = cast(list[TransliterationRule], data.get("rules"))
+    #     if rules:
+    #         for rule in rules:
+    #             for property_name in ("tokens", "prev_tokens", "next_tokens"):
+    #                 values = rule.get(property_name)  # Dict access
+    #                 if not values:
+    #                     continue
+    #                 for val in cast(Iterable[Any], values):
+    #                     if val not in token_types:
+    #                         token_errors["rules"].append(f'Invalid token "{val}" in {property_name} of rule {rule}')
+    #     if token_errors:
+    #         raise ValidationError(dict(token_errors))
     @validates_schema
     def validate_tokens(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
         token_errors: dict[str, list[str]] = defaultdict(list)
-        token_types = data["tokens"].keys()
+        token_types = set(data["tokens"].keys())
 
         whitespace = data["whitespace"]
-        default_whitespace = whitespace.default
+        default_whitespace = whitespace["default"] if isinstance(whitespace, dict) else whitespace.default
         if default_whitespace not in token_types:
-            token_errors["whitespace"].append('Invalid default token "{}" in whitespace.'.format(default_whitespace))
+            token_errors["whitespace"].append(f'Invalid default token "{default_whitespace}" in whitespace.')
 
-        rules = cast(list[TransliterationRule], data.get("rules"))
+        rules = data.get("rules")
         if rules:
             for rule in rules:
                 for property_name in ("tokens", "prev_tokens", "next_tokens"):
-                    values = getattr(rule, property_name)
+                    # Safely support both dict and object instances
+                    if isinstance(rule, dict):
+                        values = rule.get(property_name)
+                    else:
+                        values = getattr(rule, property_name, None)
+
                     if not values:
                         continue
-                    for _ in values:
-                        if _ not in token_types:
-                            token_errors["rules"].append(
-                                'Invalid token "{}" in {} of rule {}'.format(_, property_name, rule)
-                            )
+
+                    for val in values:
+                        if val not in token_types:
+                            token_errors["rules"].append(f'Invalid token "{val}" in {property_name} of rule {rule}')
+
         if token_errors:
             raise ValidationError(dict(token_errors))
 
 
-class ConstraintSchema(Schema):
-    prev_classes = fields.List(fields.Str())
-    prev_tokens = fields.List(fields.Str())
-    next_tokens = fields.List(fields.Str())
-    next_classes = fields.List(fields.Str())
+# =============================================================================
+# HARMONIZED GRAPH SERIALIZATION SCHEMAS
+# =============================================================================
 
 
-class EdgeDataSchema(Schema):
-    token = fields.Str()
-    cost = fields.Float()
-    constraints = fields.Nested(ConstraintSchema)
+class EdgeSchema(Schema):
+    source = fields.Int(required=True)
+    target = fields.Int(required=True)
+    data = fields.Dict(required=True)
 
 
-class NodeDataSchema(Schema):
-    token = fields.String()
-    type = fields.String()
-    ordered_children = fields.Dict()
-    accepting = fields.Bool()
-    rule_key = fields.Int()
-
-    @pre_dump
-    def strip_empty(self, data: NodeData, **kwargs: Any) -> dict[str, Any]:
-        """Remove keys with empty values, allowing zero."""
-        _data = {k: v for k, v in data.items() if v or (isinstance(v, int) and v == 0)}
-        return _data
+class NodeSchema(Schema):
+    id = fields.Int(required=True)
+    token = fields.Str(required=False)
+    type = fields.Str(required=True)
+    label = fields.Str(required=False)
+    data = fields.Dict(required=True)
 
 
 class DirectedGraphSchema(Schema):
-    """Schema for :class:`DirectedGraph`."""
+    """Canonical schema for DirectedGraph matching TypeScript LoadedGraphDict."""
 
-    edge = fields.Dict(
-        keys=fields.Int(),
-        values=fields.Dict(keys=fields.Int, values=fields.Nested(EdgeDataSchema)),
-    )
-    node = fields.List(fields.Nested(NodeDataSchema))
-    edge_list = fields.List(fields.Tuple((fields.Int(), fields.Int())))
-
-    class Meta:
-        fields = ("node", "edge", "edge_list")
+    nodes = fields.Nested(NodeSchema, many=True, required=True)
+    edges = fields.Nested(EdgeSchema, many=True, required=True)
 
     @post_load
     def make_graph(self, data: LoadedGraphDict, **kwargs: Any) -> DirectedGraph:
         _data = copy.deepcopy(data)
         return DirectedGraph(
-            node=_data.get("node", []),
-            edge=_data.get("edge", {}),
-            edge_list=_data.get("edge_list"),
+            nodes=_data.get("nodes", []),
+            edges=_data.get("edges", []),
         )
-
-    @pre_dump
-    def sort_edge_list(self, data: DirectedGraph, **kwargs: Any) -> dict[str, Any]:
-        """Sort edge list to make dumps consistent."""
-        return {
-            "node": data.node,
-            "edge": data.edge,
-            "edge_list": sorted(data.edge_list),
-        }
 
 
 class GraphTransliteratorSchema(Schema):
-    """Schema for GraphTransliterator."""
+    """Schema for GraphTransliterator engine dump/load."""
 
     settings = fields.Nested(SettingsSchema, required=True)
     graph = fields.Nested(DirectedGraphSchema, required=True)
