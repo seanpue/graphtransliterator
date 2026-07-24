@@ -98,7 +98,3 @@ DEP003 = ["pytest"]
 
 [tool.setuptools.package-data]
 "graph_transliterator" = ["py.typed"]
-
-[tox]
-toxworkdir = "{toxinidir}/.tox"
-env_list = ["py311", "py312", "py313"]

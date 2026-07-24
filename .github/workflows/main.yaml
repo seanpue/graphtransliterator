@@ -14,7 +14,6 @@ jobs:
             - name: Check out
               uses: actions/checkout@v4
 
-            # 🛠️ Fix 1: Install pnpm so pre-commit hooks (biome-check) won't fail
             - name: Install pnpm
               uses: pnpm/action-setup@v4
               with:
@@ -49,7 +48,6 @@ jobs:
             - name: Install Poetry
               run: pipx install poetry
 
-            # 🛠️ Fix 2: Updated cache path to point to package subdirectory
             - name: Load cached venv
               uses: actions/cache@v4
               with:
@@ -82,13 +80,13 @@ jobs:
               with:
                   version: 9
 
-            # 🛠️ Fix 3: Standard pnpm caching configured on setup-node
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 22
                   cache: pnpm
-                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
+                  # 🛠️ Updated to match the workspace lockfile at the repo root
+                  cache-dependency-path: "**/pnpm-lock.yaml"
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
