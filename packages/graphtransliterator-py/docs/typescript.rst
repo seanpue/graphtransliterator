@@ -114,11 +114,14 @@ The TypeScript implementation currently provides core transformation and matchin
 TypeScript API Reference
 ------------------------
 
+TypeScript API Reference
+------------------------
+
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :glob:
 
-   typescript_api/*
+   typescript_api/README
    typescript_api/classes/*
    typescript_api/functions/*
    typescript_api/interfaces/*
