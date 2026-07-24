@@ -238,11 +238,11 @@ class GraphTransliterator:
             return False
         if check_next and start_i + len(constraint_values) > len(tokens):
             return False
-        for i in range(0, len(constraint_values)):
-            if by_class:
-                if constraint_values[i] not in self._tokens[tokens[start_i + i]]:
-                    return False
-            elif tokens[start_i + i] != constraint_values[i]:
+        if not by_class:
+            return tokens[start_i : start_i + len(constraint_values)] == constraint_values
+
+        for i, class_name in enumerate(constraint_values):
+            if class_name not in self._tokens[tokens[start_i + i]]:
                 return False
         return True
 
@@ -444,7 +444,7 @@ class GraphTransliterator:
         tokens = self.tokenize(input_)
         self._input_tokens = tokens
         self._rule_keys = []
-        output = ""
+        output_chunks: List[str] = []
         token_i = 1
         matches: List[TransliterationRule] = []
 
@@ -496,12 +496,12 @@ class GraphTransliterator:
                         ):
                             if isinstance(onmatch_rules_obj, VisitLoggingList):
                                 onmatch_rules_obj.visit(onmatch_i)
-                            output += onmatch["production"]
+                            output_chunks.append(onmatch["production"])
                             break
-            output += rule["production"]
+            output_chunks.append(rule["production"])
             token_i += len(tokens_matched)
 
-        return output, matches
+        return "".join(output_chunks), matches
 
     @staticmethod
     def from_dict(dict_settings: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
@@ -568,7 +568,7 @@ class GraphTransliterator:
 
     @staticmethod
     def from_yaml_file(yaml_filename: str, **kwargs: Any) -> "GraphTransliterator":
-        with open(yaml_filename, "r") as f:
+        with open(yaml_filename, "r", encoding="utf-8") as f:
             yaml_string = f.read()
         return GraphTransliterator.from_yaml(yaml_string, **kwargs)
 
