@@ -14,6 +14,12 @@ jobs:
             - name: Check out
               uses: actions/checkout@v4
 
+            # 🛠️ Fix 1: Install pnpm so pre-commit hooks (biome-check) won't fail
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
             - uses: actions/cache@v4
               with:
                   path: ~/.cache/pre-commit
@@ -43,10 +49,11 @@ jobs:
             - name: Install Poetry
               run: pipx install poetry
 
+            # 🛠️ Fix 2: Updated cache path to point to package subdirectory
             - name: Load cached venv
               uses: actions/cache@v4
               with:
-                  path: .tox
+                  path: packages/graphtransliterator-py/.tox
                   key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('packages/graphtransliterator-py/poetry.lock') }}
 
             - name: Install tox
@@ -74,13 +81,14 @@ jobs:
               uses: pnpm/action-setup@v4
               with:
                   version: 9
-                  cache: true
-                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
 
+            # 🛠️ Fix 3: Standard pnpm caching configured on setup-node
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: packages/graphtransliterator-ts/pnpm-lock.yaml
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile
