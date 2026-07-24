@@ -15,6 +15,17 @@ check-ts: ## Run TS-only checks
 	pnpm --filter graphtransliterator lint
 	pnpm --filter graphtransliterator test:types
 
+.PHONY: build
+build: build-py build-ts ## Build assets for all subpackages
+
+.PHONY: build-py
+build-py: ## Build Python distribution packages
+	cd packages/graphtransliterator-py && poetry build
+
+.PHONY: build-ts
+build-ts: ## Build TypeScript bundle and declaration files
+	pnpm --filter graphtransliterator build
+
 .PHONY: test
 test: ## Run test suites for all languages
 	$(MAKE) -C packages/graphtransliterator-py test

@@ -27,13 +27,13 @@
 		"build": "tsup src/index.ts --format cjs,esm --clean --dts",
 		"watch": "tsup src/index.ts --format cjs,esm --watch",
 		"test": "vitest run",
-        "test:types": "tsc --noEmit",
+		"test:types": "tsc --noEmit",
 		"lint": "biome check src/ tests/",
 		"lint:fix": "biome check --write src/ tests/"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3",
-		"@types/node": "^22.0.0",
+		"@types/node": "^22.20.1",
 		"tsup": "^8.5.1",
 		"typedoc-plugin-markdown": "^4.12.0",
 		"typescript": "^5.9.3",

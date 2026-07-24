@@ -24,18 +24,23 @@ repos:
           - id: mypy
             files: ^packages/graphtransliterator-py/src/
             additional_dependencies: [types-PyYAML, marshmallow]
+
+    # --- TYPESCRIPT / JS SUITE (Biome via root pnpm) ---
+    - repo: local
+      hooks:
+          - id: biome-check
+            name: run biome check (ts)
+            entry: pnpm --filter graphtransliterator lint:fix
+            language: system
+            files: ^packages/graphtransliterator-ts/
+            pass_filenames: false
+
+    # --- DOCUMENTATION SUITE ---
     - repo: local
       hooks:
           - id: sphinx-build
             name: build sphinx documentation
             entry: poetry run --directory packages/graphtransliterator-py sphinx-build -b html -W --keep-going docs docs/_build/html
             language: system
-            files: ^packages/graphtransliterator-py/(docs|src)/
+            files: ^packages/(graphtransliterator-py/(docs|src)|graphtransliterator-ts/src)/
             pass_filenames: false
-    # # --- TYPESCRIPT / JS SUITE (Isolated to the TS subpackage) ---
-    # - repo: https://github.com/pre-commit/mirrors-eslint
-    #   rev: v9.3.0
-    #   hooks:
-    #     - id: eslint
-    #       files: ^packages/graphtransliterator-ts/
-    #       additional_dependencies: ['eslint', 'typescript', '@typescript-eslint/parser', '@typescript-eslint/eslint-plugin']
