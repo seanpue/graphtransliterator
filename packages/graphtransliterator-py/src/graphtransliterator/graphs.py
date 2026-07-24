@@ -46,6 +46,12 @@ class DirectedGraph(Generic[T, N, E]):
         self.nodes.append(new_node)
         return next_id
 
+    def get_node(self, node_id: NodeId) -> Node[T, N] | None:
+        """Return node by numeric NodeId if present."""
+        if 0 <= node_id < len(self.nodes):
+            return self.nodes[node_id]
+        return None
+
     def add_edge(
         self,
         source: NodeId,
@@ -62,7 +68,8 @@ class DirectedGraph(Generic[T, N, E]):
         if data is not None and not isinstance(data, dict):
             raise ValueError("Edge data must be a dictionary or None.")
 
-        actual_data: E = cast(E, data if data is not None else {})
+        # Ensure a fresh, non-shared dict is created when data is None
+        actual_data: E = cast(E, dict(data) if data is not None else {})
 
         new_edge: Edge[E] = {
             "source": source,
@@ -71,13 +78,22 @@ class DirectedGraph(Generic[T, N, E]):
         }
         self.edges.append(new_edge)
 
-    def get_node(self, node_id: NodeId) -> Node[T, N] | None:
-        """Return node by numeric NodeId if present."""
-        if 0 <= node_id < len(self.nodes):
-            return self.nodes[node_id]
-        return None
-
     def get_edge(self, source: NodeId, target: NodeId) -> Optional[Dict[str, Any]]:
+        """Return the edge payload or full edge structure connecting source and target.
+
+        Args:
+            source: The source node identifier.
+            target: The target node identifier.
+
+        Returns:
+            The edge's ``data`` dictionary if it is a dict, or the full edge structure
+            dict if ``data`` is not a dictionary. Returns ``None`` if no matching edge exists.
+
+        Note:
+            For backward compatibility, if an edge's ``data`` property contains a non-dict
+            value (e.g., a primitive string), the method returns the full edge dictionary
+            (including ``source``, ``target``, and ``data`` keys) rather than just the payload.
+        """
         for edge in self.edges:
             if edge["source"] == source and edge["target"] == target:
                 data = edge.get("data")

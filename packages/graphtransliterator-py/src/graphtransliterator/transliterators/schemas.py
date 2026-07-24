@@ -1,4 +1,4 @@
-from marshmallow import fields, Schema
+from marshmallow import Schema, fields
 
 
 class MetadataSchema(Schema):
@@ -14,4 +14,4 @@ class MetadataSchema(Schema):
     maintainer_email = fields.Email(required=False)
     license = fields.Str(required=False)
     keywords = fields.List(fields.Str(), required=False)
-    project_urls = fields.Dict(keys=fields.Str(), values=fields.Url, required=False)
+    project_urls = fields.Dict(keys=fields.Str(), values=fields.Url(), required=False)

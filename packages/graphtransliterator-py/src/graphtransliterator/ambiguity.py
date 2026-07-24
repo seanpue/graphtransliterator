@@ -132,7 +132,7 @@ def _easyreading_rule(rule: TransliterationRule) -> str:
         return " ".join(x)
 
     def _class_str(x: list[str]) -> str:
-        return " ".join(["<%s>" % _ for _ in x])
+        return " ".join([f"<{_}>" for _ in x])
 
     out = ""
     prev_classes = rule.get("prev_classes")

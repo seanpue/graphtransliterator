@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """Functions to process "easy reading" settings of GraphTransliterator."""
 
-from typing import Union, TypedDict, TypeAlias
 import re
-from .initialize import RawRuleDict, RawOnMatchDict, RawWhitespaceDict
+from typing import TypeAlias, TypedDict, Union
+
+from .initialize import RawOnMatchDict, RawRuleDict, RawWhitespaceDict
 
 # ==============================================================================
 # Descriptive Type Aliases & TypedDicts for Structural Processing Outputs
@@ -78,7 +79,8 @@ def _process_rule(key: str, value: str) -> RawRuleDict:
     rule: RawRuleDict = {"production": value}
 
     match = RULE_RE.match(key)
-    assert match, "Rule pattern is not valid: %s" % key
+    if not match:
+        raise ValueError(f"Rule pattern is not valid: {key}")
 
     if match.group(1):
         rule["prev_classes"] = re.findall("<(.+?)>", match.group(1))

@@ -2,23 +2,28 @@
 
 # flake8: noqa
 
+# -*- coding: utf-8 -*-
+
+# flake8: noqa
+
 """
 graphtransliterator
 ~~~~~~~~~~~~~~~~~~
 """
 
+from importlib.metadata import PackageNotFoundError, version
+
 __author__ = """A. Sean Pue"""
 __email__ = "pue@umd.edu"
-__version__ = "1.2.4"
+
+try:
+    __version__ = version("graphtransliterator")
+except PackageNotFoundError:  # pragma: no cover
+    # Fallback for uninstalled local development/testing setups
+    __version__ = "1.3.3"
 
 # Core classes
 from .core import CoverageTransliterator, GraphTransliterator
-
-# # Constants
-# from .compression import (
-#     DEFAULT_COMPRESSION_LEVEL,
-#     HIGHEST_COMPRESSION_LEVEL,
-# )  #  Correct!
 
 # Exceptions
 from .exceptions import (
@@ -50,9 +55,6 @@ __all__ = [
     # core
     "GraphTransliterator",
     "CoverageTransliterator",
-    # constants
-    # "DEFAULT_COMPRESSION_LEVEL",
-    # "HIGHEST_COMPRESSION_LEVEL",
     # exceptions
     "AmbiguousTransliterationRulesException",
     "GraphTransliteratorException",

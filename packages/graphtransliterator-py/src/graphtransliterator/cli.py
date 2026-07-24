@@ -2,6 +2,7 @@
 
 """Console script for graphtransliterator."""
 
+import importlib
 import json
 import os
 import re
@@ -28,8 +29,7 @@ def load_transliterator(source: Tuple[str, str], **kwargs: Any) -> Any:
     """Loads transliterator (format, parameter)."""
     format_type, parameter = source
     if format_type == "bundled":
-        mod = __import__("graphtransliterator.transliterators", fromlist=["transliterators"])
-        transliterators_mod = mod
+        transliterators_mod = importlib.import_module("graphtransliterator.transliterators")
         transliterator_class = getattr(transliterators_mod, parameter)
         return transliterator_class(**kwargs)
     elif format_type == "json":

@@ -12,12 +12,7 @@ from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, Union, cast
 
 import yaml
 from marshmallow import (
-    Schema,
     ValidationError,
-    fields,
-    post_load,
-    pre_load,
-    validates_schema,
 )
 
 from graphtransliterator import __version__ as __version__
@@ -25,7 +20,6 @@ from graphtransliterator import __version__ as __version__
 from .ambiguity import check_for_ambiguity
 from .exceptions import (
     IncompleteOnMatchRulesCoverageException,
-    IncorrectVersionException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
@@ -40,12 +34,9 @@ from .initialize import (
 )
 from .process import EasyReadingInput, ProcessedSettingsDict, _process_easyreading_settings
 from .schemas import (
-    DirectedGraphSchema,
     EasyReadingSettingsSchema,
-    OnMatchRuleSchema,
+    GraphTransliteratorSchema,
     SettingsSchema,
-    TransliterationRuleSchema,
-    WhitespaceSettingsSchema,
 )
 from .types import (
     EasyReadingDict,
@@ -65,48 +56,48 @@ logger = logging.getLogger("graphtransliterator")
 fields_to_dump = ("tokens", "rules", "metadata", "onmatch_rules", "whitespace")
 
 
-class GraphTransliteratorSchema(Schema):
-    """Schema for Graph Transliterator."""
+# class GraphTransliteratorSchema(Schema):
+#     """Schema for Graph Transliterator."""
 
-    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
-    rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
-    whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
-    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False, allow_none=True)
-    metadata = fields.Dict(
-        keys=fields.Str(),
-        required=False,
-    )
-    ignore_errors = fields.Bool(required=False)
-    onmatch_rules_lookup = fields.Dict(required=False, allow_none=True)
-    tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=False)
-    graph = fields.Nested(DirectedGraphSchema, many=False, allow_none=True, required=False)
-    tokenizer_pattern = fields.Str(required=False)
-    graphtransliterator_version = fields.Str(required=False)
-    check_ambiguity = fields.Bool(required=False)
-    coverage = fields.Bool(required=False)
+#     tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
+#     rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
+#     whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
+#     onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False, allow_none=True)
+#     metadata = fields.Dict(
+#         keys=fields.Str(),
+#         required=False,
+#     )
+#     ignore_errors = fields.Bool(required=False)
+#     onmatch_rules_lookup = fields.Dict(required=False, allow_none=True)
+#     tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=False)
+#     graph = fields.Nested(DirectedGraphSchema, many=False, allow_none=True, required=False)
+#     tokenizer_pattern = fields.Str(required=False)
+#     graphtransliterator_version = fields.Str(required=False)
+#     check_ambiguity = fields.Bool(required=False)
+#     coverage = fields.Bool(required=False)
 
-    @pre_load
-    def check_version(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
-        """Raises error if serialized GraphTransliterator is from a later version."""
-        version = data.get("graphtransliterator_version")
-        if version and version > __version__:
-            raise IncorrectVersionException
-        return data
+#     @pre_load
+#     def check_version(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+#         """Raises error if serialized GraphTransliterator is from a later version."""
+#         version = data.get("graphtransliterator_version")
+#         if version and version > __version__:
+#             raise IncorrectVersionException
+#         return data
 
-    @post_load
-    def make_GraphTransliterator(self, data: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
-        for key in ("tokens", "tokens_by_class"):
-            if data.get(key):
-                data[key] = {k: set(v) for k, v in data[key].items()}
-        if "check_ambiguity" not in data:
-            data["check_ambiguity"] = kwargs.get("check_ambiguity", kwargs.get("check_for_ambiguity", False))
-        return GraphTransliterator(**data)
+#     @post_load
+#     def make_GraphTransliterator(self, data: Dict[str, Any], **kwargs: Any) -> "GraphTransliterator":
+#         for key in ("tokens", "tokens_by_class"):
+#             if data.get(key):
+#                 data[key] = {k: set(v) for k, v in data[key].items()}
+#         if "check_ambiguity" not in data:
+#             data["check_ambiguity"] = kwargs.get("check_ambiguity", kwargs.get("check_for_ambiguity", False))
+#         return GraphTransliterator(**data)
 
-    @validates_schema
-    def validate_onmatch_rules_lookup(self, data: Dict[str, Any], **kwargs: Any) -> None:
-        """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
-        if data.get("onmatch_rules_lookup") and not data.get("onmatch_rules"):
-            raise ValidationError("Contains onmatch_rules_lookup but not onmatch_rules.")
+#     @validates_schema
+#     def validate_onmatch_rules_lookup(self, data: Dict[str, Any], **kwargs: Any) -> None:
+#         """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
+#         if data.get("onmatch_rules_lookup") and not data.get("onmatch_rules"):
+#             raise ValidationError("Contains onmatch_rules_lookup but not onmatch_rules.")
 
 
 class GraphTransliterator:

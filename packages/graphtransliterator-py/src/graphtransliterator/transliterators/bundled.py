@@ -3,7 +3,7 @@
 import os
 import sys
 from collections import OrderedDict
-from typing import Any, Dict, Optional, Type, Union, cast
+from typing import Any, Dict, Iterable, Optional, cast
 
 import yaml
 
@@ -11,9 +11,7 @@ from graphtransliterator.core import CoverageTransliterator, GraphTransliterator
 
 
 class Bundled(CoverageTransliterator, GraphTransliterator):
-    """
-    Subclass of GraphTransliterator used for bundled Graph Transliterator.
-    """
+    """Subclass of GraphTransliterator used for bundled Graph Transliterators."""
 
     @property
     def directory(self) -> str:
@@ -23,11 +21,11 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
     @property
     def name(self) -> str:
         """Name of bundled transliterator, e.g. 'Example'"""
-        return self._module_name()
+        return self._module_name().split(".")[-1]
 
     def _module_dir(self, **kwargs: Any) -> str:
         """Returns directory of module. Overwritten during testing."""
-        module = sys.modules[self.__module__]
+        module = sys.modules.get(self.__module__)
         if module and hasattr(module, "__file__") and module.__file__:
             return os.path.dirname(module.__file__)
         return ""
@@ -43,10 +41,9 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
 
         filename = os.path.join(
             self.directory,
-            self.name + "." + method,
+            f"{self.name}.{method}",
         )
 
-        # Create GraphTransliterator using factory
         if method == "yaml":
             gt = GraphTransliterator.from_yaml_file(filename, **kwargs)
         elif method == "json":
@@ -55,13 +52,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         else:
             raise ValueError(f"Unknown initialization method: {method}")
 
-        # Select coverage superclass, if coverage set.
-        _super: Type[Union[CoverageTransliterator, GraphTransliterator]] = (
-            CoverageTransliterator if kwargs.get("coverage") else GraphTransliterator
-        )
-
-        _super.__init__(
-            self,
+        super().__init__(
             gt._tokens,
             gt._rules,
             gt._whitespace,
@@ -90,42 +81,41 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
     @classmethod
     def new(cls, method: str = "yaml", **kwargs: Any) -> "Bundled":
         """Return a new class instance from method (json/yaml)."""
-        assert method in ("json", "yaml"), "Unknown method."
+        if method not in ("json", "yaml"):
+            raise ValueError(f"Unknown method '{method}'. Expected 'json' or 'yaml'.")
+
         new_ = cast("Bundled", cls.__new__(cls))
         if method == "json":
             new_.from_bundled_JSON(**kwargs)
-        elif method == "yaml":
+        else:
             new_.from_bundled_YAML(**kwargs)
         return new_
 
     @property
     def yaml_tests_filen(self) -> str:
-        """
-        `str`: Absolute path to the bundled YAML test file.
-        """
-        return os.path.join(self.directory, "tests", "{}_tests.yaml".format(self.name))
+        """str: Absolute path to the bundled YAML test file."""
+        return os.path.join(self.directory, "tests", f"{self.name}_tests.yaml")
 
     def load_yaml_tests(self) -> Dict[str, str]:
-        """Iterator for YAML tests."""
+        """Load YAML tests mapping."""
         test_file = self.yaml_tests_filen
+        if not os.path.exists(test_file):
+            return {}
+
         with open(test_file, "r", encoding="utf-8") as f:
             parsed_yaml = yaml.safe_load(f)
             if not parsed_yaml:
                 return {}
-            return {str(k): str(i) for k, i in parsed_yaml.items()}
+            return {str(k): str(v) for k, v in parsed_yaml.items()}
 
     def run_tests(self, transliteration_tests: Dict[str, str]) -> None:
         """Run transliteration tests."""
         for source, target in transliteration_tests.items():
-            source = str(source)
-            target = str(target)
-            result = self.transliterate(source)
-            assert result == target, 'Transliteration error: "{}" -> "{}"; should -> "{}"'.format(
-                source, result, target
-            )
+            result = self.transliterate(str(source))
+            assert result == str(target), f'Transliteration error: "{source}" -> "{result}"; should -> "{target}"'
 
     def run_yaml_tests(self) -> bool:
-        """Run YAML tests in MODULE/tests/MODULE_tests.yaml"""
+        """Run YAML tests in MODULE/tests/MODULE_tests.yaml."""
         transliteration_tests = self.load_yaml_tests()
         self.run_tests(transliteration_tests)
         return True
@@ -136,50 +126,42 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
 
         def sample_token(token_class: str) -> str:
             """Return first token in token class."""
-            tokens_in_class = self.tokens_by_class[token_class]
-            return str(list(tokens_in_class)[0])
+            tokens_in_class: Iterable[str] = self.tokens_by_class.get(token_class, [])
+            return str(next(iter(tokens_in_class), ""))
 
         for rule in self.rules:
             input_ = ""
-            prev_classes = rule.get("prev_classes")
-            if prev_classes:
-                for cls_name in prev_classes:
-                    input_ += sample_token(cls_name)
-
-            prev_tokens = rule.get("prev_tokens")
-            if prev_tokens:
-                for tok in prev_tokens:
-                    input_ += tok
-
-            for tok in rule.get("tokens", []):
+            for cls_name in rule.get("prev_classes") or []:
+                input_ += sample_token(cls_name)
+            for tok in rule.get("prev_tokens") or []:
                 input_ += tok
+            for tok in rule.get("tokens") or []:
+                input_ += tok
+            for tok in rule.get("next_tokens") or []:
+                input_ += tok
+            for cls_name in rule.get("next_classes") or []:
+                input_ += sample_token(cls_name)
 
-            next_tokens = rule.get("next_tokens")
-            if next_tokens:
-                for tok in next_tokens:
-                    input_ += tok
-
-            next_classes = rule.get("next_classes")
-            if next_classes:
-                for cls_name in next_classes:
-                    input_ += sample_token(cls_name)
-
-            tests[input_] = self.transliterate(input_)
+            if input_:
+                tests[input_] = self.transliterate(input_)
 
         if self.onmatch_rules:
             for om_rule in self.onmatch_rules:
                 input_ = ""
-                prev_classes = om_rule.get("prev_classes")
-                if prev_classes:
-                    for cls_name in prev_classes:
-                        input_ += sample_token(cls_name)
-
-                next_classes = om_rule.get("next_classes")
-                if next_classes:
-                    for cls_name in next_classes:
-                        input_ += sample_token(cls_name)
+                for cls_name in om_rule.get("prev_classes") or []:
+                    input_ += sample_token(cls_name)
+                for cls_name in om_rule.get("next_classes") or []:
+                    input_ += sample_token(cls_name)
 
                 if input_:
                     tests[input_] = self.transliterate(input_)
 
-        return cast(str, yaml.dump(dict(tests), allow_unicode=True))
+        dumped = yaml.dump(dict(tests), allow_unicode=True)
+        if file is not None:
+            if hasattr(file, "write"):
+                file.write(dumped)
+            else:
+                with open(file, "w", encoding="utf-8") as f:
+                    f.write(dumped)
+
+        return cast(str, dumped)

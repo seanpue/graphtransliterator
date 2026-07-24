@@ -3,16 +3,20 @@
 import copy
 import re
 from collections import defaultdict
-from typing import Any, Iterable, Union, cast
+from typing import Any, Dict, Iterable, Union, cast
 
 from marshmallow import (
     Schema,
     ValidationError,
     fields,
     post_load,
+    pre_load,
     validate,
     validates_schema,
 )
+
+from graphtransliterator import __version__ as __version__
+from graphtransliterator.exceptions import IncorrectVersionException
 
 from .graphs import DirectedGraph
 from .initialize import (
@@ -91,7 +95,6 @@ class EasyReadingSettingsSchema(Schema):
             )
 
     @validates_schema
-    @validates_schema
     def validate_rules_tokens(self, data: dict[str, Any], **kwargs: Any) -> None:
         """Validate that tokens and token classes specified in easy-reading rules exist in defined tokens."""
         tokens = data.get("tokens", {})
@@ -103,13 +106,10 @@ class EasyReadingSettingsSchema(Schema):
         all_tokens = set(tokens.keys())
         all_classes = {cls for classes in tokens.values() if isinstance(classes, (list, set, tuple)) for cls in classes}
 
-        # Match token classes like <class_name>
         class_pattern = re.compile(r"<([^>]+)>")
-        # Match tokens (strings outside of <> and stripped of constraint parentheses ())
         token_clean_pattern = re.compile(r"[()<>]")
 
         for rule_key in rules.keys():
-            # 1. Validate Token Classes referenced in rule_key (e.g., <class_nonexisting>)
             referenced_classes = class_pattern.findall(rule_key)
             for cls in referenced_classes:
                 if cls not in all_classes:
@@ -118,13 +118,8 @@ class EasyReadingSettingsSchema(Schema):
                         field_name="rules",
                     )
 
-            # 2. Extract and validate Tokens referenced in rule_key
-            # Remove class brackets <...> first so class names aren't confused with tokens
             key_without_classes = class_pattern.sub(" ", rule_key)
-            # Remove rule structure brackets ( )
             cleaned_key = token_clean_pattern.sub(" ", key_without_classes)
-
-            # Split tokens by whitespace
             rule_tokens = [t for t in cleaned_key.split() if t]
 
             for tok in rule_tokens:
@@ -188,7 +183,7 @@ class SettingsSchema(Schema):
                 continue
             for rule in rules_list:
                 for property_name in ("prev_classes", "next_classes"):
-                    values = rule.get(property_name)  # Dict access
+                    values = rule.get(property_name)
                     if not values:
                         continue
                     for val in cast(Iterable[Any], values):
@@ -204,28 +199,6 @@ class SettingsSchema(Schema):
         if class_errors:
             raise ValidationError(dict(class_errors))
 
-    # @validates_schema
-    # def validate_tokens(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
-    #     token_errors: dict[str, list[str]] = defaultdict(list)
-    #     token_types = data["tokens"].keys()
-
-    #     whitespace = data["whitespace"]
-    #     default_whitespace = whitespace["default"] if isinstance(whitespace, dict) else whitespace.default
-    #     if default_whitespace not in token_types:
-    #         token_errors["whitespace"].append(f'Invalid default token "{default_whitespace}" in whitespace.')
-
-    #     rules = cast(list[TransliterationRule], data.get("rules"))
-    #     if rules:
-    #         for rule in rules:
-    #             for property_name in ("tokens", "prev_tokens", "next_tokens"):
-    #                 values = rule.get(property_name)  # Dict access
-    #                 if not values:
-    #                     continue
-    #                 for val in cast(Iterable[Any], values):
-    #                     if val not in token_types:
-    #                         token_errors["rules"].append(f'Invalid token "{val}" in {property_name} of rule {rule}')
-    #     if token_errors:
-    #         raise ValidationError(dict(token_errors))
     @validates_schema
     def validate_tokens(self, data: LoadedSettingsDict, **kwargs: Any) -> None:
         token_errors: dict[str, list[str]] = defaultdict(list)
@@ -240,7 +213,6 @@ class SettingsSchema(Schema):
         if rules:
             for rule in rules:
                 for property_name in ("tokens", "prev_tokens", "next_tokens"):
-                    # Safely support both dict and object instances
                     if isinstance(rule, dict):
                         values = rule.get(property_name)
                     else:
@@ -255,11 +227,6 @@ class SettingsSchema(Schema):
 
         if token_errors:
             raise ValidationError(dict(token_errors))
-
-
-# =============================================================================
-# HARMONIZED GRAPH SERIALIZATION SCHEMAS
-# =============================================================================
 
 
 class EdgeSchema(Schema):
@@ -292,7 +259,125 @@ class DirectedGraphSchema(Schema):
 
 
 class GraphTransliteratorSchema(Schema):
-    """Schema for GraphTransliterator engine dump/load."""
+    """Canonical Unified Schema for GraphTransliterator config & execution state."""
 
-    settings = fields.Nested(SettingsSchema, required=True)
-    graph = fields.Nested(DirectedGraphSchema, required=True)
+    tokens = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=True)
+    rules = fields.Nested(TransliterationRuleSchema, many=True, required=True)
+    whitespace = fields.Nested(WhitespaceSettingsSchema, many=False, required=True)
+    onmatch_rules = fields.Nested(OnMatchRuleSchema, many=True, required=False, allow_none=True)
+    metadata = fields.Dict(keys=fields.Str(), required=False)
+
+    ignore_errors = fields.Bool(required=False)
+    check_ambiguity = fields.Bool(required=False)
+    coverage = fields.Bool(required=False)
+    tokenizer_pattern = fields.Str(required=False)
+    graphtransliterator_version = fields.Str(required=False)
+    onmatch_rules_lookup = fields.Dict(required=False, allow_none=True)
+    tokens_by_class = fields.Dict(keys=fields.Str(), values=fields.List(fields.Str()), required=False)
+    graph = fields.Nested(DirectedGraphSchema, many=False, allow_none=True, required=False)
+
+    @pre_load
+    def check_version(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+        """Raises error if serialized GraphTransliterator is from a later version."""
+        version = data.get("graphtransliterator_version")
+        if version and version > __version__:
+            raise IncorrectVersionException
+        return data
+
+    @post_load
+    def make_GraphTransliterator(self, data: Dict[str, Any], **kwargs: Any) -> Any:
+        """Instantiate the GraphTransliterator instance."""
+        from .core import GraphTransliterator
+
+        # Sort rules by cost if present
+        if "rules" in data and isinstance(data["rules"], list):
+            data["rules"] = sorted(
+                data["rules"],
+                key=lambda rule: rule.get("cost", 1.0) if isinstance(rule, dict) else getattr(rule, "cost", 1.0),
+            )
+
+        # Convert token lists to sets
+        for key in ("tokens", "tokens_by_class"):
+            if data.get(key):
+                data[key] = {k: set(v) for k, v in data[key].items()}
+
+        if "check_ambiguity" not in data:
+            data["check_ambiguity"] = kwargs.get("check_ambiguity", kwargs.get("check_for_ambiguity", False))
+
+        return GraphTransliterator(**data)
+
+    @validates_schema
+    def validate_token_classes(self, data: Dict[str, Any], **kwargs: Any) -> None:
+        """Validate token classes across rules, onmatch rules, and whitespace."""
+        tokens = data.get("tokens") if isinstance(data, dict) else getattr(data, "tokens", None)
+        if not tokens:
+            return
+
+        class_errors: dict[str, list[str]] = defaultdict(list)
+        token_classes = list(set().union(*tokens.values()))
+
+        for rule_type in ("onmatch_rules", "rules"):
+            rules_list = data.get(rule_type) if isinstance(data, dict) else getattr(data, rule_type, None)
+            if not rules_list:
+                continue
+            for rule in rules_list:
+                for property_name in ("prev_classes", "next_classes"):
+                    values = rule.get(property_name) if isinstance(rule, dict) else getattr(rule, property_name, None)
+                    if not values:
+                        continue
+                    for val in values:
+                        if val not in token_classes:
+                            class_errors[rule_type].append(f'Invalid token class "{val}" in {property_name} of {rule}')
+
+        whitespace = data.get("whitespace") if isinstance(data, dict) else getattr(data, "whitespace", None)
+        if whitespace:
+            whitespace_token_class = (
+                whitespace["token_class"] if isinstance(whitespace, dict) else getattr(whitespace, "token_class", None)
+            )
+            if whitespace_token_class and whitespace_token_class not in token_classes:
+                class_errors["whitespace"].append(f'Invalid token class "{whitespace_token_class}" in whitespace.')
+
+        if class_errors:
+            raise ValidationError(dict(class_errors))
+
+    @validates_schema
+    def validate_tokens(self, data: Dict[str, Any], **kwargs: Any) -> None:
+        """Validate referenced tokens in whitespace and rules."""
+        tokens = data.get("tokens") if isinstance(data, dict) else getattr(data, "tokens", None)
+        if not tokens:
+            return
+
+        token_errors: dict[str, list[str]] = defaultdict(list)
+        token_types = set(tokens.keys())
+
+        whitespace = data.get("whitespace") if isinstance(data, dict) else getattr(data, "whitespace", None)
+        if whitespace:
+            default_whitespace = (
+                whitespace["default"] if isinstance(whitespace, dict) else getattr(whitespace, "default", None)
+            )
+            if default_whitespace and default_whitespace not in token_types:
+                token_errors["whitespace"].append(f'Invalid default token "{default_whitespace}" in whitespace.')
+
+        rules = data.get("rules") if isinstance(data, dict) else getattr(data, "rules", None)
+        if rules:
+            for rule in rules:
+                for property_name in ("tokens", "prev_tokens", "next_tokens"):
+                    values = rule.get(property_name) if isinstance(rule, dict) else getattr(rule, property_name, None)
+                    if not values:
+                        continue
+                    for val in values:
+                        if val not in token_types:
+                            token_errors["rules"].append(f'Invalid token "{val}" in {property_name} of rule {rule}')
+
+        if token_errors:
+            raise ValidationError(dict(token_errors))
+
+    @validates_schema
+    def validate_onmatch_rules_lookup(self, data: Dict[str, Any], **kwargs: Any) -> None:
+        """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
+        onmatch_rules_lookup = (
+            data.get("onmatch_rules_lookup") if isinstance(data, dict) else getattr(data, "onmatch_rules_lookup", None)
+        )
+        onmatch_rules = data.get("onmatch_rules") if isinstance(data, dict) else getattr(data, "onmatch_rules", None)
+        if onmatch_rules_lookup and not onmatch_rules:
+            raise ValidationError("Contains onmatch_rules_lookup but not onmatch_rules.")
