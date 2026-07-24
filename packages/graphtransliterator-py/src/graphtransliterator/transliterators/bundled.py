@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 from collections import OrderedDict
-from typing import Any, Dict, Iterable, Optional, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 import yaml
 
@@ -34,7 +33,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         """Returns name of module. Overwritten during testing."""
         return self.__module__
 
-    def _init_from(self, method: Optional[str] = None, **kwargs: Any) -> None:
+    def _init_from(self, method: str | None = None, **kwargs: Any) -> None:
         """Initialize from easy-reading YAML or from JSON."""
         if method is None:
             raise ValueError("Method cannot be None")
@@ -47,7 +46,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         if method == "yaml":
             gt = GraphTransliterator.from_yaml_file(filename, **kwargs)
         elif method == "json":
-            with open(filename, "r", encoding="utf-8") as f:
+            with open(filename, encoding="utf-8") as f:
                 gt = GraphTransliterator.loads(f.read(), **kwargs)
         else:
             raise ValueError(f"Unknown initialization method: {method}")
@@ -96,19 +95,19 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         """str: Absolute path to the bundled YAML test file."""
         return os.path.join(self.directory, "tests", f"{self.name}_tests.yaml")
 
-    def load_yaml_tests(self) -> Dict[str, str]:
+    def load_yaml_tests(self) -> dict[str, str]:
         """Load YAML tests mapping."""
         test_file = self.yaml_tests_filen
         if not os.path.exists(test_file):
             return {}
 
-        with open(test_file, "r", encoding="utf-8") as f:
+        with open(test_file, encoding="utf-8") as f:
             parsed_yaml = yaml.safe_load(f)
             if not parsed_yaml:
                 return {}
             return {str(k): str(v) for k, v in parsed_yaml.items()}
 
-    def run_tests(self, transliteration_tests: Dict[str, str]) -> None:
+    def run_tests(self, transliteration_tests: dict[str, str]) -> None:
         """Run transliteration tests."""
         for source, target in transliteration_tests.items():
             result = self.transliterate(str(source))
@@ -120,7 +119,7 @@ class Bundled(CoverageTransliterator, GraphTransliterator):
         self.run_tests(transliteration_tests)
         return True
 
-    def generate_yaml_tests(self, file: Optional[Any] = None) -> str:
+    def generate_yaml_tests(self, file: Any | None = None) -> str:
         """Generates YAML tests with complete coverage."""
         tests: OrderedDict[str, str] = OrderedDict()
 

@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import copy
 import re
 from collections import defaultdict
-from typing import Any, Dict, Iterable, Union, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 from marshmallow import (
     Schema,
@@ -178,7 +177,7 @@ class SettingsSchema(Schema):
         token_classes = list(set().union(*data["tokens"].values()))
 
         for rule_type in ("onmatch_rules", "rules"):
-            rules_list = cast(list[Union[TransliterationRule, OnMatchRule]], data.get(rule_type))
+            rules_list = cast(list[TransliterationRule | OnMatchRule], data.get(rule_type))
             if not rules_list:
                 continue
             for rule in rules_list:
@@ -277,7 +276,7 @@ class GraphTransliteratorSchema(Schema):
     graph = fields.Nested(DirectedGraphSchema, many=False, allow_none=True, required=False)
 
     @pre_load
-    def check_version(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
+    def check_version(self, data: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
         """Raises error if serialized GraphTransliterator is from a later version."""
         version = data.get("graphtransliterator_version")
         if version and version > __version__:
@@ -285,7 +284,7 @@ class GraphTransliteratorSchema(Schema):
         return data
 
     @post_load
-    def make_GraphTransliterator(self, data: Dict[str, Any], **kwargs: Any) -> Any:
+    def make_GraphTransliterator(self, data: dict[str, Any], **kwargs: Any) -> Any:
         """Instantiate the GraphTransliterator instance."""
         from .core import GraphTransliterator
 
@@ -307,7 +306,7 @@ class GraphTransliteratorSchema(Schema):
         return GraphTransliterator(**data)
 
     @validates_schema
-    def validate_token_classes(self, data: Dict[str, Any], **kwargs: Any) -> None:
+    def validate_token_classes(self, data: dict[str, Any], **kwargs: Any) -> None:
         """Validate token classes across rules, onmatch rules, and whitespace."""
         tokens = data.get("tokens") if isinstance(data, dict) else getattr(data, "tokens", None)
         if not tokens:
@@ -341,7 +340,7 @@ class GraphTransliteratorSchema(Schema):
             raise ValidationError(dict(class_errors))
 
     @validates_schema
-    def validate_tokens(self, data: Dict[str, Any], **kwargs: Any) -> None:
+    def validate_tokens(self, data: dict[str, Any], **kwargs: Any) -> None:
         """Validate referenced tokens in whitespace and rules."""
         tokens = data.get("tokens") if isinstance(data, dict) else getattr(data, "tokens", None)
         if not tokens:
@@ -373,7 +372,7 @@ class GraphTransliteratorSchema(Schema):
             raise ValidationError(dict(token_errors))
 
     @validates_schema
-    def validate_onmatch_rules_lookup(self, data: Dict[str, Any], **kwargs: Any) -> None:
+    def validate_onmatch_rules_lookup(self, data: dict[str, Any], **kwargs: Any) -> None:
         """Check that if there are onmatch_rules_lookup there are onmatch_rules."""
         onmatch_rules_lookup = (
             data.get("onmatch_rules_lookup") if isinstance(data, dict) else getattr(data, "onmatch_rules_lookup", None)

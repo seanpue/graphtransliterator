@@ -5,7 +5,7 @@ description = "A graph-based transliteration tool"
 authors = [{ name = "A. Sean Pue", email = "seanpue@users.noreply.github.com" }]
 license = "MIT"
 readme = "README.rst"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 dependencies = [
     "click (>=8.1.7,<9.0.0)",
     "marshmallow (>=3.20.1,<4.0.0)",
@@ -13,7 +13,6 @@ dependencies = [
     "typing-extensions (>=4.16.0,<5.0.0)",
 ]
 classifiers = [
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -27,27 +26,26 @@ documentation = "https://graphtransliterator.readthedocs.org"
 graphtransliterator = "graphtransliterator.cli:main"
 
 [tool.poetry]
-# Update this line to look inside "src"
 packages = [{ include = "graphtransliterator", from = "src" }]
 include = ["src/graphtransliterator/py.typed"]
 
 [tool.poetry.group.dev.dependencies]
-bash_kernel = "^0.9.1"
-coverage = "^7.3.2"
-flake8 = "^6.1.0"
-jupyter-sphinx = "^0.4.0"
-pytest = ">=9.0.3"
-sphinx-issues = "^3.0.1"
-tox = "^4.11.3"
-deptry = "^0.12.0"
-pre-commit = "^3.5.0"
-sphinx-rtd-theme = "^1.3.0"
-pytest-cov = "^4.1.0"
-ruff = "^0.15.21"
-types-pyyaml = "^6.0.12.20260518"
+bash_kernel = "^0.10.0"
+coverage = "^7.15.2"
+flake8 = "^7.3.0"
+jupyter-sphinx = "^0.5.3"
+pytest = "^9.1.1"
+sphinx-issues = "^6.0.0"
+tox = "^4.58.0"
+deptry = "^0.25.1"
+pre-commit = "^4.6.1"
+sphinx-rtd-theme = "^3.1.0"
+pytest-cov = "^7.1.0"
+ruff = "^0.16.0"
+types-pyyaml = "^6.0.12.20260724"
 mypy = "^2.3.0"
 sphinx-js = "^5.0.3"
-myst-parser = ">=2.0.0,<4.0.0"
+myst-parser = "^5.1.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -67,9 +65,19 @@ mypy_path = "src"
 explicit_package_bases = true
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
 
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "I",  # isort (import sorting)
+    "UP", # pyupgrade (upgrades syntax to modern Python 3.10+)
+]
+ignore = [
+    "UP038", # Allow tuple syntax in isinstance checks
+]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Functions used to initialize a GraphTransliterator.
 """
@@ -8,7 +6,7 @@ import math
 import re
 import unicodedata
 from collections import defaultdict
-from typing import Any, Union, cast
+from typing import Any, cast
 
 from .graphs import DirectedGraph
 from .types import (
@@ -26,7 +24,7 @@ from .types import (
 # ---------- initialize tokens ----------
 
 
-def _tokens_by_class_of(tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]]) -> dict[TokenClass, set[Token]]:
+def _tokens_by_class_of(tokens: dict[Token, list[TokenClass] | set[TokenClass]]) -> dict[TokenClass, set[Token]]:
     """Generates lookup table of tokens in each class."""
 
     out: dict[TokenClass, set[Token]] = defaultdict(set)
@@ -64,7 +62,7 @@ def _transliteration_rule_of(rule: RawRuleDict | TransliterationRule) -> Transli
     return transliteration_rule
 
 
-def _num_tokens_of(rule: Union[RawRuleDict, TransliterationRule]) -> int:
+def _num_tokens_of(rule: RawRuleDict | TransliterationRule) -> int:
     """Calculate the total number of tokens in a rule."""
     tokens_field = rule.get("tokens")
     total = len(tokens_field) if tokens_field else 0
@@ -81,7 +79,7 @@ def _num_tokens_of(rule: Union[RawRuleDict, TransliterationRule]) -> int:
     return total
 
 
-def _cost_of(rule: Union[RawRuleDict, TransliterationRule]) -> float:
+def _cost_of(rule: RawRuleDict | TransliterationRule) -> float:
     """Calculate the cost of a rule based on the number of constraints.
 
     Rules requiring more tokens to match are made less costly and tried first.
@@ -103,7 +101,7 @@ def _onmatch_rule_of(onmatch_rule: RawOnMatchDict) -> OnMatchRule:
 
 
 def _onmatch_rules_lookup(
-    tokens: dict[Token, Union[list[TokenClass], set[TokenClass]]],
+    tokens: dict[Token, list[TokenClass] | set[TokenClass]],
     onmatch_rules: list[OnMatchRule],
 ) -> dict[Token, dict[Token, list[int]]]:
     """Creates a dict lookup from current to previous token.

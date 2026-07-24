@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 graphtransliterator
 ~~~~~~~~~~~~~~~~~~
@@ -52,31 +50,31 @@ from .schemas import (
 from .types import OnMatchRule, TransliterationRule, WhitespaceRule
 
 __all__ = [
+    # Exceptions
+    "AmbiguousTransliterationRulesException",
+    "CoverageTransliterator",
+    # Graphs
+    "DirectedGraph",
+    "DirectedGraphSchema",
+    "EasyReadingSettingsSchema",
     # Core & Functional API
     "GraphTransliterator",
-    "CoverageTransliterator",
+    "GraphTransliteratorException",
+    "GraphTransliteratorSchema",
+    "NoMatchingTransliterationRuleException",
+    "OnMatchRule",
+    "OnMatchRuleSchema",
+    "SettingsSchema",
+    "TransliterationRule",
+    "TransliterationRuleSchema",
+    "UnrecognizableInputTokenException",
+    "VisitLoggingDirectedGraph",
+    # Schemas
+    "WhitespaceDictSettingsSchema",
+    "WhitespaceRule",
+    "WhitespaceSettingsSchema",
     "match_at",
     "tokenize",
     "transliterate",
     "transliterate_with_details",
-    # Exceptions
-    "AmbiguousTransliterationRulesException",
-    "GraphTransliteratorException",
-    "NoMatchingTransliterationRuleException",
-    "UnrecognizableInputTokenException",
-    # Graphs
-    "DirectedGraph",
-    "VisitLoggingDirectedGraph",
-    "TransliterationRule",
-    "OnMatchRule",
-    "WhitespaceRule",
-    # Schemas
-    "WhitespaceDictSettingsSchema",
-    "WhitespaceSettingsSchema",
-    "EasyReadingSettingsSchema",
-    "OnMatchRuleSchema",
-    "SettingsSchema",
-    "TransliterationRuleSchema",
-    "DirectedGraphSchema",
-    "GraphTransliteratorSchema",
 ]

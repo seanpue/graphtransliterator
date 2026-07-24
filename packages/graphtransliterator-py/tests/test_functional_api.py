@@ -1,5 +1,4 @@
 import pytest
-
 from graphtransliterator import (
     GraphTransliterator,
     match_at,

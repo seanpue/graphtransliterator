@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """
 Tests for ambiguity checking and reporting.
 """
 
 import pytest
-
 from graphtransliterator import (
     AmbiguousTransliterationRulesException,
     GraphTransliterator,

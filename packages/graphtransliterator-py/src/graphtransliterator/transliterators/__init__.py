@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 graphtransliterator.transliterators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -8,15 +7,18 @@ import importlib.util
 import inspect
 import pkgutil
 import sys
-from typing import Any, Iterator, List, Union, cast
+from collections.abc import Iterator
+from typing import Any, cast
 
-from .bundled import Bundled  # noqa
-from .schemas import MetadataSchema  # noqa
+from graphtransliterator import GraphTransliterator
+from graphtransliterator.transliterators.bundled import Bundled  # Import Bundled base class
+
+from .schemas import MetadataSchema
 
 __all__ = ["Bundled", "MetadataSchema", "iter_names", "iter_transliterators"]
 
-# FIX: Add explicit type annotation to satisfy [var-annotated]
-_transliterators: List[str] = []
+# FIX: Use built-in list instead of typing.List
+_transliterators: list[str] = []
 
 
 def _skip_class_name(name: str) -> bool:
@@ -24,7 +26,7 @@ def _skip_class_name(name: str) -> bool:
     return name == "Bundled" or name.startswith("_")
 
 
-def add_transliterators(path: Union[List[str], Any] = None) -> None:
+def add_transliterators(path: list[str] | Any = None) -> None:
     """Walk submodules and loads bundled transliterators into namespace."""
 
     if path is None:
@@ -49,7 +51,7 @@ def add_transliterators(path: Union[List[str], Any] = None) -> None:
                 if _skip_class_name(name):
                     continue
                 if name in __all__:
-                    raise ValueError('A transliterator named "{}" already exists'.format(name))
+                    raise ValueError(f'A transliterator named "{name}" already exists')
 
                 assert len(cast(Any, _module).__path__) == 1
                 globals()[name] = getattr(_module, name)
@@ -62,12 +64,16 @@ add_transliterators()
 
 def iter_names() -> Iterator[str]:
     """Iterate through bundled bundled transliterator names."""
-    for _ in _transliterators:
-        yield _
+    yield from _transliterators
 
 
-def iter_transliterators(**kwds: Any) -> Iterator[Any]:
-    for name in iter_names():
-        cls = globals().get(name)
-        if cls:
+def iter_transliterators(**kwds):
+    """Yield instances of all bundled GraphTransliterator subclasses."""
+    for name, cls in inspect.getmembers(sys.modules[__name__]):
+        if (
+            isinstance(cls, type)
+            and issubclass(cls, GraphTransliterator)
+            # Exclude base classes that require __init__ arguments
+            and cls not in (GraphTransliterator, Bundled)
+        ):
             yield cls(**kwds)

@@ -66,6 +66,7 @@ clean: clean-build clean-docs ## Clean build, docs, and test artifacts locally
 	rm -rf htmlcov/
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.py[co]" -delete
+
 	@echo "✨ Inner directory is clean!"
 
 .PHONY: publish

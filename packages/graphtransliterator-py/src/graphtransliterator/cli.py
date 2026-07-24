@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Console script for graphtransliterator."""
 
 import importlib
@@ -7,7 +5,7 @@ import json
 import os
 import re
 import sys
-from typing import Any, Tuple
+from typing import Any
 
 import click
 
@@ -25,7 +23,7 @@ def main() -> None:
     pass
 
 
-def load_transliterator(source: Tuple[str, str], **kwargs: Any) -> Any:
+def load_transliterator(source: tuple[str, str], **kwargs: Any) -> Any:
     """Loads transliterator (format, parameter)."""
     format_type, parameter = source
     if format_type == "bundled":
@@ -35,7 +33,7 @@ def load_transliterator(source: Tuple[str, str], **kwargs: Any) -> Any:
     elif format_type == "json":
         return GraphTransliterator.loads(parameter, **kwargs)
     elif format_type == "json_file":
-        with open(parameter, "r", encoding="utf-8") as f:
+        with open(parameter, encoding="utf-8") as f:
             return GraphTransliterator.loads(f.read(), **kwargs)
     elif format_type == "yaml_file":
         return GraphTransliterator.from_yaml_file(parameter, **kwargs)
@@ -85,9 +83,9 @@ def load_transliterator(source: Tuple[str, str], **kwargs: Any) -> Any:
 )
 @click.argument("input", nargs=-1)
 def transliterate(
-    from_: Tuple[str, str],
+    from_: tuple[str, str],
     to: str,
-    input: Tuple[str, ...],
+    input: tuple[str, ...],
     check_ambiguity: bool,
     ignore_errors: bool,
     details: bool,
@@ -134,7 +132,7 @@ def transliterate(
 #     show_default=True,
 # )
 # def dump(from_: Tuple[str, str], check_ambiguity: bool, compression_level: int) -> None:
-def dump(from_: Tuple[str, str], check_ambiguity: bool) -> None:
+def dump(from_: tuple[str, str], check_ambiguity: bool) -> None:
     """Dump transliterator as JSON."""
     transliterator = load_transliterator(from_, check_ambiguity=check_ambiguity)
     click.echo(transliterator.dumps())  # compression_level=compression_level))
@@ -158,7 +156,7 @@ def dump_tests(bundled: str, to: str) -> None:
         transliteration_tests = transliterator.load_yaml_tests()
         click.echo(json.dumps(transliteration_tests))
     elif to == "yaml":
-        with open(transliterator.yaml_tests_filen, "r", encoding="utf-8") as f:
+        with open(transliterator.yaml_tests_filen, encoding="utf-8") as f:
             click.echo(f.read())
 
 
@@ -179,7 +177,7 @@ def dump_tests(bundled: str, to: str) -> None:
     help="Check for ambiguity.",
     show_default=True,
 )
-def generate_tests(from_: Tuple[str, str], check_ambiguity: bool) -> None:
+def generate_tests(from_: tuple[str, str], check_ambiguity: bool) -> None:
     """Generate tests as YAML."""
     import graphtransliterator.transliterators  # pragma: no cover
 

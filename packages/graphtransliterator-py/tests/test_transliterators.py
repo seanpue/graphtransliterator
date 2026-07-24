@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 """Tests for bundled transliterators."""
 
-import pytest
-
 import graphtransliterator.transliterators as transliterators
+import pytest
 from graphtransliterator.core import GraphTransliterator
 from graphtransliterator.transliterators.bundled import Bundled
 
@@ -18,7 +16,7 @@ def _test_bundled_transliterator(transliterator):
             self._module_name = transliterator._module_name
             self._init_from(method, check_ambiguity=True, coverage=True)
 
-        class_name = "Test{}From{}".format(type(transliterator).__name__, method.upper())
+        class_name = f"Test{type(transliterator).__name__}From{method.upper()}"
         SuperClass = transliterator.__class__
         TestClass = type(class_name, (SuperClass,), {"__init__": init_test_class})
         # Confirm it is a subclass of super class

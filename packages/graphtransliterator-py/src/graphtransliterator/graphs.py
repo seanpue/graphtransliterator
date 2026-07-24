@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """
 Graph classes for GraphTransliterator.
 """
 
 import logging
 from collections import UserList
-from typing import Any, Dict, Generic, Optional, TypeVar, Union, cast
+from typing import Any, Generic, TypeVar, Union, cast
 
 from .types import E, Edge, LoadedGraphDict, N, Node, NodeId, NodeLabel, T
 
@@ -78,7 +76,7 @@ class DirectedGraph(Generic[T, N, E]):
         }
         self.edges.append(new_edge)
 
-    def get_edge(self, source: NodeId, target: NodeId) -> Optional[Dict[str, Any]]:
+    def get_edge(self, source: NodeId, target: NodeId) -> dict[str, Any] | None:
         """Return the edge payload or full edge structure connecting source and target.
 
         Args:
@@ -98,8 +96,8 @@ class DirectedGraph(Generic[T, N, E]):
             if edge["source"] == source and edge["target"] == target:
                 data = edge.get("data")
                 if isinstance(data, dict):
-                    return cast(Dict[str, Any], data)
-                return cast(Dict[str, Any], edge)
+                    return cast(dict[str, Any], data)
+                return cast(dict[str, Any], edge)
         return None
 
     @property

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Tests for `graphtransliterator` package."""
 
@@ -8,11 +7,9 @@ import re
 from itertools import combinations
 from typing import cast
 
+import graphtransliterator
 import pytest
 import yaml
-from marshmallow.exceptions import ValidationError
-
-import graphtransliterator
 from graphtransliterator import process
 from graphtransliterator.core import CoverageTransliterator, GraphTransliterator, GraphTransliteratorSchema
 from graphtransliterator.exceptions import (
@@ -29,6 +26,7 @@ from graphtransliterator.initialize import (
 )
 from graphtransliterator.schemas import SettingsSchema
 from graphtransliterator.types import EasyReadingDict, GTEdgeDataType, OnMatchRule, TransliterationRule, WhitespaceRule
+from marshmallow.exceptions import ValidationError
 
 yaml_for_test = r"""
 tokens:
@@ -936,7 +934,7 @@ def test_inject_subgraph_mismatched_whitespace():
         """
     )
 
-    with pytest.raises(ValueError, match="Graph Injection Mismatch"):
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
         gt1.inject_subgraph(gt2)
 
 
@@ -979,7 +977,6 @@ def test_json_and_file_loaders(tmp_path):
 
 def test_coverage_transliterator_missed_onmatch_rules():
     import pytest
-
     from graphtransliterator.exceptions import IncompleteOnMatchRulesCoverageException
 
     easy_reading = {

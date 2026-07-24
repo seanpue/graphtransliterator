@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 from graphtransliterator import GraphTransliterator
 from graphtransliterator.types import EasyReadingDict

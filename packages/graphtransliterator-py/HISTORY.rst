@@ -24,6 +24,7 @@ History
 * Removed namedtuples for typeddict
 * Restricted dump fields
 * Added functional API
+* Removed 3.10 support
 
 1.4.0 (2026-07-19)
 ------------------

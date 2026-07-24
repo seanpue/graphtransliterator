@@ -1,7 +1,6 @@
 import pytest
-from marshmallow.exceptions import ValidationError
-
 from graphtransliterator.schemas import GraphTransliteratorSchema
+from marshmallow.exceptions import ValidationError
 
 
 def test_schema_invalid_fields():

@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """Functions to process "easy reading" settings of GraphTransliterator."""
 
 import re
-from typing import TypeAlias, TypedDict, Union
+from typing import TypeAlias, TypedDict
 
 from .initialize import RawOnMatchDict, RawRuleDict, RawWhitespaceDict
 
@@ -18,19 +17,17 @@ class ProcessedSettingsDict(TypedDict, total=False):
     rules: list[RawRuleDict]
     onmatch_rules: list[RawOnMatchDict]
     whitespace: RawWhitespaceDict
-    metadata: dict[str, Union[str, int, float, bool]]
+    metadata: dict[str, str | int | float | bool]
 
 
 # Helper definition for the dynamic input config blocks
 EasyReadingInput: TypeAlias = dict[
     str,
-    Union[
-        dict[str, str],
-        list[dict[str, str]],
-        RawWhitespaceDict,
-        dict[str, list[str]],
-        dict[str, Union[str, int, float, bool]],
-    ],
+    dict[str, str]
+    | list[dict[str, str]]
+    | RawWhitespaceDict
+    | dict[str, list[str]]
+    | dict[str, str | int | float | bool],
 ]
 
 

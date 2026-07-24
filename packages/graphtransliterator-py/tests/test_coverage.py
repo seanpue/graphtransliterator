@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
+import graphtransliterator.transliterators as transliterators
+import pytest
 from graphtransliterator.exceptions import (
     IncompleteGraphCoverageException,
     IncompleteOnMatchRulesCoverageException,
 )
-import graphtransliterator.transliterators as transliterators
-import pytest
 
 
 def test_CoverageTransliterator():

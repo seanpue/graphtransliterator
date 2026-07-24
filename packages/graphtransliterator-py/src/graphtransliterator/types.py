@@ -1,19 +1,18 @@
-# -*- coding: utf-8 -*-
 """
 Centralized domain types for GraphTransliterator.
 """
 
-from typing import Any, Dict, Generic, TypeVar
+from typing import Any, Generic, TypeAlias, TypeVar
 
-from typing_extensions import NotRequired, TypeAlias, TypedDict
+from typing_extensions import NotRequired, TypedDict
 
-ConstraintDict: TypeAlias = Dict[str, Any]
-LoadedSettingsDict: TypeAlias = Dict[str, Any]
+ConstraintDict: TypeAlias = dict[str, Any]
+LoadedSettingsDict: TypeAlias = dict[str, Any]
 
 # Generic types used for DirectedGraph typing in core.py
 GTNodeType: TypeAlias = str
-GTNodeDataType: TypeAlias = Dict[str, Any]
-GTEdgeDataType: TypeAlias = Dict[str, Any]
+GTNodeDataType: TypeAlias = dict[str, Any]
+GTEdgeDataType: TypeAlias = dict[str, Any]
 
 
 # =============================================================================

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Tests for `graphtransliterator` package."""
 
@@ -9,7 +8,6 @@ from io import StringIO
 
 import yaml
 from click.testing import CliRunner
-
 from graphtransliterator import GraphTransliterator, cli
 from graphtransliterator import __version__ as version
 from graphtransliterator.transliterators import Example  # type: ignore
@@ -134,7 +132,7 @@ def test_cli_dump():
     # Because make-json generates a JSON file, which may differ slightly from original,
     # save and later restore original JSON file.
     orig_filename = os.path.join(Example().directory, "example.json")
-    with open(orig_filename, "r") as f:
+    with open(orig_filename) as f:
         orig_json = f.read()
     test_result = runner.invoke(cli.main, ["make-json", "Example"])
     assert test_result.exit_code == 0

@@ -5,7 +5,7 @@ inputs:
     python-version:
         required: false
         description: "The python version to use"
-        default: "3.10"
+        default: "3.11"
     # 👇 Add this new input to handle your subpackage path
     working-directory:
         required: false

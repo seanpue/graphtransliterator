@@ -35,6 +35,13 @@ test: ## Run test suites for all languages
 clean: ## Delegate cleaning down to the subpackage directory
 	$(MAKE) -C packages/graphtransliterator-py clean
 	rm -rf packages/graphtransliterator-ts/dist
+	@echo "🧹 Cleaning project artifacts..."
+	rm -rf .tox/
+	rm -rf .pytest_cache/
+	rm -rf .mypy_cache/
+	rm -rf .ruff_cache/
+	rm -rf *.egg-info/
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 .PHONY: fix
 fix: fix-py fix-ts ## Automatically fix format/lint errors across the entire monorepo

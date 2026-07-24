@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 import pytest
-
 from graphtransliterator import (
     GraphTransliterator,
     WhitespaceRule,
@@ -100,7 +97,7 @@ def test_subgraph_whitespace_mismatch_raises_error(base_transliterator):
         whitespace=mismatched_ws,
     )
 
-    with pytest.raises(ValueError, match="Graph Injection Mismatch"):
+    with pytest.raises(ValueError, match="Configuration Mismatch"):
         base_transliterator.inject_subgraph(incompatible_subgraph)
 
 

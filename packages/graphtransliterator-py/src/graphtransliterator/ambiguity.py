@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 GraphTransliterator ambiguity-checking functions.
 """
@@ -142,20 +140,20 @@ def _easyreading_rule(rule: TransliterationRule) -> str:
     next_classes = rule.get("next_classes")
 
     if prev_classes and prev_tokens:
-        out = "({} {}) ".format(_class_str(prev_classes), _token_str(prev_tokens))
+        out = f"({_class_str(prev_classes)} {_token_str(prev_tokens)}) "
     elif prev_classes:
-        out = "{} ".format(_class_str(prev_classes))
+        out = f"{_class_str(prev_classes)} "
     elif prev_tokens:
-        out = "({}) ".format(_token_str(prev_tokens))
+        out = f"({_token_str(prev_tokens)}) "
 
     out += _token_str(tokens)
 
     if next_tokens and next_classes:
-        out += " ({} {})".format(_token_str(next_tokens), _class_str(next_classes))
+        out += f" ({_token_str(next_tokens)} {_class_str(next_classes)})"
     elif next_tokens:
-        out += " ({})".format(_token_str(next_tokens))
+        out += f" ({_token_str(next_tokens)})"
     elif next_classes:
-        out += " {}".format(_class_str(next_classes))
+        out += f" {_class_str(next_classes)}"
     return out
 
 
