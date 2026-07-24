@@ -16,13 +16,14 @@ History
 -------
 * Add on/off switch characters
 
-new release
------------
+1.4.1 (2026-07-24)
+------------------
 * Removed compression
 * refactored for compatibility with Typescript version
 * moved all types to types.py
 * Removed namedtuples for typeddict
-* restricted dump fields
+* Restricted dump fields
+* Added functional API
 
 1.4.0 (2026-07-19)
 ------------------

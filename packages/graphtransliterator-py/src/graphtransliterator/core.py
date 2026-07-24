@@ -823,3 +823,31 @@ class CoverageTransliterator(GraphTransliterator):
         return self._graph.check_coverage(raise_exception=raise_exception) and self.check_onmatchrules_coverage(
             raise_exception=raise_exception
         )
+
+
+# --- Standalone / Functional API Helpers ---
+
+
+def match_at(
+    gt: GraphTransliterator,
+    token_i: int,
+    tokens: List[str],
+    match_all: bool = False,
+) -> Union[Optional[int], List[int]]:
+    """Find matching rule index(es) at a given token position for a GraphTransliterator."""
+    return gt.match_at(token_i, tokens, match_all=match_all)
+
+
+def tokenize(gt: GraphTransliterator, input_: str) -> List[str]:
+    """Tokenize input string using a GraphTransliterator instance."""
+    return gt.tokenize(input_)
+
+
+def transliterate(gt: GraphTransliterator, input_: str) -> str:
+    """Transliterate input string using a GraphTransliterator instance."""
+    return gt.transliterate(input_)
+
+
+def transliterate_with_details(gt: GraphTransliterator, input_: str) -> Tuple[str, List[TransliterationRule]]:
+    """Transliterate input string and return matches using a GraphTransliterator instance."""
+    return gt.transliterate_with_details(input_)

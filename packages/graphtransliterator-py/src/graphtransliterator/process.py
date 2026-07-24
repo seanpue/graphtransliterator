@@ -125,13 +125,14 @@ def _process_onmatch_rules(easyreading_onmatch_rules: list[dict[str, str]] | Non
     processed_onmatch_rules: list[RawOnMatchDict] = []
 
     for item in easyreading_onmatch_rules:
-        assert len(item) == 1, "onmatch_rule has too many values: %s" % item
+        if len(item) != 1:
+            raise ValueError(f"onmatch_rule has too many values: {item}")
 
         (rule_easyreading, _production) = list(item.items())[0]
 
         match = ONMATCH_RE.match(rule_easyreading)
-        # Add explicit assertion so Mypy knows match is not None
-        assert match, "Onmatch pattern is not valid: %s" % rule_easyreading
+        if not match:
+            raise ValueError(f"Onmatch pattern is not valid: {rule_easyreading}")
 
         prev_str = match.group(1)
         next_str = match.group(2)

@@ -1,6 +1,6 @@
 {
 	"name": "graphtransliterator",
-	"version": "0.2.0",
+	"version": "0.8.0",
 	"description": "A graph-based transliteration tool",
 	"homepage": "https://graphtransliterator.readthedocs.io/en/latest/typescript.html",
 	"repository": {

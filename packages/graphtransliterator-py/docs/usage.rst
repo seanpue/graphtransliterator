@@ -448,10 +448,10 @@ the hexadecimal character code):
 
 Configuring Directly
 --------------------
-In addition to using :meth:`GraphTansliterator.from_yaml` and
+In addition to using :meth:`GraphTransliterator.from_yaml` and
 :meth:`GraphTransliterator.from_yaml_file`, Graph Transliterator can also be configured
 and initialized directly using basic Python types passed as dictionary to
-:meth:`GraphTransliterator.from_dict`
+:meth:`GraphTransliterator.from_dict`:
 
 .. jupyter-execute::
   :linenos:
@@ -480,6 +480,16 @@ and initialized directly using basic Python types passed as dictionary to
 This feature can be useful if generating a Graph Transliterator using code as opposed to
 a configuration file.
 
+Loading from JSON and Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In addition to YAML, you can load configurations from JSON strings or JSON/dictionary files:
+
+- :meth:`GraphTransliterator.from_json`
+- :meth:`GraphTransliterator.from_json_file`
+- :meth:`GraphTransliterator.from_dict_file`
+
+Inspecting Active Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can inspect the fully parsed and optimized configurations of an active engine at any
 time via the public :attr:`GraphTransliterator.settings` property. This outputs a
 structured dictionary conforming strictly to the internal schemas:
@@ -487,6 +497,7 @@ structured dictionary conforming strictly to the internal schemas:
 .. jupyter-execute::
 
   gt.settings
+
 
 Ambiguity Checking
 ------------------
@@ -539,6 +550,7 @@ Setup Validation
 ----------------
 Graph Transliterator validates both the "easy reading" configuration and the direct
 configuration using the :py:mod:`marshmallow` library.
+
 
 Transliteration and Its Exceptions
 ==================================
@@ -641,12 +653,11 @@ the token index will be advanced. Otherwise, there will be a
   gt.ignore_errors = True
   gt.transliterate("ab")
 
+
 Transliterating with Details
 ============================
 
 It is also possible to get details about a transliteration by running :meth:`transliterate_with_details`:
-
-
 
 .. jupyter-execute::
   :raises: AmbiguousTransliterationRulesException
@@ -668,6 +679,44 @@ It is also possible to get details about a transliteration by running :meth:`tra
   ''').transliterate_with_details("a a")
 
 That returns a tuple of the transliteration output and a list of :obj:`TransliterationRule`.
+
+
+Functional API
+==============
+In addition to the object-oriented interface, Graph Transliterator provides standalone module-level functions for transliteration, tokenization, and matching. These functions accept a :class:`GraphTransliterator` instance as their first argument:
+
+.. jupyter-execute::
+
+  import graphtransliterator as gt
+
+  gt_inst = gt.GraphTransliterator.from_yaml(yaml_)
+
+  # Functional transliteration
+  gt.transliterate(gt_inst, 'a')
+
+.. jupyter-execute::
+
+  # Functional transliteration with details
+  gt.transliterate_with_details(gt_inst, 'a')
+
+.. jupyter-execute::
+
+  # Functional tokenization
+  gt.tokenize(gt_inst, 'abba')
+
+.. jupyter-execute::
+
+  # Functional rule matching at index
+  tokens = gt.tokenize(gt_inst, 'a')
+  gt.match_at(gt_inst, 1, tokens)
+
+The top-level functional API includes:
+
+* :func:`graphtransliterator.transliterate`
+* :func:`graphtransliterator.transliterate_with_details`
+* :func:`graphtransliterator.tokenize`
+* :func:`graphtransliterator.match_at`
+
 
 Additional Methods
 ==================
@@ -899,6 +948,19 @@ When calling :meth:`inject_subgraph` directly, optional parameters such as ``pre
   # Prepend lookbehind requirement ['a'] onto rules injected from gt_sub
   prefixed_gt = gt_base.inject_subgraph(gt_sub, prefix_tokens=["a"])
 
+Coverage Analysis
+-----------------
+If you need to ensure that all rules, graph nodes, and ``onmatch_rules`` are exercised by your test suite, pass ``coverage=True`` when initializing from a dictionary:
+
+.. code-block:: python
+
+  gt = GraphTransliterator.from_dict(settings, coverage=True)
+  gt.transliterate("test string")
+
+  # Assert that all rules and paths were executed
+  gt.check_coverage(raise_exception=True)
+
+
 Internal Graph
 ==============
 Graph Transliterator creates a directed tree during its initialization. During calls to
@@ -1026,36 +1088,3 @@ immediately following the current node are keyed to :obj:`__rules__`:
 
 Because of this preprocessing, Graph Transliterator does not need to iterate through all
 of the outgoing edges of a node to find the next node to search.
-
-Configuring Directly
-====================
-
-Inspecting Active Settings
---------------------------
-You can inspect the fully parsed and optimized configurations of an active engine at any
-time via the public :attr:`GraphTransliterator.settings` property. This outputs a
-structured dictionary conforming strictly to internal schemas:
-
-.. jupyter-execute::
-
-  gt.settings
-
-Loading from JSON and Files
----------------------------
-In addition to YAML, you can load configurations from JSON strings or JSON/dictionary files:
-
-- :meth:`GraphTransliterator.from_json`
-- :meth:`GraphTransliterator.from_json_file`
-- :meth:`GraphTransliterator.from_dict_file`
-
-Coverage Analysis
------------------
-If you need to ensure that all rules, graph nodes, and ``onmatch_rules`` are exercised by your test suite, pass ``coverage=True`` when initializing from a dictionary:
-
-.. code-block:: python
-
-  gt = GraphTransliterator.from_dict(settings, coverage=True)
-  gt.transliterate("test string")
-
-  # Assert that all rules and paths were executed
-  gt.check_coverage(raise_exception=True)

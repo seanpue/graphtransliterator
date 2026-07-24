@@ -1,77 +1,76 @@
 import { describe, expect, it } from "vitest";
-import {
-	addEdge,
-	addNode,
-	childrenOf,
-	getNode,
-	hasNode,
-	initGraph,
-	parentsOf,
-	updateNode,
-} from "../src/Graphs";
+import { DirectedGraph } from "../src/Graphs";
 
 describe("Graphs Topology Framework", () => {
 	it("should initialize an empty graph topology cleanly", () => {
-		const graph = initGraph<string, { value: string }, number>();
+		const graph = new DirectedGraph<string, { value: string }, number>();
 
 		expect(graph.nodes).toHaveLength(0);
-		expect(graph.edges.size).toBe(0);
-		expect(graph.successors.size).toBe(0);
-		expect(graph.predecessors.size).toBe(0);
+		expect(graph.edges).toHaveLength(0);
+		expect(graph.edgeList).toEqual([]);
 	});
 
-	it("should support immutable node insertion and assign sequential IDs", () => {
-		const g0 = initGraph<string, { weight: number }, null>();
+	it("should support stateful node insertion and assign sequential IDs", () => {
+		const graph = new DirectedGraph<string, { weight: number }, null>();
 
 		// Add first node
-		const [g1, nodeA] = addNode(g0, "STATE", "NodeA", { weight: 10 });
-		expect(nodeA.id).toBe(0);
-		expect(hasNode(g1, 0)).toBe(true);
-		expect(getNode(g1, 0)?.label).toBe("NodeA");
-
-		// Immutability Check: Ensure original graph g0 remained empty
-		expect(g0.nodes).toHaveLength(0);
+		const nodeAId = graph.addNode({ weight: 10 }, "STATE", "NodeA");
+		expect(nodeAId).toBe(0);
+		expect(graph.getNode(0)?.label).toBe("NodeA");
+		expect(graph.getNode(0)?.data.weight).toBe(10);
 
 		// Add second node
-		const [g2, nodeB] = addNode(g1, "ACCEPT", "NodeB", { weight: 20 });
-		expect(nodeB.id).toBe(1);
-		expect(g2.nodes).toHaveLength(2);
+		const nodeBId = graph.addNode({ weight: 20 }, "ACCEPT", "NodeB");
+		expect(nodeBId).toBe(1);
+		expect(graph.nodes).toHaveLength(2);
 	});
 
-	it("should establish directional edges and build O(1) tracking indexes", () => {
-		const graph = initGraph<string, null, string>();
+	it("should establish directional edges and retrieve edge connections", () => {
+		const graph = new DirectedGraph<
+			string,
+			Record<string, unknown>,
+			{ label: string }
+		>();
 
 		// Setup two nodes
-
-		const [graph1, nodeA] = addNode(graph, "V", "A", null);
-		const [finalGraph, nodeB] = addNode(graph1, "V", "B", null);
+		const nodeAId = graph.addNode({}, "V", "A");
+		const nodeBId = graph.addNode({}, "V", "B");
 
 		// Wire an edge connecting node 0 -> node 1
-		const [nextGraph, _edge] = addEdge(
-			finalGraph,
-			nodeA.id,
-			nodeB.id,
-			"transition-payload",
-		);
+		graph.addEdge(nodeAId, nodeBId, { label: "transition-payload" });
 
-		expect(nextGraph.edges.size).toBe(1);
-		expect(childrenOf(nextGraph, nodeA.id)).toEqual([nodeB.id]);
-		expect(parentsOf(nextGraph, nodeB.id)).toEqual([nodeA.id]);
+		expect(graph.edges).toHaveLength(1);
+		expect(graph.edgeList).toEqual([[nodeAId, nodeBId]]);
+
+		// Verify edge payload lookup
+		const edgePayload = graph.getEdge(nodeAId, nodeBId);
+		expect(edgePayload).toEqual({ label: "transition-payload" });
 	});
 
-	it("should safely update a target node payload without mutating state history", () => {
-		const graph = initGraph<string, { score: number }, null>();
+	it("should safely retrieve nodes and update payload properties directly", () => {
+		const graph = new DirectedGraph<string, { score: number }, null>();
 
-		const [graph1, node] = addNode(graph, "META", "Target", { score: 100 });
+		const nodeId = graph.addNode({ score: 100 }, "META", "Target");
 
-		const updatedGraph = updateNode(graph1, node.id, (oldData) => ({
-			score: oldData.score + 50,
-		}));
+		const node = graph.getNode(nodeId);
+		expect(node).not.toBeNull();
 
-		// Ensure the new graph configuration contains the modifications
-		expect(getNode(updatedGraph, node.id)?.data.score).toBe(150);
+		if (node) {
+			node.data.score += 50;
+		}
 
-		// FIX: Verify against graph1 (the state prior to the update target operation)
-		expect(getNode(graph1, node.id)?.data.score).toBe(100);
+		// Ensure stateful node modification is reflected in graph reference
+		expect(graph.getNode(nodeId)?.data.score).toBe(150);
+	});
+
+	it("should throw errors when attempting to add edges to invalid node indices", () => {
+		const graph = new DirectedGraph();
+
+		graph.addNode({}, "V", "A");
+
+		// Out of bounds target node
+		expect(() => graph.addEdge(0, 99)).toThrowError(
+			"Source node 0 or target node 99 not found in graph.",
+		);
 	});
 });

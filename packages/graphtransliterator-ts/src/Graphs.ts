@@ -1,297 +1,196 @@
 // src/Graphs.ts
-/**
- * @module Graphs
- * A high-performance directed graph framework optimized for state transition systems.
- *
- * @description
- * Provides the topological infrastructure for building and traversing Directed Acyclic
- * Word Graphs (DAWGs) and Finite State Transducers (FSTs). Utilizes an adjacency index cache
- * to achieve O(1) node neighbor resolutions.
- */
 
-import {
-    Edge,
-    EdgeIdString,
-    LoadedGraphDict,
-    Node,
-    NodeId,
-    NodeLabel,
+import type {
+	Edge,
+	LoadedGraphDict,
+	Node,
+	NodeId,
+	NodeLabel,
 } from "./types.js";
 
 // =============================================================================
-// EDGE IDENTIFIER HELPER
+// DIRECTED GRAPH CLASS (Shared 1:1 with Python DirectedGraph)
 // =============================================================================
 
 /**
- * Generates the standardized Map key signature from a directional connection coordinate.
+ * A directed graph representation storing nodes and edges in a flat structure.
  */
-export function toEdgeId(source: NodeId, target: NodeId): EdgeIdString {
-    return `${source},${target}`;
+export class DirectedGraph<
+	T = unknown,
+	N = Record<string, unknown>,
+	E = Record<string, unknown>,
+> {
+	public nodes: Node<T, N>[];
+	public edges: Edge<E>[];
+
+	constructor(nodes?: Node<T, N>[], edges?: Edge<E>[]) {
+		this.nodes = nodes ? [...nodes] : [];
+		this.edges = edges ? [...edges] : [];
+	}
+
+	/**
+	 * Append a node to the graph and return its generated integer NodeId.
+	 */
+	public addNode(
+		data: N | null = null,
+		token: string | null = null,
+		label: NodeLabel | null = null, // Swapped to 3rd position
+		type: T | null = null, // Moved to 4th position
+		extraProps: Record<string, unknown> = {},
+	): NodeId {
+		const nextId: NodeId = this.nodes.length;
+
+		const newNode: Node<T, N> = {
+			id: nextId,
+			token,
+			type: type as T,
+			label,
+			data: (data ?? {}) as N,
+			...extraProps,
+		};
+
+		this.nodes.push(newNode);
+		return nextId;
+	}
+	/**
+	 * Return node by numeric NodeId if present.
+	 */
+	public getNode(nodeId: NodeId): Node<T, N> | null {
+		if (nodeId >= 0 && nodeId < this.nodes.length) {
+			return this.nodes[nodeId];
+		}
+		return null;
+	}
+
+	/**
+	 * Add a directed edge connecting a source NodeId to a target NodeId.
+	 */
+	public addEdge(source: NodeId, target: NodeId, data: E | null = null): void {
+		if (!Number.isInteger(source) || !Number.isInteger(target)) {
+			throw new Error("Source and target node indices must be integers.");
+		}
+
+		if (
+			source < 0 ||
+			source >= this.nodes.length ||
+			target < 0 ||
+			target >= this.nodes.length
+		) {
+			throw new Error(
+				`Source node ${source} or target node ${target} not found in graph.`,
+			);
+		}
+
+		const actualData: E = (
+			data !== null && typeof data === "object" ? { ...data } : {}
+		) as E;
+
+		const newEdge: Edge<E> = {
+			source,
+			target,
+			data: actualData,
+		};
+
+		this.edges.push(newEdge);
+	}
+
+	/**
+	 * Return the edge payload or full edge structure connecting source and target.
+	 */
+	public getEdge(source: NodeId, target: NodeId): E | Edge<E> | null {
+		for (const edge of this.edges) {
+			if (edge.source === source && edge.target === target) {
+				const data = edge.data;
+				if (data && typeof data === "object" && !Array.isArray(data)) {
+					return data;
+				}
+				return edge;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Return a list of all edge connection coordinates as [source, target] tuples.
+	 */
+	public get edgeList(): Array<[NodeId, NodeId]> {
+		return this.edges.map((edge) => [edge.source, edge.target]);
+	}
+
+	/**
+	 * Export graph layout as canonical flat dictionary matching Python.
+	 */
+	public toDict(): LoadedGraphDict<T, N, E> {
+		return {
+			nodes: this.nodes,
+			edges: this.edges,
+		};
+	}
 }
 
 // =============================================================================
-// DIRECTED GRAPH TOPOLOGY
+// COVERAGE LOGGING & TRACKING EXTENSIONS
 // =============================================================================
 
 /**
- * Monolithic directed graph topology with integrated neighborhood lookup acceleration indexes.
- *
- * @template T - Structural node classification type.
- * @template N - Vertex payload definition.
- * @template E - Edge transition cost payload definition.
+ * Subclass monitoring runtime traversal over nodes and edges.
  */
-export interface DirectedGraph<T, N, E> {
-    /** Array collection keeping track of all registered nodes mapped directly to their ID positions. */
-    nodes: Node<T, N>[];
-    /** Hash lookup container connecting edge ID string coordinates directly to transition payloads. */
-    edges: Map<EdgeIdString, Edge<E>>;
-    /** Inverted index mapping a parent NodeId directly to its set of child target NodeIds for O(1) traversal. */
-    successors: Map<NodeId, Set<NodeId>>;
-    /** Inverted index mapping a child NodeId back to its set of parent source NodeIds for O(1) lookbehinds. */
-    predecessors: Map<NodeId, Set<NodeId>>;
-}
+export class VisitLoggingDirectedGraph<
+	T = unknown,
+	N = Record<string, unknown>,
+	E = Record<string, unknown>,
+> extends DirectedGraph<T, N, E> {
+	public visitedNodes: Set<NodeId>;
+	public visitedEdges: Set<string>; // Stored as "source->target" string keys
 
-/**
- * Initializes an empty execution graph topology with neighborhood indexing.
- */
-export function initGraph<T, N, E>(
-    nodes: Node<T, N>[] = [],
-    edges: Map<EdgeIdString, Edge<E>> = new Map(),
-): DirectedGraph<T, N, E> {
-    const successors = new Map<NodeId, Set<NodeId>>();
-    const predecessors = new Map<NodeId, Set<NodeId>>();
+	constructor(graph: DirectedGraph<T, N, E>) {
+		super(graph.nodes, graph.edges);
+		this.visitedNodes = new Set<NodeId>();
+		this.visitedEdges = new Set<string>();
+	}
 
-    // Initialize tracking buckets for pre-loaded nodes
-    for (const node of nodes) {
-        successors.set(node.id, new Set());
-        predecessors.set(node.id, new Set());
-    }
+	/**
+	 * Log traversal of a node.
+	 */
+	public visitNode(nodeId: NodeId): void {
+		this.visitedNodes.add(nodeId);
+	}
 
-    // Sync index arrays if pre-populated records are fed into initializer
-    for (const edge of edges.values()) {
-        if (!successors.has(edge.source))
-            successors.set(edge.source, new Set());
-        if (!predecessors.has(edge.target))
-            predecessors.set(edge.target, new Set());
+	/**
+	 * Log traversal of an edge connection.
+	 */
+	public visitEdge(source: NodeId, target: NodeId): void {
+		this.visitedEdges.add(`${source}->${target}`);
+	}
 
-        successors.get(edge.source)!.add(edge.target);
-        predecessors.get(edge.target)!.add(edge.source);
-    }
+	/**
+	 * Reset tracked graph metadata.
+	 */
+	public clearVisited(): void {
+		this.visitedNodes.clear();
+		this.visitedEdges.clear();
+	}
 
-    return { nodes, edges, successors, predecessors };
-}
+	/**
+	 * Validate if all edges in graph configuration were traversed.
+	 */
+	public checkCoverage(raiseException: boolean = true): boolean {
+		const missingEdges: Array<[NodeId, NodeId]> = [];
 
-// =============================================================================
-// HIGH-PERFORMANCE READ UTILITIES
-// =============================================================================
+		for (const [source, target] of this.edgeList) {
+			if (!this.visitedEdges.has(`${source}->${target}`)) {
+				console.warn(
+					`Edge (${source} -> ${target}) was never visited during runtime.`,
+				);
+				missingEdges.push([source, target]);
+			}
+		}
 
-/**
- * Grabs the precise node reference corresponding to an explicit identifier.
- */
-export function getNode<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    id: NodeId,
-): Node<T, N> | undefined {
-    return graph.nodes[id];
-}
+		if (missingEdges.length > 0 && raiseException) {
+			const edgeStr = missingEdges.map(([u, v]) => `${u}->${v}`).join(", ");
+			throw new Error(`Incomplete graph edge coverage: ${edgeStr}`);
+		}
 
-/**
- * Validates the existence of a custom structural vertex point.
- */
-export function hasNode<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    id: NodeId,
-): boolean {
-    return id >= 0 && id < graph.nodes.length;
-}
-
-/**
- * Direct evaluation query returning the explicit type variant assigned to a node coordinate.
- */
-export function getNodeType<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    id: NodeId,
-): T | undefined {
-    return graph.nodes[id]?.type;
-}
-
-/**
- * Resolves a directed edge connection interface bridging a source and target transition point.
- */
-export function getEdge<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    source: NodeId,
-    target: NodeId,
-): Edge<E> | undefined {
-    return graph.edges.get(toEdgeId(source, target));
-}
-
-/**
- * Returns an ordered array of children node identifiers connected directly from a parent node.
- */
-export function childrenOf<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    parentId: NodeId,
-): NodeId[] {
-    const targets = graph.successors.get(parentId);
-    return targets ? Array.from(targets).sort((a, b) => a - b) : [];
-}
-
-/**
- * Returns an ordered array of parent node identifiers feeding into a child target node.
- */
-export function parentsOf<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    childId: NodeId,
-): NodeId[] {
-    const sources = graph.predecessors.get(childId);
-    return sources ? Array.from(sources).sort((a, b) => a - b) : [];
-}
-
-/**
- * Filters downstream child elements matching a specific structural type discriminant.
- */
-export function childrenOfType<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    parentId: NodeId,
-    nodeType: T,
-): NodeId[] {
-    return childrenOf(graph, parentId).filter(
-        (nodeId) => getNodeType(graph, nodeId) === nodeType,
-    );
-}
-
-// =============================================================================
-// WRITE & MUTATION UTILITIES
-// =============================================================================
-
-/**
- * Adds a vertex node to the graph layout.
- */
-export function addNode<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    token: string,
-    type: T,
-    label: NodeLabel,
-    data: N,
-): [DirectedGraph<T, N, E>, Node<T, N>] {
-    const nextId = graph.nodes.length;
-    const newNode: Node<T, N> = { id: nextId, token, type, label, data };
-
-    const nextNodes = [...graph.nodes, newNode];
-    const nextSuccessors = new Map(graph.successors);
-    const nextPredecessors = new Map(graph.predecessors);
-
-    nextSuccessors.set(nextId, new Set());
-    nextPredecessors.set(nextId, new Set());
-
-    return [
-        {
-            nodes: nextNodes,
-            edges: graph.edges,
-            successors: nextSuccessors,
-            predecessors: nextPredecessors,
-        },
-        newNode,
-    ];
-}
-
-/**
- * Registers an active transition pathway bridging two nodes together.
- */
-export function addEdge<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    source: NodeId,
-    target: NodeId,
-    data: E,
-): [DirectedGraph<T, N, E>, Edge<E>] {
-    const key = toEdgeId(source, target);
-    const newEdge: Edge<E> = { source, target, data };
-
-    const nextEdges = new Map(graph.edges);
-    nextEdges.set(key, newEdge);
-
-    const nextSuccessors = new Map(graph.successors);
-    const nextPredecessors = new Map(graph.predecessors);
-
-    if (!nextSuccessors.has(source)) nextSuccessors.set(source, new Set());
-    nextSuccessors.get(source)!.add(target);
-
-    if (!nextPredecessors.has(target)) nextPredecessors.set(target, new Set());
-    nextPredecessors.get(target)!.add(source);
-
-    return [
-        {
-            nodes: graph.nodes,
-            edges: nextEdges,
-            successors: nextSuccessors,
-            predecessors: nextPredecessors,
-        },
-        newEdge,
-    ];
-}
-
-/**
- * In-place modification function overriding data properties tied to a specific node coordinate.
- */
-export function updateNode<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    targetNodeId: NodeId,
-    updater: (oldData: N) => N,
-): DirectedGraph<T, N, E> {
-    if (!hasNode(graph, targetNodeId)) return graph;
-
-    const nextNodes = [...graph.nodes];
-    const oldNode = nextNodes[targetNodeId];
-
-    nextNodes[targetNodeId] = {
-        ...oldNode,
-        data: updater(oldNode.data),
-    };
-
-    return {
-        nodes: nextNodes,
-        edges: graph.edges,
-        successors: graph.successors,
-        predecessors: graph.predecessors,
-    };
-}
-
-/**
- * Updates data payload on a directional edge between source and target.
- */
-export function updateEdgeData<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-    source: NodeId,
-    target: NodeId,
-    newData: E,
-): DirectedGraph<T, N, E> {
-    const key = toEdgeId(source, target);
-    if (!graph.edges.has(key)) return graph;
-
-    const nextEdges = new Map(graph.edges);
-    nextEdges.set(key, { source, target, data: newData });
-
-    return {
-        nodes: graph.nodes,
-        edges: nextEdges,
-        successors: graph.successors,
-        predecessors: graph.predecessors,
-    };
-}
-
-// =============================================================================
-// SERIALIZATION HELPERS
-// =============================================================================
-
-/**
- * Exports the DirectedGraph topology into a flat, canonical LoadedGraphDict object.
- */
-export function toLoadedGraphDict<T, N, E>(
-    graph: DirectedGraph<T, N, E>,
-): LoadedGraphDict<T, N, E> {
-    return {
-        nodes: graph.nodes,
-        edges: Array.from(graph.edges.values()),
-    };
+		return missingEdges.length === 0;
+	}
 }

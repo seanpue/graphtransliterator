@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# flake8: noqa
-
-# -*- coding: utf-8 -*-
-
-# flake8: noqa
-
 """
 graphtransliterator
 ~~~~~~~~~~~~~~~~~~
@@ -19,16 +13,22 @@ __email__ = "pue@umd.edu"
 try:
     __version__ = version("graphtransliterator")
 except PackageNotFoundError:  # pragma: no cover
-    # Fallback for uninstalled local development/testing setups
     __version__ = "1.3.3"
 
-# Core classes
-from .core import CoverageTransliterator, GraphTransliterator
+# Core classes and functional API
+from .core import (
+    CoverageTransliterator,
+    GraphTransliterator,
+    match_at,
+    tokenize,
+    transliterate,
+    transliterate_with_details,
+)
 
 # Exceptions
 from .exceptions import (
-    GraphTransliteratorException,
     AmbiguousTransliterationRulesException,
+    GraphTransliteratorException,
     NoMatchingTransliterationRuleException,
     UnrecognizableInputTokenException,
 )
@@ -36,37 +36,41 @@ from .exceptions import (
 # Graphs
 from .graphs import DirectedGraph, VisitLoggingDirectedGraph
 
-# Rules
-from .types import TransliterationRule, OnMatchRule, WhitespaceRule
-
 # Schemas
 from .schemas import (
     DirectedGraphSchema,
     EasyReadingSettingsSchema,
+    GraphTransliteratorSchema,
     OnMatchRuleSchema,
     SettingsSchema,
     TransliterationRuleSchema,
     WhitespaceDictSettingsSchema,
     WhitespaceSettingsSchema,
-    GraphTransliteratorSchema,  # FIX: Import from .schemas
 )
 
+# Rules
+from .types import OnMatchRule, TransliterationRule, WhitespaceRule
+
 __all__ = [
-    # core
+    # Core & Functional API
     "GraphTransliterator",
     "CoverageTransliterator",
-    # exceptions
+    "match_at",
+    "tokenize",
+    "transliterate",
+    "transliterate_with_details",
+    # Exceptions
     "AmbiguousTransliterationRulesException",
     "GraphTransliteratorException",
     "NoMatchingTransliterationRuleException",
     "UnrecognizableInputTokenException",
-    # graphs
+    # Graphs
     "DirectedGraph",
     "VisitLoggingDirectedGraph",
     "TransliterationRule",
     "OnMatchRule",
     "WhitespaceRule",
-    # schemas
+    # Schemas
     "WhitespaceDictSettingsSchema",
     "WhitespaceSettingsSchema",
     "EasyReadingSettingsSchema",
