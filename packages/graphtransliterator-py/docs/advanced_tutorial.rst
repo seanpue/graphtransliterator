@@ -89,7 +89,7 @@ To sync your personal fork with the remote, run:
 
 .. code-block:: bash
 
-    git merge upstream/master
+    git merge upstream/main
 
 See https://help.github.com/en/articles/syncing-a-fork for more info.
 You can run the previous two commands at any time.

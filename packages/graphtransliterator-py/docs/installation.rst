@@ -48,7 +48,7 @@ Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/seanpue/graphtransliterator/tarball/master
+    $ curl  -OL https://github.com/seanpue/graphtransliterator/tarball/main
 
 Once you have a copy of the source, you can install it with:
 
@@ -58,7 +58,7 @@ Once you have a copy of the source, you can install it with:
 
 
 .. _Github repo: https://github.com/seanpue/graphtransliterator
-.. _tarball: https://github.com/seanpue/graphtransliterator/tarball/master
+.. _tarball: https://github.com/seanpue/graphtransliterator/tarball/main
 
 Required modules
 ----------------
