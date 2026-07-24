@@ -26,7 +26,9 @@ jobs:
             - uses: actions/cache@v4
               with:
                   path: ~/.cache/pre-commit
-                  key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+                  key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml', 'packages/graphtransliterator-py/poetry.lock', 'packages/graphtransliterator-py/docs/conf.py') }}
+                  restore-keys: |
+                      pre-commit-${{ runner.os }}-
 
             - name: Set up the environment
               uses: ./.github/actions/setup-poetry-env
