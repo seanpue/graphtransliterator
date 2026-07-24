@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Check out
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
 
             - name: Install pnpm
               uses: pnpm/action-setup@v4
@@ -23,7 +23,7 @@ jobs:
             - name: Install workspace dependencies
               run: pnpm install --frozen-lockfile
 
-            - uses: actions/cache@v4
+            - uses: actions/cache@v5
               with:
                   path: ~/.cache/pre-commit
                   key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml', 'packages/graphtransliterator-py/poetry.lock', 'packages/graphtransliterator-py/docs/conf.py') }}
@@ -44,10 +44,10 @@ jobs:
             fail-fast: false
         steps:
             - name: Check out
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
 
             - name: Set up python
-              uses: actions/setup-python@v5
+              uses: actions/setup-python@v6
               with:
                   python-version: ${{ matrix.python-version }}
 
@@ -55,7 +55,7 @@ jobs:
               run: pipx install poetry
 
             - name: Load cached venv
-              uses: actions/cache@v4
+              uses: actions/cache@v5
               with:
                   path: packages/graphtransliterator-py/.tox
                   key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('packages/graphtransliterator-py/poetry.lock') }}
@@ -79,7 +79,7 @@ jobs:
                 working-directory: packages/graphtransliterator-ts
         steps:
             - name: Check out
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
 
             - name: Install pnpm
               uses: pnpm/action-setup@v4
@@ -87,7 +87,7 @@ jobs:
                   version: 9
 
             - name: Set up Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v5
               with:
                   node-version: 22
                   cache: pnpm
