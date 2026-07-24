@@ -118,7 +118,7 @@ TypeScript API Reference
    :maxdepth: 3
    :glob:
 
-   typescript_api/README
+   typescript_api/*
    typescript_api/classes/*
    typescript_api/functions/*
    typescript_api/interfaces/*

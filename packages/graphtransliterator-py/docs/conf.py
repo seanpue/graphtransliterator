@@ -22,6 +22,9 @@ extensions = [
     "myst_parser",
 ]
 
+# Configure MyST-Parser header anchor depth for Markdown cross-references
+myst_heading_anchors = 4
+
 # Github repo settings
 issues_github_path = "seanpue/graphtransliterator"
 issues_uri = "https://github.com/seanpue/graphtransliterator/issues/{issue}"
@@ -50,7 +53,13 @@ release = graphtransliterator.__version__
 # Corrected for Sphinx 9.x compliance
 language = "en"
 
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "_build/*",
+    "_build/jupyter_execute/*",
+    "Thumbs.db",
+    ".DS_Store",
+]
 pygments_style = "default"
 todo_include_todos = False
 
